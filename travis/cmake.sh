@@ -2,12 +2,11 @@
 
 SOURCE_DIR=`pwd`
 BUILD_DIR=build
+mkdir build && cd build
 
 if [ "$CC" == "gcc" ]; then
-    CLANG=OFF
+    cmake $SOURCE_DIR -DBUILD_TESTS=ON -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
 else
-    CLANG=ON
+    cmake $SOURCE_DIR -DBUILD_TESTS=ON
 fi
 
-mkdir build && cd build
-cmake $SOURCE_DIR -DBUILD_TESTS=ON -DUSE_CLANG=$CLANG
