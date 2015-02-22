@@ -1,0 +1,26 @@
+/*!
+ *      @file  config.h.in
+ *    @author  Luis Díaz Más (LDM), ldiaz@catec.aero
+ *
+ *  @internal
+ *    Created  09/04/13
+ *   Compiler  gcc/g++
+ *    Company  FADA-CATEC
+ *  Copyright  Copyright (c) 2013, FADA-CATEC
+ */
+
+#ifndef  CONFIG_H_INC
+#define  CONFIG_H_INC
+
+#define PROJECT_PATH "@PROJECT_SOURCE_DIR@/"
+#cmakedefine BUILD_SHARED_LIBS
+
+#cmakedefine CAMERA_CONNECTED
+
+#cmakedefine BUILD_MODULE_QT
+#cmakedefine BUILD_MODULE_AV
+#cmakedefine BUILD_MODULE_SENSORS
+#cmakedefine BUILD_MODULE_VIDEO
+
+#endif   // ----- #ifndef CONFIG_H_INC  -----
+

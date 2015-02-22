@@ -1,0 +1,133 @@
+# =========================================================================
+#  @PROJECT_NAME@ CMake configuration file
+#
+#  ** File generated automatically, do not modify **
+#
+#  Usage from an external project:
+#  In your CMakeLists.txt, add these lines:
+#
+#    FIND_PACKAGE(@PROJECT_NAME@ REQUIRED )
+#    TARGET_LINK_LIBRARIES(MY_TARGET_NAME ${@PROJECT_NAME@_LIBS})
+#
+#  Where @PROJECT_NAME@ is the name of a specific library
+#
+#  This file will define the following variables:
+#    - @PROJECT_NAME@_LIBS          : The list of libraries to links against.
+#    - @PROJECT_NAME@_LIB_DIR       : The directory where lib files are.
+#     Calling LINK_DIRECTORIES with this path is NOT needed.
+#
+# =========================================================================
+include_directories(@CMAKE_INCLUDE_DIRS_CONFIGCMAKE@)
+#Give problems with cross-compiling
+#INCLUDE_DIRECTORIES(@QT_INCLUDE_DIR@)
+#INCLUDE_DIRECTORIES(@QT_QTCORE_INCLUDE_DIR@)
+
+link_directories("@CMAKE_LIB_DIRS_CONFIGCMAKE@")
+
+set(@PROJECT_NAME@_LIB_DIR "@CMAKE_LIB_DIRS_CONFIGCMAKE@")
+set(CATEC_MODULE_CORE_BUILT @BUILD_MODULE_CORE@)
+set(CATEC_MODULE_CALIB_BUILT @BUILD_MODULE_CALIB@)
+set(CATEC_MODULE_AI_BUILT @BUILD_MODULE_AI@)
+set(CATEC_MODULE_AV_BUILT @BUILD_MODULE_AV@)
+set(CATEC_MODULE_VIDEO_BUILT @BUILD_MODULE_VIDEO@)
+set(CATEC_MODULE_GEOREF_BUILT @BUILD_MODULE_GEOREF@)
+set(CATEC_MODULE_SENSORS_BUILT @BUILD_MODULE_SENSORS@)
+
+set(@PROJECT_NAME@_LIBS "")
+
+##########################################################################
+# core
+##########################################################################
+if (${CATEC_MODULE_CORE_BUILT})
+   set (@PROJECT_NAME@Core_LIBS @PROJECT_NAME@Core Qt5::Core)
+   if (@ZLIB_FOUND@)
+      set (@PROJECT_NAME@Core_LIBS ${@PROJECT_NAME@Core_LIBS} @ZLIB_LIBRARY@)
+   endif()
+   set(@PROJECT_NAME@_LIBS "${@PROJECT_NAME@_LIBS} ${@PROJECT_NAME@Core_LIBS}")
+endif()
+
+##########################################################################
+# ai
+##########################################################################
+if (${CATEC_MODULE_AI_BUILT})
+   set (@PROJECT_NAME@Ai_LIBS "")
+   foreach(__LIB @PROJECT_NAME@Ai @@PROJECT_NAME@Core_LIBS@ opencv_core)
+      set(@PROJECT_NAME@Ai_LIBS ${@PROJECT_NAME@Ai_LIBS} ${__LIB})
+   endforeach(__LIB)
+endif()
+
+##########################################################################
+# av
+##########################################################################
+if (${CATEC_MODULE_AV_BUILT})
+   include_directories(@AVUTIL_INCLUDE_DIRS@ @AVSWSCALE_INCLUDE_DIRS@ @AVCODEC_INCLUDE_DIRS@ @AVFORMAT_INCLUDE_DIRS@)
+   link_directories(@AVSWSCALE_LIBRARY_DIRS@ @AVUTIL_LIBRARY_DIRS@ @AVFORMAT_LIBRARY_DIRS@ @AVCODEC_LIBRARY_DIRS@)
+   set (@PROJECT_NAME@Av_LIBS "")
+   foreach(__LIB @PROJECT_NAME@Av  @@PROJECT_NAME@Core_LIBS@
+      Qt5::Core
+      @AVSWSCALE_LIBRARIES@
+      @AVCODEC_LIBRARIES@
+      @AVFORMAT_LIBRARIES@
+      @AVUTIL_LIBRARIES@
+      @LIBCONFIG_LIBRARIES@
+   )
+      set(@PROJECT_NAME@Av_LIBS ${@PROJECT_NAME@Av_LIBS} ${__LIB})
+   endforeach(__LIB)
+endif()
+
+##########################################################################
+# video
+##########################################################################
+if (${CATEC_MODULE_VIDEO_BUILT})
+   set (@PROJECT_NAME@Video_LIBS "")
+   foreach(__LIB @PROJECT_NAME@Video Qt5::Core opencv_core opencv_highgui)
+      set(@PROJECT_NAME@Video_LIBS ${@PROJECT_NAME@Video_LIBS} ${__LIB})
+   endforeach(__LIB)
+endif()
+
+##########################################################################
+# calib
+##########################################################################
+if (${CATEC_MODULE_CALIB_BUILT})
+   set (@PROJECT_NAME@Calib_LIBS "")
+   foreach(__LIB @PROJECT_NAME@Calib @@PROJECT_NAME@Core_LIBS@ opencv_core opencv_highgui opencv_calib3d opencv_imgproc)
+      set(@PROJECT_NAME@Calib_LIBS ${@PROJECT_NAME@Calib_LIBS} ${__LIB})
+   endforeach(__LIB)
+endif()
+
+##########################################################################
+# georef
+##########################################################################
+if (${CATEC_MODULE_GEOREF_BUILT})
+   set (@PROJECT_NAME@Georef_LIBS "")
+   if(NOT ${GDAL_FOUND})
+      set (@PROJECT_NAME@Georef_LIBS "${@PROJECT_NAME@Georef_LIBS} @GDAL_LIBRARY@")
+   endif()
+
+   foreach(__LIB @PROJECT_NAME@Georef @@PROJECT_NAME@Core_LIBS@ @@PROJECT_NAME@Calib_LIBS@ Qt5::Core)
+      set(@PROJECT_NAME@Georef_LIBS ${@PROJECT_NAME@Georef_LIBS} ${__LIB})
+   endforeach(__LIB)
+endif()
+
+##########################################################################
+# sensors
+##########################################################################
+if (${CATEC_MODULE_SENSORS_BUILT})
+   set (@PROJECT_NAME@Sensors "")
+   foreach(__LIB @PROJECT_NAME@Sensors @@PROJECT_NAME@Core_LIBS@ Qt5::SerialPort)
+      set(@PROJECT_NAME@Sensors_LIBS ${@PROJECT_NAME@Sensors_LIBS} ${__LIB})
+   endforeach(__LIB)
+endif()
+
+include(FindPackageHandleStandardArgs)
+
+set(@PROJECT_NAME@_FIND_NAME		@PROJECT_NAME@)
+set(@PROJECT_NAME@_VERSION			@VERSION@)
+set(@PROJECT_NAME@_VERSION_MAJOR	@VERSION_MAJOR@)
+set(@PROJECT_NAME@_VERSION_MINOR	@VERSION_MINOR@)
+set(@PROJECT_NAME@_VERSION_PATCH	@VERSION_PATCH@)
+
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(@PROJECT_NAME@
+   REQUIRED_VARS @PROJECT_NAME@_LIBS
+   VERSION_VAR @PROJECT_NAME@_VERSION
+  )
