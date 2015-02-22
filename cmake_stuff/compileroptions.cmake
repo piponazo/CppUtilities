@@ -68,9 +68,9 @@ IF (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
 
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 
-    if(NOT EXISTS ${CMAKE_CXX_COMPILER})
-        message( FATAL_ERROR "Clang++ not found. " )
-    endif()
+#    if(NOT EXISTS ${CMAKE_CXX_COMPILER})
+#        message( FATAL_ERROR "Clang++ not found. " )
+#    endif()
 
     if(ENABLE_COVERAGE OR ENABLE_COVERAGE_XML)
         message(FATAL_ERROR "Coverage feature only supported by GCC.")
