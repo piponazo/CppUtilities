@@ -11,26 +11,24 @@ before_install:
     # clang 3.5
     - if [ "$CXX" == "clang++" ]; then sudo add-apt-repository -y ppa:h-rayflood/llvm; fi
 
+    - sudo add-apt-repository -y ppa:kalakris/cmake
+
     - sudo apt-get update -qq
 
 install:
-# g++4.8
+    # g++4.8
     - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
     - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8"; fi
 
-# clang 3.5
+    # clang 3.5
     - if [ "$CXX" == "clang++" ]; then sudo apt-get install --allow-unauthenticated -qq clang-3.5; fi
     - if [ "$CXX" == "clang++" ]; then export CXX="clang++-3.5"; fi
 
-#install:
-#  - sudo apt-get install libgtest-dev
+    # CMake newest version
+    - sudo apt-get install cmake
 
 before_script:
-    - mkdir build
-    - cd build
-    - if [ "$CXX" == "g++" ]; then cmake -DUSE_CLANG=OFF ..; fi
-    - if [ "$CXX" == "clang++" ]; then cmake -DUSE_CLANG=ON ..; fi
-    - cmake ..
+    - bash travis/cmake.sh
 
 script:
     - make
