@@ -28,8 +28,9 @@ install:
 before_script:
     - mkdir build
     - cd build
-    - if [ "$CXX" == "g++" ]; then cmake .. -DUSE_CLANG=OFF; fi
-    - if [ "$CXX" == "clang++" ]; then cmake .. -DUSE_CLANG=ON; fi
+    - if [ "$CXX" == "g++" ]; then cmake -DUSE_CLANG=OFF ..; fi
+    - if [ "$CXX" == "clang++" ]; then cmake -DUSE_CLANG=ON ..; fi
+    - cmake ..
 
 script:
     - make
