@@ -31,4 +31,6 @@ before_script:
     - bash travis/cmake.sh
 
 script:
+    - pwd
+    - cd build
     - make
