@@ -17,7 +17,6 @@ before_install:
     - sudo apt-get update -qq
     - sudo pip install cpp-coveralls
     - sudo apt-get install libgtest-dev
-    - "cd /usr/src/gtest && sudo cmake . && sudo cmake --build . && sudo mv libg* /usr/local/lib/ ; cd -"
 
 install:
     # g++4.8
@@ -30,6 +29,7 @@ install:
 
     # CMake newest version
     - sudo apt-get install --allow-unauthenticated -qq cmake
+    - "cd /usr/src/gtest && sudo cmake . -DBUILD_SHARED_LIBS=ON && sudo cmake --build . && sudo mv libg* /usr/local/lib/ ; cd -"
 
 before_script:
     - bash travis/cmake.sh
