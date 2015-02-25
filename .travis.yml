@@ -16,7 +16,7 @@ before_install:
 
     - sudo apt-get update -qq
     - sudo pip install cpp-coveralls
-    - sudo apt-get install libgtest-dev
+#    - sudo apt-get install libgtest-dev
 
 install:
     # g++4.8
@@ -29,10 +29,14 @@ install:
 
     # CMake newest version
     - sudo apt-get install --allow-unauthenticated -qq cmake
-    - "cd /usr/src/gtest && sudo cmake . -DBUILD_SHARED_LIBS=ON && sudo cmake --build . && sudo mv libg* /usr/local/lib/ ; cd -"
+#    - "cd /usr/src/gtest && sudo cmake . -DBUILD_SHARED_LIBS=ON && sudo cmake --build . && sudo mv libg* /usr/local/lib/ ; cd -"
 
 before_script:
-    - bash travis/cmake.sh
+    - wget https://googletest.googlecode.com/files/gtest-1.7.0.zip -O /tmp/gtest.zip
+    - unzip /tmp/gtest.zip && cd gtest-1.7.0
+    - mkdir build && cd build && cmake -DBUILD_SHARED_LIBS=ON .. && make && sudo mv libg* /usr/local/lib
+    - cd .. && sudo cp include/gtest /usr/local/include -R
+    - cd .. && bash travis/cmake.sh
 
 script:
     - cd build
