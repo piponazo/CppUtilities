@@ -44,4 +44,5 @@ script:
     - bin/test_all
 
 after_success:
-    - if [ "$CXX" = "g++" ]; then coveralls --exclude lib --exclude tests --gcov-options '\-lp'; fi
+    - cd build
+    - if [ "$CXX" = "g++" ]; then coveralls -E tests; fi
