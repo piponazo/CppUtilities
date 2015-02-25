@@ -16,6 +16,8 @@ before_install:
 
     - sudo apt-get update -qq
     - sudo pip install cpp-coveralls
+    - sudo apt-get install libgtest-dev
+    - "cd /usr/src/gtest && sudo cmake . && sudo cmake --build . && sudo mv libg* /usr/local/lib/ ; cd -"
 
 install:
     # g++4.8
