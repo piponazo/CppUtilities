@@ -62,7 +62,7 @@ IF (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
         set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -Wno-unnamed-type-template-args")
     endif()
 
-    if(ENABLE_COVERAGE OR ENABLE_COVERAGE_XML)
+    if(ENABLE_COVERAGE)
         set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} --coverage")
     endif()
 

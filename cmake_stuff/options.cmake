@@ -17,7 +17,8 @@ option(USE_CLANG            "Use Clang compiler"                                
 option(WARNINGS_ARE_ERRORS  "Treat warnings as errors"                                      ON)
 option(WARNINGS_ANSI_ISO    "Issue all the mandatory diagnostics Listed in C standard"      ON)
 option(ENABLE_COVERAGE      "Perform code coverage in HTML"                                 OFF)
-option(ENABLE_COVERAGE_XML  "Perform code coverage in XML for jenkins integration"          OFF)
+option(ENABLE_COVERAGE_LCOV "Perform code coverage in HTML"                                 OFF)
+option(ENABLE_COVERAGE_GCOVR "Perform code coverage in XML for jenkins integration"          OFF)
 
 option(INSTALL_DOC          "Install documentation in system"                               OFF)
 option(DOXY_COVERAGE        "Generate text file with the doxygen coverage"                  OFF)
@@ -29,11 +30,13 @@ option(USE_CHM              "Build CHM Windows documentation"                   
 option(BUILD_SHARED_LIBS    "Build shared libraries"                                        ON)
 option(BUILD_TESTS          "Build tests (unitary, integration)"                            OFF)
 
-if(ENABLE_COVERAGE)
+if(ENABLE_COVERAGE_LCOV)
+    set(ENABLE_COVERAGE ON)
     include(cmake_stuff/code_coverage.cmake REQUIRED)
 endif()
 
-if(ENABLE_COVERAGE_XML)
+if(ENABLE_COVERAGE_GCOVR)
+    set(ENABLE_COVERAGE ON)
     include(cmake_stuff/code_coverage_xml.cmake)
 endif()
 

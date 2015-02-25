@@ -21,11 +21,11 @@ elseif(BUILD_TESTS)
         ${PROJECT_NAME}
     )
 
-    if(ENABLE_COVERAGE)
+    if(ENABLE_COVERAGE_LCOV)
         SETUP_TARGET_FOR_COVERAGE(coverageHtml test_all coverage)
     endif()
 
-    if(ENABLE_COVERAGE_XML)
+    if(ENABLE_COVERAGE_GCOVR)
         SETUP_TARGET_FOR_COVERAGE_XML(coverageXml test_all coverage)
     endif()
 
