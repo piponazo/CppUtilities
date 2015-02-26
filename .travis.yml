@@ -36,11 +36,12 @@ before_script:
     - wget https://googletest.googlecode.com/files/gtest-1.7.0.zip -O /tmp/gtest.zip
     - unzip /tmp/gtest.zip && cd gtest-1.7.0
     - mkdir build && cd build && cmake -DBUILD_SHARED_LIBS=ON .. && make && sudo mv libg* /usr/local/lib
-    - cd .. && sudo cp include/gtest /usr/local/include -R
-    - cd .. && bash travis/cmake.sh
+    - cd .. && sudo cp include/gtest /usr/local/include -R && cd ..
+    - export SRC_DIR=$PWD && mkdir build && export BIN_DIR=$PWD
+    - bash travis/cmake.sh
 
 script:
     - cd build
     - make
     - bin/test_all
-    - if [ "$CXX" = "g++" ]; then coveralls -E tests --verbose --dryrun --gcov $GCOV ; fi
+    - if [ "$CXX" = "g++" ]; then coveralls -E tests -E "/usr/.*" --gcov $GCOV --root $SRC_DIR --build-root $BIN_DIR; fi

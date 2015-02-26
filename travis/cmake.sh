@@ -2,7 +2,7 @@
 
 SOURCE_DIR=`pwd`
 BUILD_DIR=build
-mkdir build && cd build
+cd build
 
 if [ "$CC" == "gcc" ]; then
     cmake $SOURCE_DIR -DBUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=ON
