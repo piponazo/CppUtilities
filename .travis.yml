@@ -42,7 +42,4 @@ script:
     - cd build
     - make
     - bin/test_all
-
-after_success:
-    - cd build
     - if [ "$CXX" = "g++" ]; then coveralls -E tests; fi
