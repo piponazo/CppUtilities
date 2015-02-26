@@ -9,14 +9,13 @@ before_install:
     - if [ "$CXX" == "g++" ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test; fi
 
     # clang 3.5
-#    - if [ "$CXX" == "clang++" ]; then sudo add-apt-repository -y ppa:h-rayflood/llvm; fi
+    - if [ "$CXX" == "clang++" ]; then sudo add-apt-repository -y ppa:h-rayflood/llvm; fi
 
     # Cmake
     - sudo add-apt-repository -y ppa:kalakris/cmake
 
     - sudo apt-get update -qq
     - sudo pip install cpp-coveralls
-#    - sudo apt-get install libgtest-dev
 
 install:
     # g++4.8
@@ -24,12 +23,11 @@ install:
     - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8"; fi
 
     # clang 3.5
-#    - if [ "$CXX" == "clang++" ]; then sudo apt-get install --allow-unauthenticated -qq clang-3.5; fi
-#    - if [ "$CXX" == "clang++" ]; then export CXX="clang++-3.5"; fi
+    - if [ "$CXX" == "clang++" ]; then sudo apt-get install --allow-unauthenticated -qq clang-3.5; fi
+    - if [ "$CXX" == "clang++" ]; then export CXX="clang++-3.5"; fi
 
     # CMake newest version
     - sudo apt-get install --allow-unauthenticated -qq cmake
-#    - "cd /usr/src/gtest && sudo cmake . -DBUILD_SHARED_LIBS=ON && sudo cmake --build . && sudo mv libg* /usr/local/lib/ ; cd -"
 
 before_script:
     - wget https://googletest.googlecode.com/files/gtest-1.7.0.zip -O /tmp/gtest.zip
