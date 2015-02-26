@@ -30,10 +30,20 @@ install:
 #    - if [ "$CXX" == "clang++" ]; then sudo apt-get install --allow-unauthenticated -qq clang-3.5; fi
 #    - if [ "$CXX" == "clang++" ]; then export CXX="clang++-3.5"; fi
 
-    - sudo pip install cpp-coveralls coveralls
+#    - sudo pip install cpp-coveralls coveralls
+    - sudo apt-get install -y lcov
+    - gem install coveralls-lcov
 
     # CMake newest version
     - sudo apt-get install --allow-unauthenticated -qq cmake
+
+    # Install lcov
+    - wget http://ftp.de.debian.org/debian/pool/main/l/lcov/lcov_1.11.orig.tar.gz
+    - tar xf lcov_1.11.orig.tar.gz
+    - sudo make -C lcov-1.11/ install      
+    - lcov --version
+    - g++ --version
+
 
 before_script:
     - export SRC_DIR=$PWD && mkdir build && export BIN_DIR=$PWD
@@ -47,7 +57,10 @@ before_script:
 script:
     - cd build
     - make
-    - bin/test_all
-    - pwd
+    - make coverageHtml
+#    - bin/test_all
 #    - if [ "$CXX" == "g++" ]; then coveralls -E tests -E "/usr/.*" --gcov $GCOV --root $SRC_DIR --build-root $BIN_DIR; fi
-    - coveralls -E tests -E "/usr/.*" --gcov $GCOV --root $SRC_DIR --build-root $BIN_DIR
+#    - coveralls -E tests -E "/usr/.*" --gcov $GCOV --root $SRC_DIR --build-root $BIN_DIR
+    - coveralls-lcov --repo-token f1THEa7UHe7WYtOiMTeYCQPgzhwF60sHw total.info.cleaned
+
+after_sucess:
