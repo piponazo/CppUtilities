@@ -2,7 +2,7 @@ language: cpp
 
 compiler: 
     - gcc
-    - clang  
+#    - clang  
 
 before_install:
     # g++4.8
@@ -49,4 +49,5 @@ script:
     - make
     - bin/test_all
     - pwd
-    - if [ "$CXX" == "g++" ]; then coveralls -E tests -E "/usr/.*" --gcov $GCOV --root $SRC_DIR --build-root $BIN_DIR; fi
+#    - if [ "$CXX" == "g++" ]; then coveralls -E tests -E "/usr/.*" --gcov $GCOV --root $SRC_DIR --build-root $BIN_DIR; fi
+    - coveralls -E tests -E "/usr/.*" --gcov $GCOV --root $SRC_DIR --build-root $BIN_DIR
