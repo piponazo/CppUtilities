@@ -30,7 +30,7 @@ install:
 #    - if [ "$CXX" == "clang++" ]; then sudo apt-get install --allow-unauthenticated -qq clang-3.5; fi
 #    - if [ "$CXX" == "clang++" ]; then export CXX="clang++-3.5"; fi
 
-    - sudo pip install cpp-coveralls
+    - sudo pip install cpp-coveralls coveralls
 
     # CMake newest version
     - sudo apt-get install --allow-unauthenticated -qq cmake
@@ -43,9 +43,14 @@ before_script:
     - mkdir build && cd build && cmake -DBUILD_SHARED_LIBS=ON .. && make && sudo mv libg* /usr/local/lib
     - cd .. && sudo cp include/gtest /usr/local/include -R && cd $SRC_DIR
     - bash travis/cmake.sh
+    - echo "SRC_DIR: $SRC_DIR"
+    - echo "BIN_DIR: $BIN_DIR"
 
 script:
     - cd build
     - make
     - bin/test_all
-    - coveralls -E tests -E "/usr/.*" --gcov $GCOV --root $SRC_DIR --build-root $BIN_DIR
+    - pwd
+    - find -name *.gcno
+    - find -name *.gcda
+    - if [ "$CXX" == "g++" ]; then coveralls -E tests -E "/usr/.*" --gcov $GCOV --root $SRC_DIR --build-root $BIN_DIR; fi
