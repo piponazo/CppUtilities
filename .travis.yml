@@ -21,8 +21,8 @@ before_install:
 
 install:
     # g++4.8
-    - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
-    - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8"; fi
+    - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8 gcc-4.8; fi
+    - if [ "$CXX" = "g++" ]; then export export CXX="g++-4.8" CC="gcc-4.8" GCOV="gcov-4.8"; fi
 
     # clang 3.5
 #    - if [ "$CXX" == "clang++" ]; then sudo apt-get install -qq clang-3.5; fi
@@ -43,4 +43,4 @@ script:
     - cd build
     - make
     - bin/test_all
-    - if [ "$CXX" = "g++" ]; then coveralls -E tests; fi
+    - if [ "$CXX" = "g++" ]; then coveralls -E tests --verbose --dryrun --gcov $GCOV ; fi
