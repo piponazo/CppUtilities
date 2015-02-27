@@ -60,9 +60,6 @@ script:
     - cd build
     - make
     - bin/test_all
-    - coveralls -E tests -E "/usr/.*" --gcov $GCOV --root $SRC_DIR --build-root $BIN_DIR
-
-#    - make coverageHtml
-#    - coveralls-lcov --repo-token f1THEa7UHe7WYtOiMTeYCQPgzhwF60sHw total.info.cleaned
 
 after_sucess:
+    - coveralls -E tests -E "/usr/.*" -E "build/.*" -E "CMakeFiles/.*" --gcov $GCOV --root $SRC_DIR --build-root $BIN_DIR
