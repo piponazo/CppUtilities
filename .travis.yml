@@ -60,4 +60,4 @@ script:
     - cd build
     - make
     - bin/test_all
-    - coveralls -E tests -E "/usr/.*" -E "build/*.h" -E ".*/CMakeFiles/.*" -E "lcov.*" --gcov $GCOV --root $SRC_DIR --build-root $BIN_DIR
+    - coveralls -E tests -E "/usr/.*" -E "build/*.h" -E ".*/CMakeFiles/.*" -E ".*lcov.*" --gcov $GCOV --root $SRC_DIR --build-root $BIN_DIR
