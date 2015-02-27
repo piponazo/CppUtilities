@@ -32,9 +32,9 @@ install:
 #    - if [ "$CXX" == "clang++" ]; then sudo apt-get install --allow-unauthenticated -qq clang-3.5; fi
 #    - if [ "$CXX" == "clang++" ]; then export CXX="clang++-3.5"; fi
 
-#    - sudo pip install cpp-coveralls coveralls
-    - sudo apt-get install -y lcov
-    - gem install coveralls-lcov
+    - sudo pip install cpp-coveralls coveralls
+#    - sudo apt-get install -y lcov
+#    - gem install coveralls-lcov
 
     # CMake newest version
     - sudo apt-get install --allow-unauthenticated -qq cmake
@@ -59,10 +59,10 @@ before_script:
 script:
     - cd build
     - make
-    - make coverageHtml
-#    - bin/test_all
-#    - if [ "$CXX" == "g++" ]; then coveralls -E tests -E "/usr/.*" --gcov $GCOV --root $SRC_DIR --build-root $BIN_DIR; fi
-#    - coveralls -E tests -E "/usr/.*" --gcov $GCOV --root $SRC_DIR --build-root $BIN_DIR
-    - coveralls-lcov --repo-token f1THEa7UHe7WYtOiMTeYCQPgzhwF60sHw total.info.cleaned
+    - bin/test_all
+    - coveralls -E tests -E "/usr/.*" --gcov $GCOV --root $SRC_DIR --build-root $BIN_DIR
+
+#    - make coverageHtml
+#    - coveralls-lcov --repo-token f1THEa7UHe7WYtOiMTeYCQPgzhwF60sHw total.info.cleaned
 
 after_sucess:
