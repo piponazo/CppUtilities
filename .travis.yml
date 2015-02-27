@@ -25,7 +25,8 @@ install:
     # g++4.8
     - if [ "$CXX" = "g++" ]; then sudo apt-get install --allow-unauthenticated -qq g++-4.8 gcc-4.8; fi
     - if [ "$CXX" = "g++" ]; then export export CXX="g++-4.8" CC="gcc-4.8" GCOV="gcov-4.8"; fi
-    - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 80 --slave /usr/bin/g++ g++ /usr/bin/g++-4.8
+    - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 80 --slave /usr/bin/g++ g++ /usr/bin/g++-4.8 --slave /usr/bin/gcov gcov /usr/bin/gcov-4.8
+#    - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 80 --slave /usr/bin/g++ g++ /usr/bin/g++-4.8
 
     # clang 3.5
 #    - if [ "$CXX" == "clang++" ]; then sudo apt-get install --allow-unauthenticated -qq clang-3.5; fi
