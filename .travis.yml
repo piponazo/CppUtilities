@@ -37,24 +37,22 @@ install:
     - sudo apt-get install --allow-unauthenticated -qq cmake
 
     # Install lcov
-    - wget http://ftp.de.debian.org/debian/pool/main/l/lcov/lcov_1.11.orig.tar.gz
-    - tar xf lcov_1.11.orig.tar.gz
+    - wget http://ftp.de.debian.org/debian/pool/main/l/lcov/lcov_1.11.orig.tar.gz -O /tmp/lcov.tar.gz
+    - cd /tmp/ && tar xf lcov.tar.gz
     - sudo make -C lcov-1.11/ install      
-    - lcov --version
-    - g++ --version
 
-
-before_script:
-    - export SRC_DIR=$PWD && mkdir build && export BIN_DIR=$PWD
     # Install gtest
     - wget https://googletest.googlecode.com/files/gtest-1.7.0.zip -O /tmp/gtest.zip
     - cd /tmp/ && unzip gtest.zip && cd gtest-1.7.0
     - mkdir build && cd build && cmake -DBUILD_SHARED_LIBS=ON .. && make && sudo mv libg* /usr/local/lib
     - cd .. && sudo cp include/gtest /usr/local/include -R && cd $SRC_DIR
+
+before_script:
+    - export SRC_DIR=$PWD && mkdir build && export BIN_DIR=$PWD
     - bash travis/cmake.sh
 
 script:
     - cd build
     - make
     - bin/test_all
-    - coveralls -E "/usr/.*" -E "build/*.h" -E ".*/CMakeFiles/.*" -E ".*lcov.*" --root $SRC_DIR --build-root $BIN_DIR
+    - coveralls -E "/usr/.*" -E "build/*.h" -E ".*/CMakeFiles/.*" --root $SRC_DIR --build-root $BIN_DIR
