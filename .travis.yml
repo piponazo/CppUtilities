@@ -27,6 +27,7 @@ install:
     # clang 3.5
     - if [ "$CXX" == "clang++" ]; then sudo apt-get install -qq clang-3.5; fi
     - if [ "$CXX" == "clang++" ]; then sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-3.5 35 --slave /usr/bin/clang++ clang++ /usr/bin/clang++-3.5; fi
+    - if [ "$CXX" == "clang++" ]; then sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-3.4 34 --slave /usr/bin/clang++ clang++ /usr/bin/clang++-3.4; fi
 
     - sudo pip install cpp-coveralls coveralls
 
