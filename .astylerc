@@ -1,0 +1,15 @@
+# Author     : Luis Díaz Más <piponazo@gmail.com>
+# Version    : 1.3
+# Last Change: 28 January , 2014
+
+--style=allman
+--indent=spaces=4
+--brackets=linux
+--indent-switches
+--indent-preprocessor
+--indent-namespaces
+--break-blocks
+--unpad-paren
+--lineend=linux
+--convert-tabs
+--suffix=none
