@@ -8,7 +8,7 @@ elseif(BUILD_TESTS)
     include_directories(${PROJECT_SOURCE_DIR}/include)
     include_directories(SYSTEM ${GTEST_INCLUDE_DIRS})
 
-	add_subdirectory(libForExtensibleFactory)
+    add_subdirectory(libForExtensibleFactory)
     add_subdirectory(unitary)
 
     # Generate a single application including all the tests

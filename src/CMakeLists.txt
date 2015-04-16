@@ -5,7 +5,7 @@ file(GLOB_RECURSE hdrs_inc "${PROJECT_SOURCE_DIR}/include/${LIB}/*.h")
 file(GLOB_RECURSE hdrs "*.h")
 file(GLOB_RECURSE srcs "*.cpp")
 
-add_library(${PROJECT_NAME} ${srcs} ${hdrs} ${hdrs_inc})
+add_library(${PROJECT_NAME} STATIC ${srcs} ${hdrs} ${hdrs_inc})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     VERSION ${VERSION}
