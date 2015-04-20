@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -38,3 +39,15 @@ TEST(CppVectorCapacity, capacityShouldtBe0AfterTrickSwap)
 //	EXPECT_NE(v.size(), 0);
 //	EXPECT_NE(v.capacity(), 0);
 //}
+
+TEST(CppSetDifference, shouldFillEmptyDifferenceVector)
+{
+    vector<int> all {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    vector<int> selected {2, 4, 5, 7, 9};
+    vector<int> toDelete(5);
+
+    std::set_difference(all.begin(), all.end(), selected.begin(), selected.end(), toDelete.begin());
+
+	ASSERT_FALSE(toDelete.empty());
+	ASSERT_EQ(toDelete.size(), 5);
+}
