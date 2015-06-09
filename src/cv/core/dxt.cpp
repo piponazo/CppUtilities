@@ -40,9 +40,6 @@
 //M*/
 
 #include "precomp.hpp"
-#include "cv/core/core/opencl/runtime/opencl_clamdfft.hpp"
-#include "cv/core/core/opencl/runtime/opencl_core.hpp"
-//#include "opencl_kernels_core.hpp"
 #include <map>
 
 namespace cv

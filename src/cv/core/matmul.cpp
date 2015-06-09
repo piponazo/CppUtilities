@@ -42,8 +42,6 @@
 //M*/
 
 #include "precomp.hpp"
-//#include "opencl_kernels_core.hpp"
-#include "cv/core/core/opencl/runtime/opencl_clamdblas.hpp"
 
 namespace cv
 {
