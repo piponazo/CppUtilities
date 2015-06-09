@@ -47,10 +47,8 @@
 
 #include "cv/core/core/utility.hpp"
 #include "cv/core/core/core_c.h"
-#include "cv/core/core/cuda.hpp"
 
 #include "cv/core/core/private.hpp"
-#include "cv/core/core/private.cuda.hpp"
 #include "cv/core/core/ocl.hpp"
 
 #include "cv/hal/hal.hpp"
