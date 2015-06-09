@@ -58,8 +58,10 @@ TEST(MatTest, shouldCloneMats)
 {
         Mat source(100, 16, CV_8UC1);
         Mat target = source.clone();
+        Mat target2 (source);
 
         ASSERT_EQ(source.size(), target.size());
+        ASSERT_EQ(source.size(), target2.size());
 }
 
 TEST(MatTest, shouldAssignScalarToMat)
@@ -85,4 +87,16 @@ TEST(MatTest, shouldFindMinMaxElements)
         ASSERT_DOUBLE_EQ(maxVal, 3.);
         ASSERT_EQ(minPoint, Point(0,0));
         ASSERT_EQ(maxPoint, Point(2,99));
+}
+
+TEST(MatTest, shouldReleaseMatrix)
+{
+        Mat source(100, 16, CV_8UC1, Scalar(2));
+
+        source.at<uchar>(0,0) = 0;
+        source.at<uchar>(99,2) = 3;
+
+        ASSERT_FALSE(source.empty());
+        source.release();
+        ASSERT_TRUE(source.empty());
 }
