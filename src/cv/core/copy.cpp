@@ -667,64 +667,6 @@ flipVert( const uchar* src0, size_t sstep, uchar* dst0, size_t dstep, Size size,
     }
 }
 
-#ifdef HAVE_OPENCL
-
-enum { FLIP_COLS = 1 << 0, FLIP_ROWS = 1 << 1, FLIP_BOTH = FLIP_ROWS | FLIP_COLS };
-
-static bool ocl_flip(InputArray _src, OutputArray _dst, int flipCode )
-{
-    CV_Assert(flipCode >= -1 && flipCode <= 1);
-
-    const ocl::Device & dev = ocl::Device::getDefault();
-    int type = _src.type(), depth = CV_MAT_DEPTH(type), cn = CV_MAT_CN(type),
-            flipType, kercn = std::min(ocl::predictOptimalVectorWidth(_src, _dst), 4);
-
-    bool doubleSupport = dev.doubleFPConfig() > 0;
-    if (!doubleSupport && depth == CV_64F)
-        kercn = cn;
-
-    if (cn > 4)
-        return false;
-
-    const char * kernelName;
-    if (flipCode == 0)
-        kernelName = "arithm_flip_rows", flipType = FLIP_ROWS;
-    else if (flipCode > 0)
-        kernelName = "arithm_flip_cols", flipType = FLIP_COLS;
-    else
-        kernelName = "arithm_flip_rows_cols", flipType = FLIP_BOTH;
-
-    int pxPerWIy = (dev.isIntel() && (dev.type() & ocl::Device::TYPE_GPU)) ? 4 : 1;
-    kercn = (cn!=3 || flipType == FLIP_ROWS) ? std::max(kercn, cn) : cn;
-
-    ocl::Kernel k(kernelName, ocl::core::flip_oclsrc,
-        format( "-D T=%s -D T1=%s -D cn=%d -D PIX_PER_WI_Y=%d -D kercn=%d",
-                kercn != cn ? ocl::typeToStr(CV_MAKE_TYPE(depth, kercn)) : ocl::vecopTypeToStr(CV_MAKE_TYPE(depth, kercn)),
-                kercn != cn ? ocl::typeToStr(depth) : ocl::vecopTypeToStr(depth), cn, pxPerWIy, kercn));
-    if (k.empty())
-        return false;
-
-    Size size = _src.size();
-    _dst.create(size, type);
-    UMat src = _src.getUMat(), dst = _dst.getUMat();
-
-    int cols = size.width * cn / kercn, rows = size.height;
-    cols = flipType == FLIP_COLS ? (cols + 1) >> 1 : cols;
-    rows = flipType & FLIP_ROWS ? (rows + 1) >> 1 : rows;
-
-    k.args(ocl::KernelArg::ReadOnlyNoSize(src),
-           ocl::KernelArg::WriteOnly(dst, cn, kercn), rows, cols);
-
-    size_t maxWorkGroupSize = dev.maxWorkGroupSize();
-    CV_Assert(maxWorkGroupSize % 4 == 0);
-
-    size_t globalsize[2] = { cols, (rows + pxPerWIy - 1) / pxPerWIy },
-            localsize[2] = { maxWorkGroupSize / 4, 4 };
-    return k.run(2, globalsize, (flipType == FLIP_COLS) && !dev.isIntel() ? localsize : NULL, false);
-}
-
-#endif
-
 void flip( InputArray _src, OutputArray _dst, int flip_mode )
 {
     CV_Assert( _src.dims() <= 2 );
@@ -834,36 +776,6 @@ void flip( InputArray _src, OutputArray _dst, int flip_mode )
     if( flip_mode < 0 )
         flipHoriz( dst.ptr(), dst.step, dst.ptr(), dst.step, dst.size(), esz );
 }
-
-#if defined HAVE_OPENCL && !defined __APPLE__
-
-static bool ocl_repeat(InputArray _src, int ny, int nx, OutputArray _dst)
-{
-    if (ny == 1 && nx == 1)
-    {
-        _src.copyTo(_dst);
-        return true;
-    }
-
-    int type = _src.type(), depth = CV_MAT_DEPTH(type), cn = CV_MAT_CN(type),
-            rowsPerWI = ocl::Device::getDefault().isIntel() ? 4 : 1,
-            kercn = ocl::predictOptimalVectorWidth(_src, _dst);
-
-    ocl::Kernel k("repeat", ocl::core::repeat_oclsrc,
-                  format("-D T=%s -D nx=%d -D ny=%d -D rowsPerWI=%d -D cn=%d",
-                         ocl::memopTypeToStr(CV_MAKE_TYPE(depth, kercn)),
-                         nx, ny, rowsPerWI, kercn));
-    if (k.empty())
-        return false;
-
-    UMat src = _src.getUMat(), dst = _dst.getUMat();
-    k.args(ocl::KernelArg::ReadOnly(src, cn, kercn), ocl::KernelArg::WriteOnlyNoSize(dst));
-
-    size_t globalsize[] = { src.cols * cn / kercn, (src.rows + rowsPerWI - 1) / rowsPerWI };
-    return k.run(2, globalsize, NULL, false);
-}
-
-#endif
 
 void repeat(InputArray _src, int ny, int nx, OutputArray _dst)
 {
@@ -1077,246 +989,180 @@ void copyMakeConstBorder_8u( const uchar* src, size_t srcstep, cv::Size srcroi,
 
 }
 
-#ifdef HAVE_OPENCL
 
-namespace cv {
+//void cv::copyMakeBorder( InputArray _src, OutputArray _dst, int top, int bottom,
+//                         int left, int right, int borderType, const Scalar& value )
+//{
+//    CV_Assert( top >= 0 && bottom >= 0 && left >= 0 && right >= 0 );
 
-static bool ocl_copyMakeBorder( InputArray _src, OutputArray _dst, int top, int bottom,
-                                int left, int right, int borderType, const Scalar& value )
-{
-    int type = _src.type(), cn = CV_MAT_CN(type), depth = CV_MAT_DEPTH(type),
-            rowsPerWI = ocl::Device::getDefault().isIntel() ? 4 : 1;
-    bool isolated = (borderType & BORDER_ISOLATED) != 0;
-    borderType &= ~cv::BORDER_ISOLATED;
+////    CV_OCL_RUN(_dst.isUMat() && _src.dims() <= 2,
+////               ocl_copyMakeBorder(_src, _dst, top, bottom, left, right, borderType, value))
 
-    if ( !(borderType == BORDER_CONSTANT || borderType == BORDER_REPLICATE || borderType == BORDER_REFLECT ||
-           borderType == BORDER_WRAP || borderType == BORDER_REFLECT_101) ||
-         cn > 4)
-        return false;
+//    Mat src = _src.getMat();
+//    int type = src.type();
 
-    const char * const borderMap[] = { "BORDER_CONSTANT", "BORDER_REPLICATE", "BORDER_REFLECT", "BORDER_WRAP", "BORDER_REFLECT_101" };
-    int scalarcn = cn == 3 ? 4 : cn;
-    int sctype = CV_MAKETYPE(depth, scalarcn);
-    String buildOptions = format("-D T=%s -D %s -D T1=%s -D cn=%d -D ST=%s -D rowsPerWI=%d",
-                                 ocl::memopTypeToStr(type), borderMap[borderType],
-                                 ocl::memopTypeToStr(depth), cn,
-                                 ocl::memopTypeToStr(sctype), rowsPerWI);
+//    if( src.isSubmatrix() && (borderType & BORDER_ISOLATED) == 0 )
+//    {
+//        Size wholeSize;
+//        Point ofs;
+//        src.locateROI(wholeSize, ofs);
+//        int dtop = std::min(ofs.y, top);
+//        int dbottom = std::min(wholeSize.height - src.rows - ofs.y, bottom);
+//        int dleft = std::min(ofs.x, left);
+//        int dright = std::min(wholeSize.width - src.cols - ofs.x, right);
+//        src.adjustROI(dtop, dbottom, dleft, dright);
+//        top -= dtop;
+//        left -= dleft;
+//        bottom -= dbottom;
+//        right -= dright;
+//    }
 
-    ocl::Kernel k("copyMakeBorder", ocl::core::copymakeborder_oclsrc, buildOptions);
-    if (k.empty())
-        return false;
+//    _dst.create( src.rows + top + bottom, src.cols + left + right, type );
+//    Mat dst = _dst.getMat();
 
-    UMat src = _src.getUMat();
-    if( src.isSubmatrix() && !isolated )
-    {
-        Size wholeSize;
-        Point ofs;
-        src.locateROI(wholeSize, ofs);
-        int dtop = std::min(ofs.y, top);
-        int dbottom = std::min(wholeSize.height - src.rows - ofs.y, bottom);
-        int dleft = std::min(ofs.x, left);
-        int dright = std::min(wholeSize.width - src.cols - ofs.x, right);
-        src.adjustROI(dtop, dbottom, dleft, dright);
-        top -= dtop;
-        left -= dleft;
-        bottom -= dbottom;
-        right -= dright;
-    }
+//    if(top == 0 && left == 0 && bottom == 0 && right == 0)
+//    {
+//        if(src.data != dst.data || src.step != dst.step)
+//            src.copyTo(dst);
+//        return;
+//    }
 
-    _dst.create(src.rows + top + bottom, src.cols + left + right, type);
-    UMat dst = _dst.getUMat();
+//    borderType &= ~BORDER_ISOLATED;
 
-    if (top == 0 && left == 0 && bottom == 0 && right == 0)
-    {
-        if(src.u != dst.u || src.step != dst.step)
-            src.copyTo(dst);
-        return true;
-    }
+//#if defined HAVE_IPP && 0
+//    CV_IPP_CHECK()
+//    {
+//        typedef IppStatus (CV_STDCALL * ippiCopyMakeBorder)(const void * pSrc, int srcStep, IppiSize srcRoiSize, void * pDst,
+//                                                            int dstStep, IppiSize dstRoiSize, int topBorderHeight, int leftBorderWidth);
+//        typedef IppStatus (CV_STDCALL * ippiCopyMakeBorderI)(const void * pSrc, int srcDstStep, IppiSize srcRoiSize, IppiSize dstRoiSize,
+//                                                             int topBorderHeight, int leftborderwidth);
+//        typedef IppStatus (CV_STDCALL * ippiCopyConstBorder)(const void * pSrc, int srcStep, IppiSize srcRoiSize, void * pDst, int dstStep,
+//                                                             IppiSize dstRoiSize, int topBorderHeight, int leftBorderWidth, void * value);
 
-    k.args(ocl::KernelArg::ReadOnly(src), ocl::KernelArg::WriteOnly(dst),
-           top, left, ocl::KernelArg::Constant(Mat(1, 1, sctype, value)));
+//        IppiSize srcRoiSize = { src.cols, src.rows }, dstRoiSize = { dst.cols, dst.rows };
+//        ippiCopyMakeBorder ippFunc = 0;
+//        ippiCopyMakeBorderI ippFuncI = 0;
+//        ippiCopyConstBorder ippFuncConst = 0;
+//        bool inplace = dst.datastart == src.datastart;
 
-    size_t globalsize[2] = { dst.cols, (dst.rows + rowsPerWI - 1) / rowsPerWI };
-    return k.run(2, globalsize, NULL, false);
-}
+//        if (borderType == BORDER_CONSTANT)
+//        {
+//             ippFuncConst =
+//    //             type == CV_8UC1 ? (ippiCopyConstBorder)ippiCopyConstBorder_8u_C1R : bug in IPP 8.1
+//                 type == CV_16UC1 ? (ippiCopyConstBorder)ippiCopyConstBorder_16u_C1R :
+//    //             type == CV_16SC1 ? (ippiCopyConstBorder)ippiCopyConstBorder_16s_C1R : bug in IPP 8.1
+//    //             type == CV_32SC1 ? (ippiCopyConstBorder)ippiCopyConstBorder_32s_C1R : bug in IPP 8.1
+//    //             type == CV_32FC1 ? (ippiCopyConstBorder)ippiCopyConstBorder_32f_C1R : bug in IPP 8.1
+//                 type == CV_8UC3 ? (ippiCopyConstBorder)ippiCopyConstBorder_8u_C3R :
+//                 type == CV_16UC3 ? (ippiCopyConstBorder)ippiCopyConstBorder_16u_C3R :
+//                 type == CV_16SC3 ? (ippiCopyConstBorder)ippiCopyConstBorder_16s_C3R :
+//                 type == CV_32SC3 ? (ippiCopyConstBorder)ippiCopyConstBorder_32s_C3R :
+//                 type == CV_32FC3 ? (ippiCopyConstBorder)ippiCopyConstBorder_32f_C3R :
+//                 type == CV_8UC4 ? (ippiCopyConstBorder)ippiCopyConstBorder_8u_C4R :
+//                 type == CV_16UC4 ? (ippiCopyConstBorder)ippiCopyConstBorder_16u_C4R :
+//                 type == CV_16SC4 ? (ippiCopyConstBorder)ippiCopyConstBorder_16s_C4R :
+//                 type == CV_32SC4 ? (ippiCopyConstBorder)ippiCopyConstBorder_32s_C4R :
+//                 type == CV_32FC4 ? (ippiCopyConstBorder)ippiCopyConstBorder_32f_C4R : 0;
+//        }
+//        else if (borderType == BORDER_WRAP)
+//        {
+//            if (inplace)
+//            {
+//                CV_SUPPRESS_DEPRECATED_START
+//                ippFuncI =
+//                    type == CV_32SC1 ? (ippiCopyMakeBorderI)ippiCopyWrapBorder_32s_C1IR :
+//                    type == CV_32FC1 ? (ippiCopyMakeBorderI)ippiCopyWrapBorder_32s_C1IR : 0;
+//                CV_SUPPRESS_DEPRECATED_END
+//            }
+//            else
+//            {
+//                ippFunc =
+//                    type == CV_32SC1 ? (ippiCopyMakeBorder)ippiCopyWrapBorder_32s_C1R :
+//                    type == CV_32FC1 ? (ippiCopyMakeBorder)ippiCopyWrapBorder_32s_C1R : 0;
+//            }
+//        }
+//        else if (borderType == BORDER_REPLICATE)
+//        {
+//            if (inplace)
+//            {
+//                CV_SUPPRESS_DEPRECATED_START
+//                ippFuncI =
+//                    type == CV_8UC1 ? (ippiCopyMakeBorderI)ippiCopyReplicateBorder_8u_C1IR :
+//                    type == CV_16UC1 ? (ippiCopyMakeBorderI)ippiCopyReplicateBorder_16u_C1IR :
+//                    type == CV_16SC1 ? (ippiCopyMakeBorderI)ippiCopyReplicateBorder_16s_C1IR :
+//                    type == CV_32SC1 ? (ippiCopyMakeBorderI)ippiCopyReplicateBorder_32s_C1IR :
+//                    type == CV_32FC1 ? (ippiCopyMakeBorderI)ippiCopyReplicateBorder_32f_C1IR :
+//                    type == CV_8UC3 ? (ippiCopyMakeBorderI)ippiCopyReplicateBorder_8u_C3IR :
+//                    type == CV_16UC3 ? (ippiCopyMakeBorderI)ippiCopyReplicateBorder_16u_C3IR :
+//                    type == CV_16SC3 ? (ippiCopyMakeBorderI)ippiCopyReplicateBorder_16s_C3IR :
+//                    type == CV_32SC3 ? (ippiCopyMakeBorderI)ippiCopyReplicateBorder_32s_C3IR :
+//                    type == CV_32FC3 ? (ippiCopyMakeBorderI)ippiCopyReplicateBorder_32f_C3IR :
+//                    type == CV_8UC4 ? (ippiCopyMakeBorderI)ippiCopyReplicateBorder_8u_C4IR :
+//                    type == CV_16UC4 ? (ippiCopyMakeBorderI)ippiCopyReplicateBorder_16u_C4IR :
+//                    type == CV_16SC4 ? (ippiCopyMakeBorderI)ippiCopyReplicateBorder_16s_C4IR :
+//                    type == CV_32SC4 ? (ippiCopyMakeBorderI)ippiCopyReplicateBorder_32s_C4IR :
+//                    type == CV_32FC4 ? (ippiCopyMakeBorderI)ippiCopyReplicateBorder_32f_C4IR : 0;
+//                CV_SUPPRESS_DEPRECATED_END
+//            }
+//            else
+//            {
+//                 ippFunc =
+//                     type == CV_8UC1 ? (ippiCopyMakeBorder)ippiCopyReplicateBorder_8u_C1R :
+//                     type == CV_16UC1 ? (ippiCopyMakeBorder)ippiCopyReplicateBorder_16u_C1R :
+//                     type == CV_16SC1 ? (ippiCopyMakeBorder)ippiCopyReplicateBorder_16s_C1R :
+//                     type == CV_32SC1 ? (ippiCopyMakeBorder)ippiCopyReplicateBorder_32s_C1R :
+//                     type == CV_32FC1 ? (ippiCopyMakeBorder)ippiCopyReplicateBorder_32f_C1R :
+//                     type == CV_8UC3 ? (ippiCopyMakeBorder)ippiCopyReplicateBorder_8u_C3R :
+//                     type == CV_16UC3 ? (ippiCopyMakeBorder)ippiCopyReplicateBorder_16u_C3R :
+//                     type == CV_16SC3 ? (ippiCopyMakeBorder)ippiCopyReplicateBorder_16s_C3R :
+//                     type == CV_32SC3 ? (ippiCopyMakeBorder)ippiCopyReplicateBorder_32s_C3R :
+//                     type == CV_32FC3 ? (ippiCopyMakeBorder)ippiCopyReplicateBorder_32f_C3R :
+//                     type == CV_8UC4 ? (ippiCopyMakeBorder)ippiCopyReplicateBorder_8u_C4R :
+//                     type == CV_16UC4 ? (ippiCopyMakeBorder)ippiCopyReplicateBorder_16u_C4R :
+//                     type == CV_16SC4 ? (ippiCopyMakeBorder)ippiCopyReplicateBorder_16s_C4R :
+//                     type == CV_32SC4 ? (ippiCopyMakeBorder)ippiCopyReplicateBorder_32s_C4R :
+//                     type == CV_32FC4 ? (ippiCopyMakeBorder)ippiCopyReplicateBorder_32f_C4R : 0;
+//            }
+//        }
 
-}
+//        if (ippFunc || ippFuncI || ippFuncConst)
+//        {
+//            uchar scbuf[32];
+//            scalarToRawData(value, scbuf, type);
 
-#endif
+//            if ( (ippFunc && ippFunc(src.data, (int)src.step, srcRoiSize, dst.data, (int)dst.step, dstRoiSize, top, left) >= 0) ||
+//                 (ippFuncI && ippFuncI(src.data, (int)src.step, srcRoiSize, dstRoiSize, top, left) >= 0) ||
+//                 (ippFuncConst && ippFuncConst(src.data, (int)src.step, srcRoiSize, dst.data, (int)dst.step,
+//                                               dstRoiSize, top, left, scbuf) >= 0))
+//            {
+//                CV_IMPL_ADD(CV_IMPL_IPP);
+//                return;
+//            }
 
-void cv::copyMakeBorder( InputArray _src, OutputArray _dst, int top, int bottom,
-                         int left, int right, int borderType, const Scalar& value )
-{
-    CV_Assert( top >= 0 && bottom >= 0 && left >= 0 && right >= 0 );
+//            setIppErrorStatus();
+//        }
+//    }
+//#endif
 
-//    CV_OCL_RUN(_dst.isUMat() && _src.dims() <= 2,
-//               ocl_copyMakeBorder(_src, _dst, top, bottom, left, right, borderType, value))
-
-    Mat src = _src.getMat();
-    int type = src.type();
-
-    if( src.isSubmatrix() && (borderType & BORDER_ISOLATED) == 0 )
-    {
-        Size wholeSize;
-        Point ofs;
-        src.locateROI(wholeSize, ofs);
-        int dtop = std::min(ofs.y, top);
-        int dbottom = std::min(wholeSize.height - src.rows - ofs.y, bottom);
-        int dleft = std::min(ofs.x, left);
-        int dright = std::min(wholeSize.width - src.cols - ofs.x, right);
-        src.adjustROI(dtop, dbottom, dleft, dright);
-        top -= dtop;
-        left -= dleft;
-        bottom -= dbottom;
-        right -= dright;
-    }
-
-    _dst.create( src.rows + top + bottom, src.cols + left + right, type );
-    Mat dst = _dst.getMat();
-
-    if(top == 0 && left == 0 && bottom == 0 && right == 0)
-    {
-        if(src.data != dst.data || src.step != dst.step)
-            src.copyTo(dst);
-        return;
-    }
-
-    borderType &= ~BORDER_ISOLATED;
-
-#if defined HAVE_IPP && 0
-    CV_IPP_CHECK()
-    {
-        typedef IppStatus (CV_STDCALL * ippiCopyMakeBorder)(const void * pSrc, int srcStep, IppiSize srcRoiSize, void * pDst,
-                                                            int dstStep, IppiSize dstRoiSize, int topBorderHeight, int leftBorderWidth);
-        typedef IppStatus (CV_STDCALL * ippiCopyMakeBorderI)(const void * pSrc, int srcDstStep, IppiSize srcRoiSize, IppiSize dstRoiSize,
-                                                             int topBorderHeight, int leftborderwidth);
-        typedef IppStatus (CV_STDCALL * ippiCopyConstBorder)(const void * pSrc, int srcStep, IppiSize srcRoiSize, void * pDst, int dstStep,
-                                                             IppiSize dstRoiSize, int topBorderHeight, int leftBorderWidth, void * value);
-
-        IppiSize srcRoiSize = { src.cols, src.rows }, dstRoiSize = { dst.cols, dst.rows };
-        ippiCopyMakeBorder ippFunc = 0;
-        ippiCopyMakeBorderI ippFuncI = 0;
-        ippiCopyConstBorder ippFuncConst = 0;
-        bool inplace = dst.datastart == src.datastart;
-
-        if (borderType == BORDER_CONSTANT)
-        {
-             ippFuncConst =
-    //             type == CV_8UC1 ? (ippiCopyConstBorder)ippiCopyConstBorder_8u_C1R : bug in IPP 8.1
-                 type == CV_16UC1 ? (ippiCopyConstBorder)ippiCopyConstBorder_16u_C1R :
-    //             type == CV_16SC1 ? (ippiCopyConstBorder)ippiCopyConstBorder_16s_C1R : bug in IPP 8.1
-    //             type == CV_32SC1 ? (ippiCopyConstBorder)ippiCopyConstBorder_32s_C1R : bug in IPP 8.1
-    //             type == CV_32FC1 ? (ippiCopyConstBorder)ippiCopyConstBorder_32f_C1R : bug in IPP 8.1
-                 type == CV_8UC3 ? (ippiCopyConstBorder)ippiCopyConstBorder_8u_C3R :
-                 type == CV_16UC3 ? (ippiCopyConstBorder)ippiCopyConstBorder_16u_C3R :
-                 type == CV_16SC3 ? (ippiCopyConstBorder)ippiCopyConstBorder_16s_C3R :
-                 type == CV_32SC3 ? (ippiCopyConstBorder)ippiCopyConstBorder_32s_C3R :
-                 type == CV_32FC3 ? (ippiCopyConstBorder)ippiCopyConstBorder_32f_C3R :
-                 type == CV_8UC4 ? (ippiCopyConstBorder)ippiCopyConstBorder_8u_C4R :
-                 type == CV_16UC4 ? (ippiCopyConstBorder)ippiCopyConstBorder_16u_C4R :
-                 type == CV_16SC4 ? (ippiCopyConstBorder)ippiCopyConstBorder_16s_C4R :
-                 type == CV_32SC4 ? (ippiCopyConstBorder)ippiCopyConstBorder_32s_C4R :
-                 type == CV_32FC4 ? (ippiCopyConstBorder)ippiCopyConstBorder_32f_C4R : 0;
-        }
-        else if (borderType == BORDER_WRAP)
-        {
-            if (inplace)
-            {
-                CV_SUPPRESS_DEPRECATED_START
-                ippFuncI =
-                    type == CV_32SC1 ? (ippiCopyMakeBorderI)ippiCopyWrapBorder_32s_C1IR :
-                    type == CV_32FC1 ? (ippiCopyMakeBorderI)ippiCopyWrapBorder_32s_C1IR : 0;
-                CV_SUPPRESS_DEPRECATED_END
-            }
-            else
-            {
-                ippFunc =
-                    type == CV_32SC1 ? (ippiCopyMakeBorder)ippiCopyWrapBorder_32s_C1R :
-                    type == CV_32FC1 ? (ippiCopyMakeBorder)ippiCopyWrapBorder_32s_C1R : 0;
-            }
-        }
-        else if (borderType == BORDER_REPLICATE)
-        {
-            if (inplace)
-            {
-                CV_SUPPRESS_DEPRECATED_START
-                ippFuncI =
-                    type == CV_8UC1 ? (ippiCopyMakeBorderI)ippiCopyReplicateBorder_8u_C1IR :
-                    type == CV_16UC1 ? (ippiCopyMakeBorderI)ippiCopyReplicateBorder_16u_C1IR :
-                    type == CV_16SC1 ? (ippiCopyMakeBorderI)ippiCopyReplicateBorder_16s_C1IR :
-                    type == CV_32SC1 ? (ippiCopyMakeBorderI)ippiCopyReplicateBorder_32s_C1IR :
-                    type == CV_32FC1 ? (ippiCopyMakeBorderI)ippiCopyReplicateBorder_32f_C1IR :
-                    type == CV_8UC3 ? (ippiCopyMakeBorderI)ippiCopyReplicateBorder_8u_C3IR :
-                    type == CV_16UC3 ? (ippiCopyMakeBorderI)ippiCopyReplicateBorder_16u_C3IR :
-                    type == CV_16SC3 ? (ippiCopyMakeBorderI)ippiCopyReplicateBorder_16s_C3IR :
-                    type == CV_32SC3 ? (ippiCopyMakeBorderI)ippiCopyReplicateBorder_32s_C3IR :
-                    type == CV_32FC3 ? (ippiCopyMakeBorderI)ippiCopyReplicateBorder_32f_C3IR :
-                    type == CV_8UC4 ? (ippiCopyMakeBorderI)ippiCopyReplicateBorder_8u_C4IR :
-                    type == CV_16UC4 ? (ippiCopyMakeBorderI)ippiCopyReplicateBorder_16u_C4IR :
-                    type == CV_16SC4 ? (ippiCopyMakeBorderI)ippiCopyReplicateBorder_16s_C4IR :
-                    type == CV_32SC4 ? (ippiCopyMakeBorderI)ippiCopyReplicateBorder_32s_C4IR :
-                    type == CV_32FC4 ? (ippiCopyMakeBorderI)ippiCopyReplicateBorder_32f_C4IR : 0;
-                CV_SUPPRESS_DEPRECATED_END
-            }
-            else
-            {
-                 ippFunc =
-                     type == CV_8UC1 ? (ippiCopyMakeBorder)ippiCopyReplicateBorder_8u_C1R :
-                     type == CV_16UC1 ? (ippiCopyMakeBorder)ippiCopyReplicateBorder_16u_C1R :
-                     type == CV_16SC1 ? (ippiCopyMakeBorder)ippiCopyReplicateBorder_16s_C1R :
-                     type == CV_32SC1 ? (ippiCopyMakeBorder)ippiCopyReplicateBorder_32s_C1R :
-                     type == CV_32FC1 ? (ippiCopyMakeBorder)ippiCopyReplicateBorder_32f_C1R :
-                     type == CV_8UC3 ? (ippiCopyMakeBorder)ippiCopyReplicateBorder_8u_C3R :
-                     type == CV_16UC3 ? (ippiCopyMakeBorder)ippiCopyReplicateBorder_16u_C3R :
-                     type == CV_16SC3 ? (ippiCopyMakeBorder)ippiCopyReplicateBorder_16s_C3R :
-                     type == CV_32SC3 ? (ippiCopyMakeBorder)ippiCopyReplicateBorder_32s_C3R :
-                     type == CV_32FC3 ? (ippiCopyMakeBorder)ippiCopyReplicateBorder_32f_C3R :
-                     type == CV_8UC4 ? (ippiCopyMakeBorder)ippiCopyReplicateBorder_8u_C4R :
-                     type == CV_16UC4 ? (ippiCopyMakeBorder)ippiCopyReplicateBorder_16u_C4R :
-                     type == CV_16SC4 ? (ippiCopyMakeBorder)ippiCopyReplicateBorder_16s_C4R :
-                     type == CV_32SC4 ? (ippiCopyMakeBorder)ippiCopyReplicateBorder_32s_C4R :
-                     type == CV_32FC4 ? (ippiCopyMakeBorder)ippiCopyReplicateBorder_32f_C4R : 0;
-            }
-        }
-
-        if (ippFunc || ippFuncI || ippFuncConst)
-        {
-            uchar scbuf[32];
-            scalarToRawData(value, scbuf, type);
-
-            if ( (ippFunc && ippFunc(src.data, (int)src.step, srcRoiSize, dst.data, (int)dst.step, dstRoiSize, top, left) >= 0) ||
-                 (ippFuncI && ippFuncI(src.data, (int)src.step, srcRoiSize, dstRoiSize, top, left) >= 0) ||
-                 (ippFuncConst && ippFuncConst(src.data, (int)src.step, srcRoiSize, dst.data, (int)dst.step,
-                                               dstRoiSize, top, left, scbuf) >= 0))
-            {
-                CV_IMPL_ADD(CV_IMPL_IPP);
-                return;
-            }
-
-            setIppErrorStatus();
-        }
-    }
-#endif
-
-    if( borderType != BORDER_CONSTANT )
-        copyMakeBorder_8u( src.ptr(), src.step, src.size(),
-                           dst.ptr(), dst.step, dst.size(),
-                           top, left, (int)src.elemSize(), borderType );
-    else
-    {
-        int cn = src.channels(), cn1 = cn;
-        AutoBuffer<double> buf(cn);
-        if( cn > 4 )
-        {
-            CV_Assert( value[0] == value[1] && value[0] == value[2] && value[0] == value[3] );
-            cn1 = 1;
-        }
-        scalarToRawData(value, buf, CV_MAKETYPE(src.depth(), cn1), cn);
-        copyMakeConstBorder_8u( src.ptr(), src.step, src.size(),
-                                dst.ptr(), dst.step, dst.size(),
-                                top, left, (int)src.elemSize(), (uchar*)(double*)buf );
-    }
-}
+//    if( borderType != BORDER_CONSTANT )
+//        copyMakeBorder_8u( src.ptr(), src.step, src.size(),
+//                           dst.ptr(), dst.step, dst.size(),
+//                           top, left, (int)src.elemSize(), borderType );
+//    else
+//    {
+//        int cn = src.channels(), cn1 = cn;
+//        AutoBuffer<double> buf(cn);
+//        if( cn > 4 )
+//        {
+//            CV_Assert( value[0] == value[1] && value[0] == value[2] && value[0] == value[3] );
+//            cn1 = 1;
+//        }
+//        scalarToRawData(value, buf, CV_MAKETYPE(src.depth(), cn1), cn);
+//        copyMakeConstBorder_8u( src.ptr(), src.step, src.size(),
+//                                dst.ptr(), dst.step, dst.size(),
+//                                top, left, (int)src.elemSize(), (uchar*)(double*)buf );
+//    }
+//}
 
 /* dst = src */
 CV_IMPL void
@@ -1394,43 +1240,43 @@ cvCopy( const void* srcarr, void* dstarr, const void* maskarr )
 //        m.setTo(cv::Scalar(value), cv::cvarrToMat(maskarr));
 //}
 
-CV_IMPL void
-cvSetZero( CvArr* arr )
-{
-    if( CV_IS_SPARSE_MAT(arr) )
-    {
-        CvSparseMat* mat1 = (CvSparseMat*)arr;
-        cvClearSet( mat1->heap );
-        if( mat1->hashtable )
-            memset( mat1->hashtable, 0, mat1->hashsize*sizeof(mat1->hashtable[0]));
-        return;
-    }
-    cv::Mat m = cv::cvarrToMat(arr);
-    m = cv::Scalar(0);
-}
+//CV_IMPL void
+//cvSetZero( CvArr* arr )
+//{
+//    if( CV_IS_SPARSE_MAT(arr) )
+//    {
+//        CvSparseMat* mat1 = (CvSparseMat*)arr;
+//        cvClearSet( mat1->heap );
+//        if( mat1->hashtable )
+//            memset( mat1->hashtable, 0, mat1->hashsize*sizeof(mat1->hashtable[0]));
+//        return;
+//    }
+//    cv::Mat m = cv::cvarrToMat(arr);
+//    m = cv::Scalar(0);
+//}
 
-CV_IMPL void
-cvFlip( const CvArr* srcarr, CvArr* dstarr, int flip_mode )
-{
-    cv::Mat src = cv::cvarrToMat(srcarr);
-    cv::Mat dst;
+//CV_IMPL void
+//cvFlip( const CvArr* srcarr, CvArr* dstarr, int flip_mode )
+//{
+//    cv::Mat src = cv::cvarrToMat(srcarr);
+//    cv::Mat dst;
 
-    if (!dstarr)
-      dst = src;
-    else
-      dst = cv::cvarrToMat(dstarr);
+//    if (!dstarr)
+//      dst = src;
+//    else
+//      dst = cv::cvarrToMat(dstarr);
 
-    CV_Assert( src.type() == dst.type() && src.size() == dst.size() );
-    cv::flip( src, dst, flip_mode );
-}
+//    CV_Assert( src.type() == dst.type() && src.size() == dst.size() );
+//    cv::flip( src, dst, flip_mode );
+//}
 
-CV_IMPL void
-cvRepeat( const CvArr* srcarr, CvArr* dstarr )
-{
-    cv::Mat src = cv::cvarrToMat(srcarr), dst = cv::cvarrToMat(dstarr);
-    CV_Assert( src.type() == dst.type() &&
-        dst.rows % src.rows == 0 && dst.cols % src.cols == 0 );
-    cv::repeat(src, dst.rows/src.rows, dst.cols/src.cols, dst);
-}
+//CV_IMPL void
+//cvRepeat( const CvArr* srcarr, CvArr* dstarr )
+//{
+//    cv::Mat src = cv::cvarrToMat(srcarr), dst = cv::cvarrToMat(dstarr);
+//    CV_Assert( src.type() == dst.type() &&
+//        dst.rows % src.rows == 0 && dst.cols % src.cols == 0 );
+//    cv::repeat(src, dst.rows/src.rows, dst.cols/src.cols, dst);
+//}
 
 /* End of file. */

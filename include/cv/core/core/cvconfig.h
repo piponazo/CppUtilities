@@ -110,11 +110,6 @@
 /* NVidia Video Decoding API*/
 /* #undef HAVE_NVCUVID */
 
-/* OpenCL Support */
-/* #undef HAVE_OPENCL */
-/* #undef HAVE_OPENCL_STATIC */
-/* #undef HAVE_OPENCL_SVM */
-
 /* OpenEXR codec */
 /* #undef HAVE_OPENEXR */
 
