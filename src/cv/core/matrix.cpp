@@ -1434,15 +1434,15 @@ cuda::GpuMat _InputArray::getGpuMat() const
     return cuda::GpuMat();
 }
 
-ogl::Buffer _InputArray::getOGlBuffer() const
-{
-    int k = kind();
+//ogl::Buffer _InputArray::getOGlBuffer() const
+//{
+//    int k = kind();
 
-    CV_Assert(k == OPENGL_BUFFER);
+//    CV_Assert(k == OPENGL_BUFFER);
 
-    const ogl::Buffer* gl_buf = (const ogl::Buffer*)obj;
-    return *gl_buf;
-}
+//    const ogl::Buffer* gl_buf = (const ogl::Buffer*)obj;
+//    return *gl_buf;
+//}
 
 int _InputArray::kind() const
 {
@@ -1538,26 +1538,26 @@ Size _InputArray::size(int i) const
         return vv[i].size();
     }
 
-    if( k == OPENGL_BUFFER )
-    {
-        CV_Assert( i < 0 );
-        const ogl::Buffer* buf = (const ogl::Buffer*)obj;
-        return buf->size();
-    }
+//    if( k == OPENGL_BUFFER )
+//    {
+//        CV_Assert( i < 0 );
+//        const ogl::Buffer* buf = (const ogl::Buffer*)obj;
+//        return buf->size();
+//    }
 
-    if( k == CUDA_GPU_MAT )
-    {
-        CV_Assert( i < 0 );
-        const cuda::GpuMat* d_mat = (const cuda::GpuMat*)obj;
-        return d_mat->size();
-    }
+//    if( k == CUDA_GPU_MAT )
+//    {
+//        CV_Assert( i < 0 );
+//        const cuda::GpuMat* d_mat = (const cuda::GpuMat*)obj;
+//        return d_mat->size();
+//    }
 
-    if( k == CUDA_HOST_MEM )
-    {
-        CV_Assert( i < 0 );
-        const cuda::HostMem* cuda_mem = (const cuda::HostMem*)obj;
-        return cuda_mem->size();
-    }
+//    if( k == CUDA_HOST_MEM )
+//    {
+//        CV_Assert( i < 0 );
+//        const cuda::HostMem* cuda_mem = (const cuda::HostMem*)obj;
+//        return cuda_mem->size();
+//    }
 
     CV_Error(Error::StsNotImplemented, "Unknown/unsupported array type");
     return Size();
@@ -1825,14 +1825,14 @@ int _InputArray::type(int i) const
         return vv[i >= 0 ? i : 0].type();
     }
 
-    if( k == OPENGL_BUFFER )
-        return ((const ogl::Buffer*)obj)->type();
+//    if( k == OPENGL_BUFFER )
+//        return ((const ogl::Buffer*)obj)->type();
 
-    if( k == CUDA_GPU_MAT )
-        return ((const cuda::GpuMat*)obj)->type();
+//    if( k == CUDA_GPU_MAT )
+//        return ((const cuda::GpuMat*)obj)->type();
 
-    if( k == CUDA_HOST_MEM )
-        return ((const cuda::HostMem*)obj)->type();
+//    if( k == CUDA_HOST_MEM )
+//        return ((const cuda::HostMem*)obj)->type();
 
     CV_Error(Error::StsNotImplemented, "Unknown/unsupported array type");
     return 0;
@@ -1897,14 +1897,14 @@ bool _InputArray::empty() const
         return vv.empty();
     }
 
-    if( k == OPENGL_BUFFER )
-        return ((const ogl::Buffer*)obj)->empty();
+//    if( k == OPENGL_BUFFER )
+//        return ((const ogl::Buffer*)obj)->empty();
 
-    if( k == CUDA_GPU_MAT )
-        return ((const cuda::GpuMat*)obj)->empty();
+//    if( k == CUDA_GPU_MAT )
+//        return ((const cuda::GpuMat*)obj)->empty();
 
-    if( k == CUDA_HOST_MEM )
-        return ((const cuda::HostMem*)obj)->empty();
+//    if( k == CUDA_HOST_MEM )
+//        return ((const cuda::HostMem*)obj)->empty();
 
     CV_Error(Error::StsNotImplemented, "Unknown/unsupported array type");
     return true;
@@ -2138,27 +2138,27 @@ void _OutputArray::create(Size _sz, int mtype, int i, bool allowTransposed, int 
         ((UMat*)obj)->create(_sz, mtype);
         return;
     }
-    if( k == CUDA_GPU_MAT && i < 0 && !allowTransposed && fixedDepthMask == 0 )
-    {
-        CV_Assert(!fixedSize() || ((cuda::GpuMat*)obj)->size() == _sz);
-        CV_Assert(!fixedType() || ((cuda::GpuMat*)obj)->type() == mtype);
-        ((cuda::GpuMat*)obj)->create(_sz, mtype);
-        return;
-    }
-    if( k == OPENGL_BUFFER && i < 0 && !allowTransposed && fixedDepthMask == 0 )
-    {
-        CV_Assert(!fixedSize() || ((ogl::Buffer*)obj)->size() == _sz);
-        CV_Assert(!fixedType() || ((ogl::Buffer*)obj)->type() == mtype);
-        ((ogl::Buffer*)obj)->create(_sz, mtype);
-        return;
-    }
-    if( k == CUDA_HOST_MEM && i < 0 && !allowTransposed && fixedDepthMask == 0 )
-    {
-        CV_Assert(!fixedSize() || ((cuda::HostMem*)obj)->size() == _sz);
-        CV_Assert(!fixedType() || ((cuda::HostMem*)obj)->type() == mtype);
-        ((cuda::HostMem*)obj)->create(_sz, mtype);
-        return;
-    }
+//    if( k == CUDA_GPU_MAT && i < 0 && !allowTransposed && fixedDepthMask == 0 )
+//    {
+//        CV_Assert(!fixedSize() || ((cuda::GpuMat*)obj)->size() == _sz);
+//        CV_Assert(!fixedType() || ((cuda::GpuMat*)obj)->type() == mtype);
+//        ((cuda::GpuMat*)obj)->create(_sz, mtype);
+//        return;
+//    }
+//    if( k == OPENGL_BUFFER && i < 0 && !allowTransposed && fixedDepthMask == 0 )
+//    {
+//        CV_Assert(!fixedSize() || ((ogl::Buffer*)obj)->size() == _sz);
+//        CV_Assert(!fixedType() || ((ogl::Buffer*)obj)->type() == mtype);
+//        ((ogl::Buffer*)obj)->create(_sz, mtype);
+//        return;
+//    }
+//    if( k == CUDA_HOST_MEM && i < 0 && !allowTransposed && fixedDepthMask == 0 )
+//    {
+//        CV_Assert(!fixedSize() || ((cuda::HostMem*)obj)->size() == _sz);
+//        CV_Assert(!fixedType() || ((cuda::HostMem*)obj)->type() == mtype);
+//        ((cuda::HostMem*)obj)->create(_sz, mtype);
+//        return;
+//    }
     int sizes[] = {_sz.height, _sz.width};
     create(2, sizes, mtype, i, allowTransposed, fixedDepthMask);
 }
@@ -2180,27 +2180,27 @@ void _OutputArray::create(int _rows, int _cols, int mtype, int i, bool allowTran
         ((UMat*)obj)->create(_rows, _cols, mtype);
         return;
     }
-    if( k == CUDA_GPU_MAT && i < 0 && !allowTransposed && fixedDepthMask == 0 )
-    {
-        CV_Assert(!fixedSize() || ((cuda::GpuMat*)obj)->size() == Size(_cols, _rows));
-        CV_Assert(!fixedType() || ((cuda::GpuMat*)obj)->type() == mtype);
-        ((cuda::GpuMat*)obj)->create(_rows, _cols, mtype);
-        return;
-    }
-    if( k == OPENGL_BUFFER && i < 0 && !allowTransposed && fixedDepthMask == 0 )
-    {
-        CV_Assert(!fixedSize() || ((ogl::Buffer*)obj)->size() == Size(_cols, _rows));
-        CV_Assert(!fixedType() || ((ogl::Buffer*)obj)->type() == mtype);
-        ((ogl::Buffer*)obj)->create(_rows, _cols, mtype);
-        return;
-    }
-    if( k == CUDA_HOST_MEM && i < 0 && !allowTransposed && fixedDepthMask == 0 )
-    {
-        CV_Assert(!fixedSize() || ((cuda::HostMem*)obj)->size() == Size(_cols, _rows));
-        CV_Assert(!fixedType() || ((cuda::HostMem*)obj)->type() == mtype);
-        ((cuda::HostMem*)obj)->create(_rows, _cols, mtype);
-        return;
-    }
+//    if( k == CUDA_GPU_MAT && i < 0 && !allowTransposed && fixedDepthMask == 0 )
+//    {
+//        CV_Assert(!fixedSize() || ((cuda::GpuMat*)obj)->size() == Size(_cols, _rows));
+//        CV_Assert(!fixedType() || ((cuda::GpuMat*)obj)->type() == mtype);
+//        ((cuda::GpuMat*)obj)->create(_rows, _cols, mtype);
+//        return;
+//    }
+//    if( k == OPENGL_BUFFER && i < 0 && !allowTransposed && fixedDepthMask == 0 )
+//    {
+//        CV_Assert(!fixedSize() || ((ogl::Buffer*)obj)->size() == Size(_cols, _rows));
+//        CV_Assert(!fixedType() || ((ogl::Buffer*)obj)->type() == mtype);
+//        ((ogl::Buffer*)obj)->create(_rows, _cols, mtype);
+//        return;
+//    }
+//    if( k == CUDA_HOST_MEM && i < 0 && !allowTransposed && fixedDepthMask == 0 )
+//    {
+//        CV_Assert(!fixedSize() || ((cuda::HostMem*)obj)->size() == Size(_cols, _rows));
+//        CV_Assert(!fixedType() || ((cuda::HostMem*)obj)->type() == mtype);
+//        ((cuda::HostMem*)obj)->create(_rows, _cols, mtype);
+//        return;
+//    }
     int sizes[] = {_rows, _cols};
     create(2, sizes, mtype, i, allowTransposed, fixedDepthMask);
 }
@@ -2522,23 +2522,23 @@ void _OutputArray::release() const
         return;
     }
 
-    if( k == CUDA_GPU_MAT )
-    {
-        ((cuda::GpuMat*)obj)->release();
-        return;
-    }
+//    if( k == CUDA_GPU_MAT )
+//    {
+//        ((cuda::GpuMat*)obj)->release();
+//        return;
+//    }
 
-    if( k == CUDA_HOST_MEM )
-    {
-        ((cuda::HostMem*)obj)->release();
-        return;
-    }
+//    if( k == CUDA_HOST_MEM )
+//    {
+//        ((cuda::HostMem*)obj)->release();
+//        return;
+//    }
 
-    if( k == OPENGL_BUFFER )
-    {
-        ((ogl::Buffer*)obj)->release();
-        return;
-    }
+//    if( k == OPENGL_BUFFER )
+//    {
+//        ((ogl::Buffer*)obj)->release();
+//        return;
+//    }
 
     if( k == NONE )
         return;
