@@ -46,7 +46,7 @@ TEST(MatTest, shouldAccessData)
 TEST(MatTest, shouldAppendRows)
 {
         Mat allDescriptors;
-        Mat descriptors = Mat::ones(100, 16, CV_8UC1);
+        Mat descriptors(100, 16, CV_8UC1);
 
         ASSERT_EQ(allDescriptors.rows, 0);
         allDescriptors.push_back(descriptors);

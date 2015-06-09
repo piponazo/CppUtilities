@@ -531,18 +531,18 @@ UMat UMat::reshape(int new_cn, int new_rows) const
     return hdr;
 }
 
-UMat UMat::diag(const UMat& d)
-{
-    CV_Assert( d.cols == 1 || d.rows == 1 );
-    int len = d.rows + d.cols - 1;
-    UMat m(len, len, d.type(), Scalar(0));
-    UMat md = m.diag();
-    if( d.cols == 1 )
-        d.copyTo(md);
-    else
-        transpose(d, md);
-    return m;
-}
+//UMat UMat::diag(const UMat& d)
+//{
+//    CV_Assert( d.cols == 1 || d.rows == 1 );
+//    int len = d.rows + d.cols - 1;
+//    UMat m(len, len, d.type(), Scalar(0));
+//    UMat md = m.diag();
+//    if( d.cols == 1 )
+//        d.copyTo(md);
+//    else
+//        transpose(d, md);
+//    return m;
+//}
 
 int UMat::checkVector(int _elemChannels, int _depth, bool _requireContinuous) const
 {
@@ -766,68 +766,68 @@ void UMat::convertTo(OutputArray _dst, int _type, double alpha, double beta) con
     m.convertTo(_dst, _type, alpha, beta);
 }
 
-UMat& UMat::setTo(InputArray _value, InputArray _mask)
-{
-    bool haveMask = !_mask.empty();
-#ifdef HAVE_OPENCL
-    int tp = type(), cn = CV_MAT_CN(tp), d = CV_MAT_DEPTH(tp);
+//UMat& UMat::setTo(InputArray _value, InputArray _mask)
+//{
+//    bool haveMask = !_mask.empty();
+//#ifdef HAVE_OPENCL
+//    int tp = type(), cn = CV_MAT_CN(tp), d = CV_MAT_DEPTH(tp);
 
-    if( dims <= 2 && cn <= 4 && CV_MAT_DEPTH(tp) < CV_64F && ocl::useOpenCL() )
-    {
-        Mat value = _value.getMat();
-        CV_Assert( checkScalar(value, type(), _value.kind(), _InputArray::UMAT) );
-        int kercn = haveMask || cn == 3 ? cn : std::max(cn, ocl::predictOptimalVectorWidth(*this)),
-                kertp = CV_MAKE_TYPE(d, kercn);
+//    if( dims <= 2 && cn <= 4 && CV_MAT_DEPTH(tp) < CV_64F && ocl::useOpenCL() )
+//    {
+//        Mat value = _value.getMat();
+//        CV_Assert( checkScalar(value, type(), _value.kind(), _InputArray::UMAT) );
+//        int kercn = haveMask || cn == 3 ? cn : std::max(cn, ocl::predictOptimalVectorWidth(*this)),
+//                kertp = CV_MAKE_TYPE(d, kercn);
 
-        double buf[16] = { 0, 0, 0, 0, 0, 0, 0, 0,
-                           0, 0, 0, 0, 0, 0, 0, 0 };
-        convertAndUnrollScalar(value, tp, (uchar *)buf, kercn / cn);
+//        double buf[16] = { 0, 0, 0, 0, 0, 0, 0, 0,
+//                           0, 0, 0, 0, 0, 0, 0, 0 };
+//        convertAndUnrollScalar(value, tp, (uchar *)buf, kercn / cn);
 
-        int scalarcn = kercn == 3 ? 4 : kercn, rowsPerWI = ocl::Device::getDefault().isIntel() ? 4 : 1;
-        String opts = format("-D dstT=%s -D rowsPerWI=%d -D dstST=%s -D dstT1=%s -D cn=%d",
-                             ocl::memopTypeToStr(kertp), rowsPerWI,
-                             ocl::memopTypeToStr(CV_MAKETYPE(d, scalarcn)),
-                             ocl::memopTypeToStr(d), kercn);
+//        int scalarcn = kercn == 3 ? 4 : kercn, rowsPerWI = ocl::Device::getDefault().isIntel() ? 4 : 1;
+//        String opts = format("-D dstT=%s -D rowsPerWI=%d -D dstST=%s -D dstT1=%s -D cn=%d",
+//                             ocl::memopTypeToStr(kertp), rowsPerWI,
+//                             ocl::memopTypeToStr(CV_MAKETYPE(d, scalarcn)),
+//                             ocl::memopTypeToStr(d), kercn);
 
-        ocl::Kernel setK(haveMask ? "setMask" : "set", ocl::core::copyset_oclsrc, opts);
-        if( !setK.empty() )
-        {
-            ocl::KernelArg scalararg(0, 0, 0, 0, buf, CV_ELEM_SIZE(d) * scalarcn);
-            UMat mask;
+//        ocl::Kernel setK(haveMask ? "setMask" : "set", ocl::core::copyset_oclsrc, opts);
+//        if( !setK.empty() )
+//        {
+//            ocl::KernelArg scalararg(0, 0, 0, 0, buf, CV_ELEM_SIZE(d) * scalarcn);
+//            UMat mask;
 
-            if( haveMask )
-            {
-                mask = _mask.getUMat();
-                CV_Assert( mask.size() == size() && mask.type() == CV_8UC1 );
-                ocl::KernelArg maskarg = ocl::KernelArg::ReadOnlyNoSize(mask),
-                        dstarg = ocl::KernelArg::ReadWrite(*this);
-                setK.args(maskarg, dstarg, scalararg);
-            }
-            else
-            {
-                ocl::KernelArg dstarg = ocl::KernelArg::WriteOnly(*this, cn, kercn);
-                setK.args(dstarg, scalararg);
-            }
+//            if( haveMask )
+//            {
+//                mask = _mask.getUMat();
+//                CV_Assert( mask.size() == size() && mask.type() == CV_8UC1 );
+//                ocl::KernelArg maskarg = ocl::KernelArg::ReadOnlyNoSize(mask),
+//                        dstarg = ocl::KernelArg::ReadWrite(*this);
+//                setK.args(maskarg, dstarg, scalararg);
+//            }
+//            else
+//            {
+//                ocl::KernelArg dstarg = ocl::KernelArg::WriteOnly(*this, cn, kercn);
+//                setK.args(dstarg, scalararg);
+//            }
 
-            size_t globalsize[] = { cols * cn / kercn, (rows + rowsPerWI - 1) / rowsPerWI };
-            if( setK.run(2, globalsize, NULL, false) )
-            {
-                CV_IMPL_ADD(CV_IMPL_OCL);
-                return *this;
-            }
-        }
-    }
-#endif
-    Mat m = getMat(haveMask ? ACCESS_RW : ACCESS_WRITE);
-    m.setTo(_value, _mask);
-    return *this;
-}
+//            size_t globalsize[] = { cols * cn / kercn, (rows + rowsPerWI - 1) / rowsPerWI };
+//            if( setK.run(2, globalsize, NULL, false) )
+//            {
+//                CV_IMPL_ADD(CV_IMPL_OCL);
+//                return *this;
+//            }
+//        }
+//    }
+//#endif
+//    Mat m = getMat(haveMask ? ACCESS_RW : ACCESS_WRITE);
+//    m.setTo(_value, _mask);
+//    return *this;
+//}
 
-UMat& UMat::operator = (const Scalar& s)
-{
-    setTo(s);
-    return *this;
-}
+//UMat& UMat::operator = (const Scalar& s)
+//{
+//    setTo(s);
+//    return *this;
+//}
 
 UMat UMat::t() const
 {
@@ -843,12 +843,12 @@ UMat UMat::t() const
 //    return m;
 //}
 
-UMat UMat::mul(InputArray m, double scale) const
-{
-    UMat dst;
-    multiply(*this, m, dst, scale);
-    return dst;
-}
+//UMat UMat::mul(InputArray m, double scale) const
+//{
+//    UMat dst;
+//    multiply(*this, m, dst, scale);
+//    return dst;
+//}
 
 #ifdef HAVE_OPENCL
 
@@ -916,35 +916,35 @@ static bool ocl_dot( InputArray _src1, InputArray _src2, double & res )
 //    return getMat(ACCESS_READ).dot(m);
 //}
 
-UMat UMat::zeros(int rows, int cols, int type)
-{
-    return UMat(rows, cols, type, Scalar::all(0));
-}
+//UMat UMat::zeros(int rows, int cols, int type)
+//{
+//    return UMat(rows, cols, type, Scalar::all(0));
+//}
 
-UMat UMat::zeros(Size size, int type)
-{
-    return UMat(size, type, Scalar::all(0));
-}
+//UMat UMat::zeros(Size size, int type)
+//{
+//    return UMat(size, type, Scalar::all(0));
+//}
 
-UMat UMat::zeros(int ndims, const int* sz, int type)
-{
-    return UMat(ndims, sz, type, Scalar::all(0));
-}
+//UMat UMat::zeros(int ndims, const int* sz, int type)
+//{
+//    return UMat(ndims, sz, type, Scalar::all(0));
+//}
 
-UMat UMat::ones(int rows, int cols, int type)
-{
-    return UMat::ones(Size(cols, rows), type);
-}
+//UMat UMat::ones(int rows, int cols, int type)
+//{
+//    return UMat::ones(Size(cols, rows), type);
+//}
 
-UMat UMat::ones(Size size, int type)
-{
-    return UMat(size, type, Scalar(1));
-}
+//UMat UMat::ones(Size size, int type)
+//{
+//    return UMat(size, type, Scalar(1));
+//}
 
-UMat UMat::ones(int ndims, const int* sz, int type)
-{
-    return UMat(ndims, sz, type, Scalar(1));
-}
+//UMat UMat::ones(int ndims, const int* sz, int type)
+//{
+//    return UMat(ndims, sz, type, Scalar(1));
+//}
 
 UMat UMat::eye(int rows, int cols, int type)
 {

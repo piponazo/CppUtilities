@@ -462,126 +462,126 @@ Mat& Mat::operator = (const Scalar& s)
 }
 
 
-Mat& Mat::setTo(InputArray _value, InputArray _mask)
-{
-    if( empty() )
-        return *this;
+//Mat& Mat::setTo(InputArray _value, InputArray _mask)
+//{
+//    if( empty() )
+//        return *this;
 
-    Mat value = _value.getMat(), mask = _mask.getMat();
+//    Mat value = _value.getMat(), mask = _mask.getMat();
 
-    CV_Assert( checkScalar(value, type(), _value.kind(), _InputArray::MAT ));
-    CV_Assert( mask.empty() || (mask.type() == CV_8U && size == mask.size) );
+//    CV_Assert( checkScalar(value, type(), _value.kind(), _InputArray::MAT ));
+//    CV_Assert( mask.empty() || (mask.type() == CV_8U && size == mask.size) );
 
-#if defined HAVE_IPP
-    CV_IPP_CHECK()
-    {
-        int cn = channels(), depth0 = depth();
+//#if defined HAVE_IPP
+//    CV_IPP_CHECK()
+//    {
+//        int cn = channels(), depth0 = depth();
 
-        if (!mask.empty() && (dims <= 2 || (isContinuous() && mask.isContinuous())) &&
-                (/*depth0 == CV_8U ||*/ depth0 == CV_16U || depth0 == CV_16S || depth0 == CV_32S || depth0 == CV_32F) &&
-                (cn == 1 || cn == 3 || cn == 4))
-        {
-            uchar _buf[32];
-            void * buf = _buf;
-            convertAndUnrollScalar( value, type(), _buf, 1 );
+//        if (!mask.empty() && (dims <= 2 || (isContinuous() && mask.isContinuous())) &&
+//                (/*depth0 == CV_8U ||*/ depth0 == CV_16U || depth0 == CV_16S || depth0 == CV_32S || depth0 == CV_32F) &&
+//                (cn == 1 || cn == 3 || cn == 4))
+//        {
+//            uchar _buf[32];
+//            void * buf = _buf;
+//            convertAndUnrollScalar( value, type(), _buf, 1 );
 
-            IppStatus status = (IppStatus)-1;
-            IppiSize roisize = { cols, rows };
-            int mstep = (int)mask.step[0], dstep = (int)step[0];
+//            IppStatus status = (IppStatus)-1;
+//            IppiSize roisize = { cols, rows };
+//            int mstep = (int)mask.step[0], dstep = (int)step[0];
 
-            if (isContinuous() && mask.isContinuous())
-            {
-                roisize.width = (int)total();
-                roisize.height = 1;
-            }
+//            if (isContinuous() && mask.isContinuous())
+//            {
+//                roisize.width = (int)total();
+//                roisize.height = 1;
+//            }
 
-            if (cn == 1)
-            {
-                /*if (depth0 == CV_8U)
-                    status = ippiSet_8u_C1MR(*(Ipp8u *)buf, (Ipp8u *)data, dstep, roisize, mask.data, mstep);
-                else*/ if (depth0 == CV_16U)
-                    status = ippiSet_16u_C1MR(*(Ipp16u *)buf, (Ipp16u *)data, dstep, roisize, mask.data, mstep);
-                else if (depth0 == CV_16S)
-                    status = ippiSet_16s_C1MR(*(Ipp16s *)buf, (Ipp16s *)data, dstep, roisize, mask.data, mstep);
-                else if (depth0 == CV_32S)
-                    status = ippiSet_32s_C1MR(*(Ipp32s *)buf, (Ipp32s *)data, dstep, roisize, mask.data, mstep);
-                else if (depth0 == CV_32F)
-                    status = ippiSet_32f_C1MR(*(Ipp32f *)buf, (Ipp32f *)data, dstep, roisize, mask.data, mstep);
-            }
-            else if (cn == 3 || cn == 4)
-            {
-#define IPP_SET(ippfavor, ippcn) \
-        do \
-        { \
-            typedef Ipp##ippfavor ipptype; \
-            ipptype ippvalue[4] = { ((ipptype *)buf)[0], ((ipptype *)buf)[1], ((ipptype *)buf)[2], ((ipptype *)buf)[3] }; \
-            status = ippiSet_##ippfavor##_C##ippcn##MR(ippvalue, (ipptype *)data, dstep, roisize, mask.data, mstep); \
-        } while ((void)0, 0)
+//            if (cn == 1)
+//            {
+//                /*if (depth0 == CV_8U)
+//                    status = ippiSet_8u_C1MR(*(Ipp8u *)buf, (Ipp8u *)data, dstep, roisize, mask.data, mstep);
+//                else*/ if (depth0 == CV_16U)
+//                    status = ippiSet_16u_C1MR(*(Ipp16u *)buf, (Ipp16u *)data, dstep, roisize, mask.data, mstep);
+//                else if (depth0 == CV_16S)
+//                    status = ippiSet_16s_C1MR(*(Ipp16s *)buf, (Ipp16s *)data, dstep, roisize, mask.data, mstep);
+//                else if (depth0 == CV_32S)
+//                    status = ippiSet_32s_C1MR(*(Ipp32s *)buf, (Ipp32s *)data, dstep, roisize, mask.data, mstep);
+//                else if (depth0 == CV_32F)
+//                    status = ippiSet_32f_C1MR(*(Ipp32f *)buf, (Ipp32f *)data, dstep, roisize, mask.data, mstep);
+//            }
+//            else if (cn == 3 || cn == 4)
+//            {
+//#define IPP_SET(ippfavor, ippcn) \
+//        do \
+//        { \
+//            typedef Ipp##ippfavor ipptype; \
+//            ipptype ippvalue[4] = { ((ipptype *)buf)[0], ((ipptype *)buf)[1], ((ipptype *)buf)[2], ((ipptype *)buf)[3] }; \
+//            status = ippiSet_##ippfavor##_C##ippcn##MR(ippvalue, (ipptype *)data, dstep, roisize, mask.data, mstep); \
+//        } while ((void)0, 0)
 
-#define IPP_SET_CN(ippcn) \
-        do \
-        { \
-            if (cn == ippcn) \
-            { \
-                /*if (depth0 == CV_8U) \
-                    IPP_SET(8u, ippcn); \
-                else*/ if (depth0 == CV_16U) \
-                    IPP_SET(16u, ippcn); \
-                else if (depth0 == CV_16S) \
-                    IPP_SET(16s, ippcn); \
-                else if (depth0 == CV_32S) \
-                    IPP_SET(32s, ippcn); \
-                else if (depth0 == CV_32F) \
-                    IPP_SET(32f, ippcn); \
-            } \
-        } while ((void)0, 0)
+//#define IPP_SET_CN(ippcn) \
+//        do \
+//        { \
+//            if (cn == ippcn) \
+//            { \
+//                /*if (depth0 == CV_8U) \
+//                    IPP_SET(8u, ippcn); \
+//                else*/ if (depth0 == CV_16U) \
+//                    IPP_SET(16u, ippcn); \
+//                else if (depth0 == CV_16S) \
+//                    IPP_SET(16s, ippcn); \
+//                else if (depth0 == CV_32S) \
+//                    IPP_SET(32s, ippcn); \
+//                else if (depth0 == CV_32F) \
+//                    IPP_SET(32f, ippcn); \
+//            } \
+//        } while ((void)0, 0)
 
-                IPP_SET_CN(3);
-                IPP_SET_CN(4);
+//                IPP_SET_CN(3);
+//                IPP_SET_CN(4);
 
-#undef IPP_SET_CN
-#undef IPP_SET
-            }
+//#undef IPP_SET_CN
+//#undef IPP_SET
+//            }
 
-            if (status >= 0)
-            {
-                CV_IMPL_ADD(CV_IMPL_IPP);
-                return *this;
-            }
-            setIppErrorStatus();
-        }
-    }
-#endif
+//            if (status >= 0)
+//            {
+//                CV_IMPL_ADD(CV_IMPL_IPP);
+//                return *this;
+//            }
+//            setIppErrorStatus();
+//        }
+//    }
+//#endif
 
-    size_t esz = elemSize();
-    BinaryFunc copymask = getCopyMaskFunc(esz);
+//    size_t esz = elemSize();
+//    BinaryFunc copymask = getCopyMaskFunc(esz);
 
-    const Mat* arrays[] = { this, !mask.empty() ? &mask : 0, 0 };
-    uchar* ptrs[2]={0,0};
-    NAryMatIterator it(arrays, ptrs);
-    int totalsz = (int)it.size, blockSize0 = std::min(totalsz, (int)((BLOCK_SIZE + esz-1)/esz));
-    AutoBuffer<uchar> _scbuf(blockSize0*esz + 32);
-    uchar* scbuf = alignPtr((uchar*)_scbuf, (int)sizeof(double));
-    convertAndUnrollScalar( value, type(), scbuf, blockSize0 );
+//    const Mat* arrays[] = { this, !mask.empty() ? &mask : 0, 0 };
+//    uchar* ptrs[2]={0,0};
+//    NAryMatIterator it(arrays, ptrs);
+//    int totalsz = (int)it.size, blockSize0 = std::min(totalsz, (int)((BLOCK_SIZE + esz-1)/esz));
+//    AutoBuffer<uchar> _scbuf(blockSize0*esz + 32);
+//    uchar* scbuf = alignPtr((uchar*)_scbuf, (int)sizeof(double));
+//    convertAndUnrollScalar( value, type(), scbuf, blockSize0 );
 
-    for( size_t i = 0; i < it.nplanes; i++, ++it )
-    {
-        for( int j = 0; j < totalsz; j += blockSize0 )
-        {
-            Size sz(std::min(blockSize0, totalsz - j), 1);
-            size_t blockSize = sz.width*esz;
-            if( ptrs[1] )
-            {
-                copymask(scbuf, 0, ptrs[1], 0, ptrs[0], 0, sz, &esz);
-                ptrs[1] += sz.width;
-            }
-            else
-                memcpy(ptrs[0], scbuf, blockSize);
-            ptrs[0] += blockSize;
-        }
-    }
-    return *this;
-}
+//    for( size_t i = 0; i < it.nplanes; i++, ++it )
+//    {
+//        for( int j = 0; j < totalsz; j += blockSize0 )
+//        {
+//            Size sz(std::min(blockSize0, totalsz - j), 1);
+//            size_t blockSize = sz.width*esz;
+//            if( ptrs[1] )
+//            {
+//                copymask(scbuf, 0, ptrs[1], 0, ptrs[0], 0, sz, &esz);
+//                ptrs[1] += sz.width;
+//            }
+//            else
+//                memcpy(ptrs[0], scbuf, blockSize);
+//            ptrs[0] += blockSize;
+//        }
+//    }
+//    return *this;
+//}
 
 
 static void
@@ -1384,15 +1384,15 @@ cvCopy( const void* srcarr, void* dstarr, const void* maskarr )
         src.copyTo(dst, cv::cvarrToMat(maskarr));
 }
 
-CV_IMPL void
-cvSet( void* arr, CvScalar value, const void* maskarr )
-{
-    cv::Mat m = cv::cvarrToMat(arr);
-    if( !maskarr )
-        m = value;
-    else
-        m.setTo(cv::Scalar(value), cv::cvarrToMat(maskarr));
-}
+//CV_IMPL void
+//cvSet( void* arr, CvScalar value, const void* maskarr )
+//{
+//    cv::Mat m = cv::cvarrToMat(arr);
+//    if( !maskarr )
+//        m = value;
+//    else
+//        m.setTo(cv::Scalar(value), cv::cvarrToMat(maskarr));
+//}
 
 CV_IMPL void
 cvSetZero( CvArr* arr )

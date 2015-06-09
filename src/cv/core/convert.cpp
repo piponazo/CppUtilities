@@ -6069,45 +6069,45 @@ static bool ocl_normalize( InputArray _src, InputOutputArray _dst, InputArray _m
 
 }
 
-void cv::normalize( InputArray _src, InputOutputArray _dst, double a, double b,
-                    int norm_type, int rtype, InputArray _mask )
-{
-    double scale = 1, shift = 0;
-    if( norm_type == CV_MINMAX )
-    {
-        double smin = 0, smax = 0;
-        double dmin = MIN( a, b ), dmax = MAX( a, b );
-        minMaxLoc( _src, &smin, &smax, 0, 0, _mask );
-        scale = (dmax - dmin)*(smax - smin > DBL_EPSILON ? 1./(smax - smin) : 0);
-        shift = dmin - smin*scale;
-    }
-    else if( norm_type == CV_L2 || norm_type == CV_L1 || norm_type == CV_C )
-    {
-        scale = norm( _src, norm_type, _mask );
-        scale = scale > DBL_EPSILON ? a/scale : 0.;
-        shift = 0;
-    }
-    else
-        CV_Error( CV_StsBadArg, "Unknown/unsupported norm type" );
+//void cv::normalize( InputArray _src, InputOutputArray _dst, double a, double b,
+//                    int norm_type, int rtype, InputArray _mask )
+//{
+//    double scale = 1, shift = 0;
+//    if( norm_type == CV_MINMAX )
+//    {
+//        double smin = 0, smax = 0;
+//        double dmin = MIN( a, b ), dmax = MAX( a, b );
+//        minMaxLoc( _src, &smin, &smax, 0, 0, _mask );
+//        scale = (dmax - dmin)*(smax - smin > DBL_EPSILON ? 1./(smax - smin) : 0);
+//        shift = dmin - smin*scale;
+//    }
+//    else if( norm_type == CV_L2 || norm_type == CV_L1 || norm_type == CV_C )
+//    {
+//        scale = norm( _src, norm_type, _mask );
+//        scale = scale > DBL_EPSILON ? a/scale : 0.;
+//        shift = 0;
+//    }
+//    else
+//        CV_Error( CV_StsBadArg, "Unknown/unsupported norm type" );
 
-    int type = _src.type(), depth = CV_MAT_DEPTH(type), cn = CV_MAT_CN(type);
-    if( rtype < 0 )
-        rtype = _dst.fixedType() ? _dst.depth() : depth;
-    _dst.createSameSize(_src, CV_MAKETYPE(rtype, cn));
+//    int type = _src.type(), depth = CV_MAT_DEPTH(type), cn = CV_MAT_CN(type);
+//    if( rtype < 0 )
+//        rtype = _dst.fixedType() ? _dst.depth() : depth;
+//    _dst.createSameSize(_src, CV_MAKETYPE(rtype, cn));
 
-//    CV_OCL_RUN(_dst.isUMat(),
-//               ocl_normalize(_src, _dst, _mask, rtype, scale, shift))
+////    CV_OCL_RUN(_dst.isUMat(),
+////               ocl_normalize(_src, _dst, _mask, rtype, scale, shift))
 
-    Mat src = _src.getMat(), dst = _dst.getMat();
-    if( _mask.empty() )
-        src.convertTo( dst, rtype, scale, shift );
-    else
-    {
-        Mat temp;
-        src.convertTo( temp, rtype, scale, shift );
-        temp.copyTo( dst, _mask );
-    }
-}
+//    Mat src = _src.getMat(), dst = _dst.getMat();
+//    if( _mask.empty() )
+//        src.convertTo( dst, rtype, scale, shift );
+//    else
+//    {
+//        Mat temp;
+//        src.convertTo( temp, rtype, scale, shift );
+//        temp.copyTo( dst, _mask );
+//    }
+//}
 
 CV_IMPL void
 cvSplit( const void* srcarr, void* dstarr0, void* dstarr1, void* dstarr2, void* dstarr3 )
@@ -6222,14 +6222,14 @@ CV_IMPL void cvLUT( const void* srcarr, void* dstarr, const void* lutarr )
     cv::LUT( src, lut, dst );
 }
 
-CV_IMPL void cvNormalize( const CvArr* srcarr, CvArr* dstarr,
-                          double a, double b, int norm_type, const CvArr* maskarr )
-{
-    cv::Mat src = cv::cvarrToMat(srcarr), dst = cv::cvarrToMat(dstarr), mask;
-    if( maskarr )
-        mask = cv::cvarrToMat(maskarr);
-    CV_Assert( dst.size() == src.size() && src.channels() == dst.channels() );
-    cv::normalize( src, dst, a, b, norm_type, dst.type(), mask );
-}
+//CV_IMPL void cvNormalize( const CvArr* srcarr, CvArr* dstarr,
+//                          double a, double b, int norm_type, const CvArr* maskarr )
+//{
+//    cv::Mat src = cv::cvarrToMat(srcarr), dst = cv::cvarrToMat(dstarr), mask;
+//    if( maskarr )
+//        mask = cv::cvarrToMat(maskarr);
+//    CV_Assert( dst.size() == src.size() && src.channels() == dst.channels() );
+//    cv::normalize( src, dst, a, b, norm_type, dst.type(), mask );
+//}
 
 /* End of file. */

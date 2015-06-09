@@ -1133,11 +1133,11 @@ Mat _InputArray::getMat_(int i) const
         return m->getMat(accessFlags).row(i);
     }
 
-    if( k == EXPR )
-    {
-        CV_Assert( i < 0 );
-        return (Mat)*((const MatExpr*)obj);
-    }
+//    if( k == EXPR )
+//    {
+//        CV_Assert( i < 0 );
+//        return (Mat)*((const MatExpr*)obj);
+//    }
 
     if( k == MATX )
     {
@@ -1251,16 +1251,16 @@ void _InputArray::getMatVector(std::vector<Mat>& mv) const
         return;
     }
 
-    if( k == EXPR )
-    {
-        Mat m = *(const MatExpr*)obj;
-        int i, n = m.size[0];
-        mv.resize(n);
+//    if( k == EXPR )
+//    {
+//        Mat m = *(const MatExpr*)obj;
+//        int i, n = m.size[0];
+//        mv.resize(n);
 
-        for( i = 0; i < n; i++ )
-            mv[i] = m.row(i);
-        return;
-    }
+//        for( i = 0; i < n; i++ )
+//            mv[i] = m.row(i);
+//        return;
+//    }
 
     if( k == MATX )
     {
@@ -1407,11 +1407,11 @@ Size _InputArray::size(int i) const
         return ((const Mat*)obj)->size();
     }
 
-    if( k == EXPR )
-    {
-        CV_Assert( i < 0 );
-        return ((const MatExpr*)obj)->size();
-    }
+//    if( k == EXPR )
+//    {
+//        CV_Assert( i < 0 );
+//        return ((const MatExpr*)obj)->size();
+//    }
 
     if( k == UMAT )
     {
@@ -1709,8 +1709,8 @@ int _InputArray::type(int i) const
     if( k == UMAT )
         return ((const UMat*)obj)->type();
 
-    if( k == EXPR )
-        return ((const MatExpr*)obj)->type();
+//    if( k == EXPR )
+//        return ((const MatExpr*)obj)->type();
 
     if( k == MATX || k == STD_VECTOR || k == STD_VECTOR_VECTOR || k == STD_BOOL_VECTOR )
         return CV_MAT_TYPE(flags);
@@ -1766,8 +1766,8 @@ bool _InputArray::empty() const
     if( k == UMAT )
         return ((const UMat*)obj)->empty();
 
-    if( k == EXPR )
-        return false;
+//    if( k == EXPR )
+//        return false;
 
     if( k == MATX )
         return false;
@@ -1819,9 +1819,9 @@ bool _InputArray::isContinuous(int i) const
     if( k == UMAT )
         return i < 0 ? ((const UMat*)obj)->isContinuous() : true;
 
-    if( k == EXPR || k == MATX || k == STD_VECTOR ||
-        k == NONE || k == STD_VECTOR_VECTOR || k == STD_BOOL_VECTOR )
-        return true;
+//    if( k == EXPR || k == MATX || k == STD_VECTOR ||
+//        k == NONE || k == STD_VECTOR_VECTOR || k == STD_BOOL_VECTOR )
+//        return true;
 
     if( k == STD_VECTOR_MAT )
     {
@@ -1851,9 +1851,9 @@ bool _InputArray::isSubmatrix(int i) const
     if( k == UMAT )
         return i < 0 ? ((const UMat*)obj)->isSubmatrix() : false;
 
-    if( k == EXPR || k == MATX || k == STD_VECTOR ||
-        k == NONE || k == STD_VECTOR_VECTOR || k == STD_BOOL_VECTOR )
-        return false;
+//    if( k == EXPR || k == MATX || k == STD_VECTOR ||
+//        k == NONE || k == STD_VECTOR_VECTOR || k == STD_BOOL_VECTOR )
+//        return false;
 
     if( k == STD_VECTOR_MAT )
     {
@@ -1890,9 +1890,9 @@ size_t _InputArray::offset(int i) const
         return ((const UMat*)obj)->offset;
     }
 
-    if( k == EXPR || k == MATX || k == STD_VECTOR ||
-        k == NONE || k == STD_VECTOR_VECTOR || k == STD_BOOL_VECTOR )
-        return 0;
+//    if( k == EXPR || k == MATX || k == STD_VECTOR ||
+//        k == NONE || k == STD_VECTOR_VECTOR || k == STD_BOOL_VECTOR )
+//        return 0;
 
     if( k == STD_VECTOR_MAT )
     {
@@ -1931,9 +1931,9 @@ size_t _InputArray::step(int i) const
         return ((const UMat*)obj)->step;
     }
 
-    if( k == EXPR || k == MATX || k == STD_VECTOR ||
-        k == NONE || k == STD_VECTOR_VECTOR || k == STD_BOOL_VECTOR )
-        return 0;
+//    if( k == EXPR || k == MATX || k == STD_VECTOR ||
+//        k == NONE || k == STD_VECTOR_VECTOR || k == STD_BOOL_VECTOR )
+//        return 0;
 
     if( k == STD_VECTOR_MAT )
     {
@@ -1966,14 +1966,14 @@ void _InputArray::copyTo(const _OutputArray& arr) const
         Mat m = getMat();
         m.copyTo(arr);
     }
-    else if( k == EXPR )
-    {
-        const MatExpr& e = *((MatExpr*)obj);
-        if( arr.kind() == MAT )
-            arr.getMatRef() = e;
-        else
-            Mat(e).copyTo(arr);
-    }
+//    else if( k == EXPR )
+//    {
+//        const MatExpr& e = *((MatExpr*)obj);
+//        if( arr.kind() == MAT )
+//            arr.getMatRef() = e;
+//        else
+//            Mat(e).copyTo(arr);
+//    }
     else if( k == UMAT )
         ((UMat*)obj)->copyTo(arr);
     else
@@ -2449,22 +2449,22 @@ UMat& _OutputArray::getUMatRef(int i) const
     }
 }
 
-void _OutputArray::setTo(const _InputArray& arr, const _InputArray & mask) const
-{
-    int k = kind();
+//void _OutputArray::setTo(const _InputArray& arr, const _InputArray & mask) const
+//{
+//    int k = kind();
 
-    if( k == NONE )
-        ;
-    else if( k == MAT || k == MATX || k == STD_VECTOR )
-    {
-        Mat m = getMat();
-        m.setTo(arr, mask);
-    }
-    else if( k == UMAT )
-        ((UMat*)obj)->setTo(arr, mask);
-    else
-        CV_Error(Error::StsNotImplemented, "");
-}
+//    if( k == NONE )
+//        ;
+//    else if( k == MAT || k == MATX || k == STD_VECTOR )
+//    {
+//        Mat m = getMat();
+//        m.setTo(arr, mask);
+//    }
+//    else if( k == UMAT )
+//        ((UMat*)obj)->setTo(arr, mask);
+//    else
+//        CV_Error(Error::StsNotImplemented, "");
+//}
 
 
 void _OutputArray::assign(const UMat& u) const

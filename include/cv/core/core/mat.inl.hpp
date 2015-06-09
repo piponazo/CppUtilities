@@ -3088,13 +3088,13 @@ UMat::UMat(int _rows, int _cols, int _type, UMatUsageFlags _usageFlags)
     create(_rows, _cols, _type);
 }
 
-inline
-UMat::UMat(int _rows, int _cols, int _type, const Scalar& _s, UMatUsageFlags _usageFlags)
-: flags(MAGIC_VAL), dims(0), rows(0), cols(0), allocator(0), usageFlags(_usageFlags), u(0), offset(0), size(&rows)
-{
-    create(_rows, _cols, _type);
-    *this = _s;
-}
+//inline
+//UMat::UMat(int _rows, int _cols, int _type, const Scalar& _s, UMatUsageFlags _usageFlags)
+//: flags(MAGIC_VAL), dims(0), rows(0), cols(0), allocator(0), usageFlags(_usageFlags), u(0), offset(0), size(&rows)
+//{
+//    create(_rows, _cols, _type);
+//    *this = _s;
+//}
 
 inline
 UMat::UMat(Size _sz, int _type, UMatUsageFlags _usageFlags)
@@ -3103,13 +3103,13 @@ UMat::UMat(Size _sz, int _type, UMatUsageFlags _usageFlags)
     create( _sz.height, _sz.width, _type );
 }
 
-inline
-UMat::UMat(Size _sz, int _type, const Scalar& _s, UMatUsageFlags _usageFlags)
-: flags(MAGIC_VAL), dims(0), rows(0), cols(0), allocator(0), usageFlags(_usageFlags), u(0), offset(0), size(&rows)
-{
-    create(_sz.height, _sz.width, _type);
-    *this = _s;
-}
+//inline
+//UMat::UMat(Size _sz, int _type, const Scalar& _s, UMatUsageFlags _usageFlags)
+//: flags(MAGIC_VAL), dims(0), rows(0), cols(0), allocator(0), usageFlags(_usageFlags), u(0), offset(0), size(&rows)
+//{
+//    create(_sz.height, _sz.width, _type);
+//    *this = _s;
+//}
 
 inline
 UMat::UMat(int _dims, const int* _sz, int _type, UMatUsageFlags _usageFlags)
@@ -3118,13 +3118,13 @@ UMat::UMat(int _dims, const int* _sz, int _type, UMatUsageFlags _usageFlags)
     create(_dims, _sz, _type);
 }
 
-inline
-UMat::UMat(int _dims, const int* _sz, int _type, const Scalar& _s, UMatUsageFlags _usageFlags)
-: flags(MAGIC_VAL), dims(0), rows(0), cols(0), allocator(0), usageFlags(_usageFlags), u(0), offset(0), size(&rows)
-{
-    create(_dims, _sz, _type);
-    *this = _s;
-}
+//inline
+//UMat::UMat(int _dims, const int* _sz, int _type, const Scalar& _s, UMatUsageFlags _usageFlags)
+//: flags(MAGIC_VAL), dims(0), rows(0), cols(0), allocator(0), usageFlags(_usageFlags), u(0), offset(0), size(&rows)
+//{
+//    create(_dims, _sz, _type);
+//    *this = _s;
+//}
 
 inline
 UMat::UMat(const UMat& m)
