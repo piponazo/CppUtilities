@@ -48,6 +48,7 @@
 #include <cmath>
 #include <float.h>
 #include <stdlib.h>
+#include "defs.h"
 
 #define OPENCV_HAL_ADD(a, b) ((a) + (b))
 #define OPENCV_HAL_AND(a, b) ((a) & (b))
