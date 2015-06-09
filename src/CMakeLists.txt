@@ -1,9 +1,9 @@
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${PROJECT_BINARY_DIR})
 
-file(GLOB_RECURSE hdrs_inc "${PROJECT_SOURCE_DIR}/include/${LIB}/*.h")
-file(GLOB_RECURSE hdrs "*.h")
-file(GLOB_RECURSE srcs "*.cpp")
+file(GLOB hdrs_inc "${PROJECT_SOURCE_DIR}/include/*.h")
+file(GLOB hdrs "*.h")
+file(GLOB srcs "*.cpp")
 
 add_library(${PROJECT_NAME} STATIC ${srcs} ${hdrs} ${hdrs_inc})
 
@@ -30,3 +30,5 @@ install(FILES ${hdrs_inc}
     DESTINATION include/${PROJECT_NAME}/
     COMPONENT headers
 )
+
+add_subdirectory(cv)
