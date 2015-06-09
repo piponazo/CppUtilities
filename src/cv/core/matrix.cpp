@@ -5004,24 +5004,24 @@ _IplImage::_IplImage(const cv::Mat& m)
     cvSetData(this, m.data, (int)m.step[0]);
 }
 
-CvSparseMat* cvCreateSparseMat(const cv::SparseMat& sm)
-{
-    if( !sm.hdr )
-        return 0;
+//CvSparseMat* cvCreateSparseMat(const cv::SparseMat& sm)
+//{
+//    if( !sm.hdr )
+//        return 0;
 
-    CvSparseMat* m = cvCreateSparseMat(sm.hdr->dims, sm.hdr->size, sm.type());
+//    CvSparseMat* m = cvCreateSparseMat(sm.hdr->dims, sm.hdr->size, sm.type());
 
-    cv::SparseMatConstIterator from = sm.begin();
-    size_t i, N = sm.nzcount(), esz = sm.elemSize();
+//    cv::SparseMatConstIterator from = sm.begin();
+//    size_t i, N = sm.nzcount(), esz = sm.elemSize();
 
-    for( i = 0; i < N; i++, ++from )
-    {
-        const cv::SparseMat::Node* n = from.node();
-        uchar* to = cvPtrND(m, n->idx, 0, -2, 0);
-        cv::copyElem(from.ptr, to, esz);
-    }
-    return m;
-}
+//    for( i = 0; i < N; i++, ++from )
+//    {
+//        const cv::SparseMat::Node* n = from.node();
+//        uchar* to = cvPtrND(m, n->idx, 0, -2, 0);
+//        cv::copyElem(from.ptr, to, esz);
+//    }
+//    return m;
+//}
 
 void CvSparseMat::copyToSparseMat(cv::SparseMat& m) const
 {
