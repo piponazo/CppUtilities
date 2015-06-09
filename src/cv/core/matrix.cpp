@@ -3651,90 +3651,90 @@ cvReduce( const CvArr* srcarr, CvArr* dstarr, int dim, int op )
 }
 
 
-CV_IMPL CvArr*
-cvRange( CvArr* arr, double start, double end )
-{
-    int ok = 0;
+//CV_IMPL CvArr*
+//cvRange( CvArr* arr, double start, double end )
+//{
+//    int ok = 0;
 
-    CvMat stub, *mat = (CvMat*)arr;
-    double delta;
-    int type, step;
-    double val = start;
-    int i, j;
-    int rows, cols;
+//    CvMat stub, *mat = (CvMat*)arr;
+//    double delta;
+//    int type, step;
+//    double val = start;
+//    int i, j;
+//    int rows, cols;
 
-    if( !CV_IS_MAT(mat) )
-        mat = cvGetMat( mat, &stub);
+//    if( !CV_IS_MAT(mat) )
+//        mat = cvGetMat( mat, &stub);
 
-    rows = mat->rows;
-    cols = mat->cols;
-    type = CV_MAT_TYPE(mat->type);
-    delta = (end-start)/(rows*cols);
+//    rows = mat->rows;
+//    cols = mat->cols;
+//    type = CV_MAT_TYPE(mat->type);
+//    delta = (end-start)/(rows*cols);
 
-    if( CV_IS_MAT_CONT(mat->type) )
-    {
-        cols *= rows;
-        rows = 1;
-        step = 1;
-    }
-    else
-        step = mat->step / CV_ELEM_SIZE(type);
+//    if( CV_IS_MAT_CONT(mat->type) )
+//    {
+//        cols *= rows;
+//        rows = 1;
+//        step = 1;
+//    }
+//    else
+//        step = mat->step / CV_ELEM_SIZE(type);
 
-    if( type == CV_32SC1 )
-    {
-        int* idata = mat->data.i;
-        int ival = cvRound(val), idelta = cvRound(delta);
+//    if( type == CV_32SC1 )
+//    {
+//        int* idata = mat->data.i;
+//        int ival = cvRound(val), idelta = cvRound(delta);
 
-        if( fabs(val - ival) < DBL_EPSILON &&
-            fabs(delta - idelta) < DBL_EPSILON )
-        {
-            for( i = 0; i < rows; i++, idata += step )
-                for( j = 0; j < cols; j++, ival += idelta )
-                    idata[j] = ival;
-        }
-        else
-        {
-            for( i = 0; i < rows; i++, idata += step )
-                for( j = 0; j < cols; j++, val += delta )
-                    idata[j] = cvRound(val);
-        }
-    }
-    else if( type == CV_32FC1 )
-    {
-        float* fdata = mat->data.fl;
-        for( i = 0; i < rows; i++, fdata += step )
-            for( j = 0; j < cols; j++, val += delta )
-                fdata[j] = (float)val;
-    }
-    else
-        CV_Error( CV_StsUnsupportedFormat, "The function only supports 32sC1 and 32fC1 datatypes" );
+//        if( fabs(val - ival) < DBL_EPSILON &&
+//            fabs(delta - idelta) < DBL_EPSILON )
+//        {
+//            for( i = 0; i < rows; i++, idata += step )
+//                for( j = 0; j < cols; j++, ival += idelta )
+//                    idata[j] = ival;
+//        }
+//        else
+//        {
+//            for( i = 0; i < rows; i++, idata += step )
+//                for( j = 0; j < cols; j++, val += delta )
+//                    idata[j] = cvRound(val);
+//        }
+//    }
+//    else if( type == CV_32FC1 )
+//    {
+//        float* fdata = mat->data.fl;
+//        for( i = 0; i < rows; i++, fdata += step )
+//            for( j = 0; j < cols; j++, val += delta )
+//                fdata[j] = (float)val;
+//    }
+//    else
+//        CV_Error( CV_StsUnsupportedFormat, "The function only supports 32sC1 and 32fC1 datatypes" );
 
-    ok = 1;
-    return ok ? arr : 0;
-}
+//    ok = 1;
+//    return ok ? arr : 0;
+//}
 
 
-CV_IMPL void
-cvSort( const CvArr* _src, CvArr* _dst, CvArr* _idx, int flags )
-{
-    cv::Mat src = cv::cvarrToMat(_src);
+//CV_IMPL void
+//cvSort( const CvArr* _src, CvArr* _dst, CvArr* _idx, int flags )
+//{
+//    cv::Mat src = cv::cvarrToMat(_src);
 
-    if( _idx )
-    {
-        cv::Mat idx0 = cv::cvarrToMat(_idx), idx = idx0;
-        CV_Assert( src.size() == idx.size() && idx.type() == CV_32S && src.data != idx.data );
-        cv::sortIdx( src, idx, flags );
-        CV_Assert( idx0.data == idx.data );
-    }
+//    if( _idx )
+//    {
+//        cv::Mat idx0 = cv::cvarrToMat(_idx), idx = idx0;
+//        CV_Assert( src.size() == idx.size() && idx.type() == CV_32S && src.data != idx.data );
+//        cv::sortIdx( src, idx, flags );
+//        CV_Assert( idx0.data == idx.data );
+//    }
 
-    if( _dst )
-    {
-        cv::Mat dst0 = cv::cvarrToMat(_dst), dst = dst0;
-        CV_Assert( src.size() == dst.size() && src.type() == dst.type() );
-        cv::sort( src, dst, flags );
-        CV_Assert( dst0.data == dst.data );
-    }
-}
+//    if( _dst )
+//    {
+//        cv::Mat dst0 = cv::cvarrToMat(_dst), dst = dst0;
+//        CV_Assert( src.size() == dst.size() && src.type() == dst.type() );
+//        cv::sort( src, dst, flags );
+//        CV_Assert( dst0.data == dst.data );
+//    }
+//}
 
 
 //CV_IMPL int
@@ -4732,241 +4732,185 @@ SparseMatConstIterator& SparseMatConstIterator::operator ++()
 }
 
 
-double norm( const SparseMat& src, int normType )
-{
-    SparseMatConstIterator it = src.begin();
+//double norm( const SparseMat& src, int normType )
+//{
+//    SparseMatConstIterator it = src.begin();
 
-    size_t i, N = src.nzcount();
-    normType &= NORM_TYPE_MASK;
-    int type = src.type();
-    double result = 0;
+//    size_t i, N = src.nzcount();
+//    normType &= NORM_TYPE_MASK;
+//    int type = src.type();
+//    double result = 0;
 
-    CV_Assert( normType == NORM_INF || normType == NORM_L1 || normType == NORM_L2 );
+//    CV_Assert( normType == NORM_INF || normType == NORM_L1 || normType == NORM_L2 );
 
-    if( type == CV_32F )
-    {
-        if( normType == NORM_INF )
-            for( i = 0; i < N; i++, ++it )
-                result = std::max(result, std::abs((double)it.value<float>()));
-        else if( normType == NORM_L1 )
-            for( i = 0; i < N; i++, ++it )
-                result += std::abs(it.value<float>());
-        else
-            for( i = 0; i < N; i++, ++it )
-            {
-                double v = it.value<float>();
-                result += v*v;
-            }
-    }
-    else if( type == CV_64F )
-    {
-        if( normType == NORM_INF )
-            for( i = 0; i < N; i++, ++it )
-                result = std::max(result, std::abs(it.value<double>()));
-        else if( normType == NORM_L1 )
-            for( i = 0; i < N; i++, ++it )
-                result += std::abs(it.value<double>());
-        else
-            for( i = 0; i < N; i++, ++it )
-            {
-                double v = it.value<double>();
-                result += v*v;
-            }
-    }
-    else
-        CV_Error( CV_StsUnsupportedFormat, "Only 32f and 64f are supported" );
+//    if( type == CV_32F )
+//    {
+//        if( normType == NORM_INF )
+//            for( i = 0; i < N; i++, ++it )
+//                result = std::max(result, std::abs((double)it.value<float>()));
+//        else if( normType == NORM_L1 )
+//            for( i = 0; i < N; i++, ++it )
+//                result += std::abs(it.value<float>());
+//        else
+//            for( i = 0; i < N; i++, ++it )
+//            {
+//                double v = it.value<float>();
+//                result += v*v;
+//            }
+//    }
+//    else if( type == CV_64F )
+//    {
+//        if( normType == NORM_INF )
+//            for( i = 0; i < N; i++, ++it )
+//                result = std::max(result, std::abs(it.value<double>()));
+//        else if( normType == NORM_L1 )
+//            for( i = 0; i < N; i++, ++it )
+//                result += std::abs(it.value<double>());
+//        else
+//            for( i = 0; i < N; i++, ++it )
+//            {
+//                double v = it.value<double>();
+//                result += v*v;
+//            }
+//    }
+//    else
+//        CV_Error( CV_StsUnsupportedFormat, "Only 32f and 64f are supported" );
 
-    if( normType == NORM_L2 )
-        result = std::sqrt(result);
-    return result;
-}
+//    if( normType == NORM_L2 )
+//        result = std::sqrt(result);
+//    return result;
+//}
 
-void minMaxLoc( const SparseMat& src, double* _minval, double* _maxval, int* _minidx, int* _maxidx )
-{
-    SparseMatConstIterator it = src.begin();
-    size_t i, N = src.nzcount(), d = src.hdr ? src.hdr->dims : 0;
-    int type = src.type();
-    const int *minidx = 0, *maxidx = 0;
+//void minMaxLoc( const SparseMat& src, double* _minval, double* _maxval, int* _minidx, int* _maxidx )
+//{
+//    SparseMatConstIterator it = src.begin();
+//    size_t i, N = src.nzcount(), d = src.hdr ? src.hdr->dims : 0;
+//    int type = src.type();
+//    const int *minidx = 0, *maxidx = 0;
 
-    if( type == CV_32F )
-    {
-        float minval = FLT_MAX, maxval = -FLT_MAX;
-        for( i = 0; i < N; i++, ++it )
-        {
-            float v = it.value<float>();
-            if( v < minval )
-            {
-                minval = v;
-                minidx = it.node()->idx;
-            }
-            if( v > maxval )
-            {
-                maxval = v;
-                maxidx = it.node()->idx;
-            }
-        }
-        if( _minval )
-            *_minval = minval;
-        if( _maxval )
-            *_maxval = maxval;
-    }
-    else if( type == CV_64F )
-    {
-        double minval = DBL_MAX, maxval = -DBL_MAX;
-        for( i = 0; i < N; i++, ++it )
-        {
-            double v = it.value<double>();
-            if( v < minval )
-            {
-                minval = v;
-                minidx = it.node()->idx;
-            }
-            if( v > maxval )
-            {
-                maxval = v;
-                maxidx = it.node()->idx;
-            }
-        }
-        if( _minval )
-            *_minval = minval;
-        if( _maxval )
-            *_maxval = maxval;
-    }
-    else
-        CV_Error( CV_StsUnsupportedFormat, "Only 32f and 64f are supported" );
+//    if( type == CV_32F )
+//    {
+//        float minval = FLT_MAX, maxval = -FLT_MAX;
+//        for( i = 0; i < N; i++, ++it )
+//        {
+//            float v = it.value<float>();
+//            if( v < minval )
+//            {
+//                minval = v;
+//                minidx = it.node()->idx;
+//            }
+//            if( v > maxval )
+//            {
+//                maxval = v;
+//                maxidx = it.node()->idx;
+//            }
+//        }
+//        if( _minval )
+//            *_minval = minval;
+//        if( _maxval )
+//            *_maxval = maxval;
+//    }
+//    else if( type == CV_64F )
+//    {
+//        double minval = DBL_MAX, maxval = -DBL_MAX;
+//        for( i = 0; i < N; i++, ++it )
+//        {
+//            double v = it.value<double>();
+//            if( v < minval )
+//            {
+//                minval = v;
+//                minidx = it.node()->idx;
+//            }
+//            if( v > maxval )
+//            {
+//                maxval = v;
+//                maxidx = it.node()->idx;
+//            }
+//        }
+//        if( _minval )
+//            *_minval = minval;
+//        if( _maxval )
+//            *_maxval = maxval;
+//    }
+//    else
+//        CV_Error( CV_StsUnsupportedFormat, "Only 32f and 64f are supported" );
 
-    if( _minidx )
-        for( i = 0; i < d; i++ )
-            _minidx[i] = minidx[i];
-    if( _maxidx )
-        for( i = 0; i < d; i++ )
-            _maxidx[i] = maxidx[i];
-}
+//    if( _minidx )
+//        for( i = 0; i < d; i++ )
+//            _minidx[i] = minidx[i];
+//    if( _maxidx )
+//        for( i = 0; i < d; i++ )
+//            _maxidx[i] = maxidx[i];
+//}
 
 
-void normalize( const SparseMat& src, SparseMat& dst, double a, int norm_type )
-{
-    double scale = 1;
-    if( norm_type == CV_L2 || norm_type == CV_L1 || norm_type == CV_C )
-    {
-        scale = norm( src, norm_type );
-        scale = scale > DBL_EPSILON ? a/scale : 0.;
-    }
-    else
-        CV_Error( CV_StsBadArg, "Unknown/unsupported norm type" );
+//void normalize( const SparseMat& src, SparseMat& dst, double a, int norm_type )
+//{
+//    double scale = 1;
+//    if( norm_type == CV_L2 || norm_type == CV_L1 || norm_type == CV_C )
+//    {
+//        scale = norm( src, norm_type );
+//        scale = scale > DBL_EPSILON ? a/scale : 0.;
+//    }
+//    else
+//        CV_Error( CV_StsBadArg, "Unknown/unsupported norm type" );
 
-    src.convertTo( dst, -1, scale );
-}
+//    src.convertTo( dst, -1, scale );
+//}
 
 ////////////////////// RotatedRect //////////////////////
 
-RotatedRect::RotatedRect(const Point2f& _point1, const Point2f& _point2, const Point2f& _point3)
-{
-    Point2f _center = 0.5f * (_point1 + _point3);
-    Vec2f vecs[2];
-    vecs[0] = Vec2f(_point1 - _point2);
-    vecs[1] = Vec2f(_point2 - _point3);
-    // check that given sides are perpendicular
-    CV_Assert( abs(vecs[0].dot(vecs[1])) / (norm(vecs[0]) * norm(vecs[1])) <= FLT_EPSILON );
-
-    // wd_i stores which vector (0,1) or (1,2) will make the width
-    // One of them will definitely have slope within -1 to 1
-    int wd_i = 0;
-    if( abs(vecs[1][1]) < abs(vecs[1][0]) ) wd_i = 1;
-    int ht_i = (wd_i + 1) % 2;
-
-    float _angle = atan(vecs[wd_i][1] / vecs[wd_i][0]) * 180.0f / (float) CV_PI;
-    float _width = (float) norm(vecs[wd_i]);
-    float _height = (float) norm(vecs[ht_i]);
-
-    center = _center;
-    size = Size2f(_width, _height);
-    angle = _angle;
-}
-
-void RotatedRect::points(Point2f pt[]) const
-{
-    double _angle = angle*CV_PI/180.;
-    float b = (float)cos(_angle)*0.5f;
-    float a = (float)sin(_angle)*0.5f;
-
-    pt[0].x = center.x - a*size.height - b*size.width;
-    pt[0].y = center.y + b*size.height - a*size.width;
-    pt[1].x = center.x + a*size.height - b*size.width;
-    pt[1].y = center.y - b*size.height - a*size.width;
-    pt[2].x = 2*center.x - pt[0].x;
-    pt[2].y = 2*center.y - pt[0].y;
-    pt[3].x = 2*center.x - pt[1].x;
-    pt[3].y = 2*center.y - pt[1].y;
-}
-
-Rect RotatedRect::boundingRect() const
-{
-    Point2f pt[4];
-    points(pt);
-    Rect r(cvFloor(std::min(std::min(std::min(pt[0].x, pt[1].x), pt[2].x), pt[3].x)),
-           cvFloor(std::min(std::min(std::min(pt[0].y, pt[1].y), pt[2].y), pt[3].y)),
-           cvCeil(std::max(std::max(std::max(pt[0].x, pt[1].x), pt[2].x), pt[3].x)),
-           cvCeil(std::max(std::max(std::max(pt[0].y, pt[1].y), pt[2].y), pt[3].y)));
-    r.width -= r.x - 1;
-    r.height -= r.y - 1;
-    return r;
-}
-
-}
-
-// glue
-
-CvMatND::CvMatND(const cv::Mat& m)
-{
-    cvInitMatNDHeader(this, m.dims, m.size, m.type(), m.data );
-    int i, d = m.dims;
-    for( i = 0; i < d; i++ )
-        dim[i].step = (int)m.step[i];
-    type |= m.flags & cv::Mat::CONTINUOUS_FLAG;
-}
-
-_IplImage::_IplImage(const cv::Mat& m)
-{
-    CV_Assert( m.dims <= 2 );
-    cvInitImageHeader(this, m.size(), cvIplDepth(m.flags), m.channels());
-    cvSetData(this, m.data, (int)m.step[0]);
-}
-
-//CvSparseMat* cvCreateSparseMat(const cv::SparseMat& sm)
+//RotatedRect::RotatedRect(const Point2f& _point1, const Point2f& _point2, const Point2f& _point3)
 //{
-//    if( !sm.hdr )
-//        return 0;
+//    Point2f _center = 0.5f * (_point1 + _point3);
+//    Vec2f vecs[2];
+//    vecs[0] = Vec2f(_point1 - _point2);
+//    vecs[1] = Vec2f(_point2 - _point3);
+//    // check that given sides are perpendicular
+//    CV_Assert( abs(vecs[0].dot(vecs[1])) / (norm(vecs[0]) * norm(vecs[1])) <= FLT_EPSILON );
 
-//    CvSparseMat* m = cvCreateSparseMat(sm.hdr->dims, sm.hdr->size, sm.type());
+//    // wd_i stores which vector (0,1) or (1,2) will make the width
+//    // One of them will definitely have slope within -1 to 1
+//    int wd_i = 0;
+//    if( abs(vecs[1][1]) < abs(vecs[1][0]) ) wd_i = 1;
+//    int ht_i = (wd_i + 1) % 2;
 
-//    cv::SparseMatConstIterator from = sm.begin();
-//    size_t i, N = sm.nzcount(), esz = sm.elemSize();
+//    float _angle = atan(vecs[wd_i][1] / vecs[wd_i][0]) * 180.0f / (float) CV_PI;
+//    float _width = (float) norm(vecs[wd_i]);
+//    float _height = (float) norm(vecs[ht_i]);
 
-//    for( i = 0; i < N; i++, ++from )
-//    {
-//        const cv::SparseMat::Node* n = from.node();
-//        uchar* to = cvPtrND(m, n->idx, 0, -2, 0);
-//        cv::copyElem(from.ptr, to, esz);
-//    }
-//    return m;
+//    center = _center;
+//    size = Size2f(_width, _height);
+//    angle = _angle;
 //}
 
-void CvSparseMat::copyToSparseMat(cv::SparseMat& m) const
-{
-    m.create( dims, &size[0], type );
+//void RotatedRect::points(Point2f pt[]) const
+//{
+//    double _angle = angle*CV_PI/180.;
+//    float b = (float)cos(_angle)*0.5f;
+//    float a = (float)sin(_angle)*0.5f;
 
-    CvSparseMatIterator it;
-    CvSparseNode* n = cvInitSparseMatIterator(this, &it);
-    size_t esz = m.elemSize();
+//    pt[0].x = center.x - a*size.height - b*size.width;
+//    pt[0].y = center.y + b*size.height - a*size.width;
+//    pt[1].x = center.x + a*size.height - b*size.width;
+//    pt[1].y = center.y - b*size.height - a*size.width;
+//    pt[2].x = 2*center.x - pt[0].x;
+//    pt[2].y = 2*center.y - pt[0].y;
+//    pt[3].x = 2*center.x - pt[1].x;
+//    pt[3].y = 2*center.y - pt[1].y;
+//}
 
-    for( ; n != 0; n = cvGetNextSparseNode(&it) )
-    {
-        const int* idx = CV_NODE_IDX(this, n);
-        uchar* to = m.newNode(idx, m.hash(idx));
-        cv::copyElem((const uchar*)CV_NODE_VAL(this, n), to, esz);
-    }
+//Rect RotatedRect::boundingRect() const
+//{
+//    Point2f pt[4];
+//    points(pt);
+//    Rect r(cvFloor(std::min(std::min(std::min(pt[0].x, pt[1].x), pt[2].x), pt[3].x)),
+//           cvFloor(std::min(std::min(std::min(pt[0].y, pt[1].y), pt[2].y), pt[3].y)),
+//           cvCeil(std::max(std::max(std::max(pt[0].x, pt[1].x), pt[2].x), pt[3].x)),
+//           cvCeil(std::max(std::max(std::max(pt[0].y, pt[1].y), pt[2].y), pt[3].y)));
+//    r.width -= r.x - 1;
+//    r.height -= r.y - 1;
+//    return r;
+//}
+
 }
-
-
-/* End of file. */
