@@ -20,7 +20,8 @@ elseif(BUILD_TESTS)
     target_link_libraries(test_all
         ${GTEST_BOTH_LIBRARIES}
         ${PROJECT_NAME}
-		ExtTest
+        ${PROJECT_NAME}_cvCore pthread
+                ExtTest
     )
 
     if(ENABLE_COVERAGE_LCOV)

@@ -1410,14 +1410,14 @@ void cv::extractChannel(InputArray _src, OutputArray _dst, int coi)
     CV_Assert( 0 <= coi && coi < cn );
     int ch[] = { coi, 0 };
 
-    if (ocl::useOpenCL() && _src.dims() <= 2 && _dst.isUMat())
-    {
-        UMat src = _src.getUMat();
-        _dst.create(src.dims, &src.size[0], depth);
-        UMat dst = _dst.getUMat();
-        mixChannels(std::vector<UMat>(1, src), std::vector<UMat>(1, dst), ch, 1);
-        return;
-    }
+//    if (ocl::useOpenCL() && _src.dims() <= 2 && _dst.isUMat())
+//    {
+//        UMat src = _src.getUMat();
+//        _dst.create(src.dims, &src.size[0], depth);
+//        UMat dst = _dst.getUMat();
+//        mixChannels(std::vector<UMat>(1, src), std::vector<UMat>(1, dst), ch, 1);
+//        return;
+//    }
 
     Mat src = _src.getMat();
     _dst.create(src.dims, &src.size[0], depth);
@@ -1433,12 +1433,12 @@ void cv::insertChannel(InputArray _src, InputOutputArray _dst, int coi)
     CV_Assert( 0 <= coi && coi < dcn && scn == 1 );
 
     int ch[] = { 0, coi };
-    if (ocl::useOpenCL() && _src.dims() <= 2 && _dst.isUMat())
-    {
-        UMat src = _src.getUMat(), dst = _dst.getUMat();
-        mixChannels(std::vector<UMat>(1, src), std::vector<UMat>(1, dst), ch, 1);
-        return;
-    }
+//    if (ocl::useOpenCL() && _src.dims() <= 2 && _dst.isUMat())
+//    {
+//        UMat src = _src.getUMat(), dst = _dst.getUMat();
+//        mixChannels(std::vector<UMat>(1, src), std::vector<UMat>(1, dst), ch, 1);
+//        return;
+//    }
 
     Mat src = _src.getMat(), dst = _dst.getMat();
     mixChannels(&src, 1, &dst, 1, ch, 1);
