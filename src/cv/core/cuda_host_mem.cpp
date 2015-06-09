@@ -44,291 +44,291 @@
 #include "precomp.hpp"
 #include <map>
 
-using namespace cv;
-using namespace cv::cuda;
+//using namespace cv;
+//using namespace cv::cuda;
 
-#ifdef HAVE_CUDA
+//#ifdef HAVE_CUDA
 
-namespace {
+//namespace {
 
-class HostMemAllocator : public MatAllocator
-{
-public:
-    explicit HostMemAllocator(unsigned int flags) : flags_(flags)
-    {
-    }
+//class HostMemAllocator : public MatAllocator
+//{
+//public:
+//    explicit HostMemAllocator(unsigned int flags) : flags_(flags)
+//    {
+//    }
 
-    UMatData* allocate(int dims, const int* sizes, int type,
-                       void* data0, size_t* step,
-                       int /*flags*/, UMatUsageFlags /*usageFlags*/) const
-    {
-        size_t total = CV_ELEM_SIZE(type);
-        for (int i = dims-1; i >= 0; i--)
-        {
-            if (step)
-            {
-                if (data0 && step[i] != CV_AUTOSTEP)
-                {
-                    CV_Assert(total <= step[i]);
-                    total = step[i];
-                }
-                else
-                {
-                    step[i] = total;
-                }
-            }
+//    UMatData* allocate(int dims, const int* sizes, int type,
+//                       void* data0, size_t* step,
+//                       int /*flags*/, UMatUsageFlags /*usageFlags*/) const
+//    {
+//        size_t total = CV_ELEM_SIZE(type);
+//        for (int i = dims-1; i >= 0; i--)
+//        {
+//            if (step)
+//            {
+//                if (data0 && step[i] != CV_AUTOSTEP)
+//                {
+//                    CV_Assert(total <= step[i]);
+//                    total = step[i];
+//                }
+//                else
+//                {
+//                    step[i] = total;
+//                }
+//            }
 
-            total *= sizes[i];
-        }
+//            total *= sizes[i];
+//        }
 
-        UMatData* u = new UMatData(this);
-        u->size = total;
+//        UMatData* u = new UMatData(this);
+//        u->size = total;
 
-        if (data0)
-        {
-            u->data = u->origdata = static_cast<uchar*>(data0);
-            u->flags |= UMatData::USER_ALLOCATED;
-        }
-        else
-        {
-            void* ptr = 0;
-            cudaSafeCall( cudaHostAlloc(&ptr, total, flags_) );
+//        if (data0)
+//        {
+//            u->data = u->origdata = static_cast<uchar*>(data0);
+//            u->flags |= UMatData::USER_ALLOCATED;
+//        }
+//        else
+//        {
+//            void* ptr = 0;
+//            cudaSafeCall( cudaHostAlloc(&ptr, total, flags_) );
 
-            u->data = u->origdata = static_cast<uchar*>(ptr);
-        }
+//            u->data = u->origdata = static_cast<uchar*>(ptr);
+//        }
 
-        return u;
-    }
+//        return u;
+//    }
 
-    bool allocate(UMatData* u, int /*accessFlags*/, UMatUsageFlags /*usageFlags*/) const
-    {
-        return (u != NULL);
-    }
+//    bool allocate(UMatData* u, int /*accessFlags*/, UMatUsageFlags /*usageFlags*/) const
+//    {
+//        return (u != NULL);
+//    }
 
-    void deallocate(UMatData* u) const
-    {
-        if (!u)
-            return;
+//    void deallocate(UMatData* u) const
+//    {
+//        if (!u)
+//            return;
 
-        CV_Assert(u->urefcount >= 0);
-        CV_Assert(u->refcount >= 0);
+//        CV_Assert(u->urefcount >= 0);
+//        CV_Assert(u->refcount >= 0);
 
-        if (u->refcount == 0)
-        {
-            if ( !(u->flags & UMatData::USER_ALLOCATED) )
-            {
-                cudaFreeHost(u->origdata);
-                u->origdata = 0;
-            }
+//        if (u->refcount == 0)
+//        {
+//            if ( !(u->flags & UMatData::USER_ALLOCATED) )
+//            {
+//                cudaFreeHost(u->origdata);
+//                u->origdata = 0;
+//            }
 
-            delete u;
-        }
-    }
+//            delete u;
+//        }
+//    }
 
-private:
-    unsigned int flags_;
-};
+//private:
+//    unsigned int flags_;
+//};
 
-} // namespace
+//} // namespace
 
-#endif
+//#endif
 
-MatAllocator* cv::cuda::HostMem::getAllocator(AllocType alloc_type)
-{
-#ifndef HAVE_CUDA
-    (void) alloc_type;
-    throw_no_cuda();
-    return NULL;
-#else
-    static std::map<unsigned int, Ptr<MatAllocator> > allocators;
+//MatAllocator* cv::cuda::HostMem::getAllocator(AllocType alloc_type)
+//{
+//#ifndef HAVE_CUDA
+//    (void) alloc_type;
+//    throw_no_cuda();
+//    return NULL;
+//#else
+//    static std::map<unsigned int, Ptr<MatAllocator> > allocators;
 
-    unsigned int flag = cudaHostAllocDefault;
+//    unsigned int flag = cudaHostAllocDefault;
 
-    switch (alloc_type)
-    {
-    case PAGE_LOCKED:    flag = cudaHostAllocDefault; break;
-    case SHARED:         flag = cudaHostAllocMapped;  break;
-    case WRITE_COMBINED: flag = cudaHostAllocWriteCombined; break;
-    default:             CV_Error(cv::Error::StsBadFlag, "Invalid alloc type");
-    }
+//    switch (alloc_type)
+//    {
+//    case PAGE_LOCKED:    flag = cudaHostAllocDefault; break;
+//    case SHARED:         flag = cudaHostAllocMapped;  break;
+//    case WRITE_COMBINED: flag = cudaHostAllocWriteCombined; break;
+//    default:             CV_Error(cv::Error::StsBadFlag, "Invalid alloc type");
+//    }
 
-    Ptr<MatAllocator>& a = allocators[flag];
+//    Ptr<MatAllocator>& a = allocators[flag];
 
-    if (a.empty())
-    {
-        a = makePtr<HostMemAllocator>(flag);
-    }
+//    if (a.empty())
+//    {
+//        a = makePtr<HostMemAllocator>(flag);
+//    }
 
-    return a.get();
-#endif
-}
+//    return a.get();
+//#endif
+//}
 
-#ifdef HAVE_CUDA
-namespace
-{
-    size_t alignUpStep(size_t what, size_t alignment)
-    {
-        size_t alignMask = alignment - 1;
-        size_t inverseAlignMask = ~alignMask;
-        size_t res = (what + alignMask) & inverseAlignMask;
-        return res;
-    }
-}
-#endif
+//#ifdef HAVE_CUDA
+//namespace
+//{
+//    size_t alignUpStep(size_t what, size_t alignment)
+//    {
+//        size_t alignMask = alignment - 1;
+//        size_t inverseAlignMask = ~alignMask;
+//        size_t res = (what + alignMask) & inverseAlignMask;
+//        return res;
+//    }
+//}
+//#endif
 
-void cv::cuda::HostMem::create(int rows_, int cols_, int type_)
-{
-#ifndef HAVE_CUDA
-    (void) rows_;
-    (void) cols_;
-    (void) type_;
-    throw_no_cuda();
-#else
-    if (alloc_type == SHARED)
-    {
-        DeviceInfo devInfo;
-        CV_Assert( devInfo.canMapHostMemory() );
-    }
+//void cv::cuda::HostMem::create(int rows_, int cols_, int type_)
+//{
+//#ifndef HAVE_CUDA
+//    (void) rows_;
+//    (void) cols_;
+//    (void) type_;
+//    throw_no_cuda();
+//#else
+//    if (alloc_type == SHARED)
+//    {
+//        DeviceInfo devInfo;
+//        CV_Assert( devInfo.canMapHostMemory() );
+//    }
 
-    type_ &= Mat::TYPE_MASK;
+//    type_ &= Mat::TYPE_MASK;
 
-    if (rows == rows_ && cols == cols_ && type() == type_ && data)
-        return;
+//    if (rows == rows_ && cols == cols_ && type() == type_ && data)
+//        return;
 
-    if (data)
-        release();
+//    if (data)
+//        release();
 
-    CV_DbgAssert( rows_ >= 0 && cols_ >= 0 );
+//    CV_DbgAssert( rows_ >= 0 && cols_ >= 0 );
 
-    if (rows_ > 0 && cols_ > 0)
-    {
-        flags = Mat::MAGIC_VAL + Mat::CONTINUOUS_FLAG + type_;
-        rows = rows_;
-        cols = cols_;
-        step = elemSize() * cols;
+//    if (rows_ > 0 && cols_ > 0)
+//    {
+//        flags = Mat::MAGIC_VAL + Mat::CONTINUOUS_FLAG + type_;
+//        rows = rows_;
+//        cols = cols_;
+//        step = elemSize() * cols;
 
-        if (alloc_type == SHARED)
-        {
-            DeviceInfo devInfo;
-            step = alignUpStep(step, devInfo.textureAlignment());
-        }
+//        if (alloc_type == SHARED)
+//        {
+//            DeviceInfo devInfo;
+//            step = alignUpStep(step, devInfo.textureAlignment());
+//        }
 
-        int64 _nettosize = (int64)step*rows;
-        size_t nettosize = (size_t)_nettosize;
+//        int64 _nettosize = (int64)step*rows;
+//        size_t nettosize = (size_t)_nettosize;
 
-        if (_nettosize != (int64)nettosize)
-            CV_Error(cv::Error::StsNoMem, "Too big buffer is allocated");
+//        if (_nettosize != (int64)nettosize)
+//            CV_Error(cv::Error::StsNoMem, "Too big buffer is allocated");
 
-        size_t datasize = alignSize(nettosize, (int)sizeof(*refcount));
+//        size_t datasize = alignSize(nettosize, (int)sizeof(*refcount));
 
-        void* ptr = 0;
+//        void* ptr = 0;
 
-        switch (alloc_type)
-        {
-        case PAGE_LOCKED:    cudaSafeCall( cudaHostAlloc(&ptr, datasize, cudaHostAllocDefault) ); break;
-        case SHARED:         cudaSafeCall( cudaHostAlloc(&ptr, datasize, cudaHostAllocMapped) );  break;
-        case WRITE_COMBINED: cudaSafeCall( cudaHostAlloc(&ptr, datasize, cudaHostAllocWriteCombined) ); break;
-        default:             CV_Error(cv::Error::StsBadFlag, "Invalid alloc type");
-        }
+//        switch (alloc_type)
+//        {
+//        case PAGE_LOCKED:    cudaSafeCall( cudaHostAlloc(&ptr, datasize, cudaHostAllocDefault) ); break;
+//        case SHARED:         cudaSafeCall( cudaHostAlloc(&ptr, datasize, cudaHostAllocMapped) );  break;
+//        case WRITE_COMBINED: cudaSafeCall( cudaHostAlloc(&ptr, datasize, cudaHostAllocWriteCombined) ); break;
+//        default:             CV_Error(cv::Error::StsBadFlag, "Invalid alloc type");
+//        }
 
-        datastart = data =  (uchar*)ptr;
-        dataend = data + nettosize;
+//        datastart = data =  (uchar*)ptr;
+//        dataend = data + nettosize;
 
-        refcount = (int*)cv::fastMalloc(sizeof(*refcount));
-        *refcount = 1;
-    }
-#endif
-}
+//        refcount = (int*)cv::fastMalloc(sizeof(*refcount));
+//        *refcount = 1;
+//    }
+//#endif
+//}
 
-HostMem cv::cuda::HostMem::reshape(int new_cn, int new_rows) const
-{
-    HostMem hdr = *this;
+//HostMem cv::cuda::HostMem::reshape(int new_cn, int new_rows) const
+//{
+//    HostMem hdr = *this;
 
-    int cn = channels();
-    if (new_cn == 0)
-        new_cn = cn;
+//    int cn = channels();
+//    if (new_cn == 0)
+//        new_cn = cn;
 
-    int total_width = cols * cn;
+//    int total_width = cols * cn;
 
-    if ((new_cn > total_width || total_width % new_cn != 0) && new_rows == 0)
-        new_rows = rows * total_width / new_cn;
+//    if ((new_cn > total_width || total_width % new_cn != 0) && new_rows == 0)
+//        new_rows = rows * total_width / new_cn;
 
-    if (new_rows != 0 && new_rows != rows)
-    {
-        int total_size = total_width * rows;
+//    if (new_rows != 0 && new_rows != rows)
+//    {
+//        int total_size = total_width * rows;
 
-        if (!isContinuous())
-            CV_Error(cv::Error::BadStep, "The matrix is not continuous, thus its number of rows can not be changed");
+//        if (!isContinuous())
+//            CV_Error(cv::Error::BadStep, "The matrix is not continuous, thus its number of rows can not be changed");
 
-        if ((unsigned)new_rows > (unsigned)total_size)
-            CV_Error(cv::Error::StsOutOfRange, "Bad new number of rows");
+//        if ((unsigned)new_rows > (unsigned)total_size)
+//            CV_Error(cv::Error::StsOutOfRange, "Bad new number of rows");
 
-        total_width = total_size / new_rows;
+//        total_width = total_size / new_rows;
 
-        if (total_width * new_rows != total_size)
-            CV_Error(cv::Error::StsBadArg, "The total number of matrix elements is not divisible by the new number of rows");
+//        if (total_width * new_rows != total_size)
+//            CV_Error(cv::Error::StsBadArg, "The total number of matrix elements is not divisible by the new number of rows");
 
-        hdr.rows = new_rows;
-        hdr.step = total_width * elemSize1();
-    }
+//        hdr.rows = new_rows;
+//        hdr.step = total_width * elemSize1();
+//    }
 
-    int new_width = total_width / new_cn;
+//    int new_width = total_width / new_cn;
 
-    if (new_width * new_cn != total_width)
-        CV_Error(cv::Error::BadNumChannels, "The total width is not divisible by the new number of channels");
+//    if (new_width * new_cn != total_width)
+//        CV_Error(cv::Error::BadNumChannels, "The total width is not divisible by the new number of channels");
 
-    hdr.cols = new_width;
-    hdr.flags = (hdr.flags & ~CV_MAT_CN_MASK) | ((new_cn - 1) << CV_CN_SHIFT);
+//    hdr.cols = new_width;
+//    hdr.flags = (hdr.flags & ~CV_MAT_CN_MASK) | ((new_cn - 1) << CV_CN_SHIFT);
 
-    return hdr;
-}
+//    return hdr;
+//}
 
-void cv::cuda::HostMem::release()
-{
-#ifdef HAVE_CUDA
-    if (refcount && CV_XADD(refcount, -1) == 1)
-    {
-        cudaFreeHost(datastart);
-        fastFree(refcount);
-    }
+//void cv::cuda::HostMem::release()
+//{
+//#ifdef HAVE_CUDA
+//    if (refcount && CV_XADD(refcount, -1) == 1)
+//    {
+//        cudaFreeHost(datastart);
+//        fastFree(refcount);
+//    }
 
-    dataend = data = datastart = 0;
-    step = rows = cols = 0;
-    refcount = 0;
-#endif
-}
+//    dataend = data = datastart = 0;
+//    step = rows = cols = 0;
+//    refcount = 0;
+//#endif
+//}
 
-GpuMat cv::cuda::HostMem::createGpuMatHeader() const
-{
-#ifndef HAVE_CUDA
-    throw_no_cuda();
-    return GpuMat();
-#else
-    CV_Assert( alloc_type == SHARED );
+//GpuMat cv::cuda::HostMem::createGpuMatHeader() const
+//{
+//#ifndef HAVE_CUDA
+//    throw_no_cuda();
+//    return GpuMat();
+//#else
+//    CV_Assert( alloc_type == SHARED );
 
-    void *pdev;
-    cudaSafeCall( cudaHostGetDevicePointer(&pdev, data, 0) );
+//    void *pdev;
+//    cudaSafeCall( cudaHostGetDevicePointer(&pdev, data, 0) );
 
-    return GpuMat(rows, cols, type(), pdev, step);
-#endif
-}
+//    return GpuMat(rows, cols, type(), pdev, step);
+//#endif
+//}
 
-void cv::cuda::registerPageLocked(Mat& m)
-{
-#ifndef HAVE_CUDA
-    (void) m;
-    throw_no_cuda();
-#else
-    CV_Assert( m.isContinuous() );
-    cudaSafeCall( cudaHostRegister(m.data, m.step * m.rows, cudaHostRegisterPortable) );
-#endif
-}
+//void cv::cuda::registerPageLocked(Mat& m)
+//{
+//#ifndef HAVE_CUDA
+//    (void) m;
+//    throw_no_cuda();
+//#else
+//    CV_Assert( m.isContinuous() );
+//    cudaSafeCall( cudaHostRegister(m.data, m.step * m.rows, cudaHostRegisterPortable) );
+//#endif
+//}
 
-void cv::cuda::unregisterPageLocked(Mat& m)
-{
-#ifndef HAVE_CUDA
-    (void) m;
-#else
-    cudaSafeCall( cudaHostUnregister(m.data) );
-#endif
-}
+//void cv::cuda::unregisterPageLocked(Mat& m)
+//{
+//#ifndef HAVE_CUDA
+//    (void) m;
+//#else
+//    cudaSafeCall( cudaHostUnregister(m.data) );
+//#endif
+//}
