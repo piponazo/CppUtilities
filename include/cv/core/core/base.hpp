@@ -629,19 +629,6 @@ namespace ogl
     class CV_EXPORTS Arrays;
 }
 
-namespace cuda
-{
-    class CV_EXPORTS GpuMat;
-    class CV_EXPORTS HostMem;
-    class CV_EXPORTS Stream;
-    class CV_EXPORTS Event;
-}
-
-namespace cudev
-{
-    template <typename _Tp> class GpuMat_;
-}
-
 namespace ipp
 {
 CV_EXPORTS void setIppStatus(int status, const char * const funcname = NULL, const char * const filename = NULL,

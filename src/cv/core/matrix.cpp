@@ -1198,29 +1198,6 @@ Mat _InputArray::getMat_(int i) const
         return v[i].getMat(accessFlags);
     }
 
-//    if( k == OPENGL_BUFFER )
-//    {
-//        CV_Assert( i < 0 );
-//        CV_Error(cv::Error::StsNotImplemented, "You should explicitly call mapHost/unmapHost methods for ogl::Buffer object");
-//        return Mat();
-//    }
-
-//    if( k == CUDA_GPU_MAT )
-//    {
-//        CV_Assert( i < 0 );
-//        CV_Error(cv::Error::StsNotImplemented, "You should explicitly call download method for cuda::GpuMat object");
-//        return Mat();
-//    }
-
-//    if( k == CUDA_HOST_MEM )
-//    {
-//        CV_Assert( i < 0 );
-
-//        const cuda::HostMem* cuda_mem = (const cuda::HostMem*)obj;
-
-//        return cuda_mem->createMatHeader();
-//    }
-
     CV_Error(Error::StsNotImplemented, "Unknown/unsupported array type");
     return Mat();
 }
@@ -1405,45 +1382,6 @@ void _InputArray::getUMatVector(std::vector<UMat>& umv) const
     CV_Error(Error::StsNotImplemented, "Unknown/unsupported array type");
 }
 
-//cuda::GpuMat _InputArray::getGpuMat() const
-//{
-//    int k = kind();
-
-//    if (k == CUDA_GPU_MAT)
-//    {
-//        const cuda::GpuMat* d_mat = (const cuda::GpuMat*)obj;
-//        return *d_mat;
-//    }
-
-//    if (k == CUDA_HOST_MEM)
-//    {
-//        const cuda::HostMem* cuda_mem = (const cuda::HostMem*)obj;
-//        return cuda_mem->createGpuMatHeader();
-//    }
-
-//    if (k == OPENGL_BUFFER)
-//    {
-//        CV_Error(cv::Error::StsNotImplemented, "You should explicitly call mapDevice/unmapDevice methods for ogl::Buffer object");
-//        return cuda::GpuMat();
-//    }
-
-//    if (k == NONE)
-//        return cuda::GpuMat();
-
-//    CV_Error(cv::Error::StsNotImplemented, "getGpuMat is available only for cuda::GpuMat and cuda::HostMem");
-//    return cuda::GpuMat();
-//}
-
-//ogl::Buffer _InputArray::getOGlBuffer() const
-//{
-//    int k = kind();
-
-//    CV_Assert(k == OPENGL_BUFFER);
-
-//    const ogl::Buffer* gl_buf = (const ogl::Buffer*)obj;
-//    return *gl_buf;
-//}
-
 int _InputArray::kind() const
 {
     return flags & KIND_MASK;
@@ -1537,27 +1475,6 @@ Size _InputArray::size(int i) const
 
         return vv[i].size();
     }
-
-//    if( k == OPENGL_BUFFER )
-//    {
-//        CV_Assert( i < 0 );
-//        const ogl::Buffer* buf = (const ogl::Buffer*)obj;
-//        return buf->size();
-//    }
-
-//    if( k == CUDA_GPU_MAT )
-//    {
-//        CV_Assert( i < 0 );
-//        const cuda::GpuMat* d_mat = (const cuda::GpuMat*)obj;
-//        return d_mat->size();
-//    }
-
-//    if( k == CUDA_HOST_MEM )
-//    {
-//        CV_Assert( i < 0 );
-//        const cuda::HostMem* cuda_mem = (const cuda::HostMem*)obj;
-//        return cuda_mem->size();
-//    }
 
     CV_Error(Error::StsNotImplemented, "Unknown/unsupported array type");
     return Size();
@@ -1825,15 +1742,6 @@ int _InputArray::type(int i) const
         return vv[i >= 0 ? i : 0].type();
     }
 
-//    if( k == OPENGL_BUFFER )
-//        return ((const ogl::Buffer*)obj)->type();
-
-//    if( k == CUDA_GPU_MAT )
-//        return ((const cuda::GpuMat*)obj)->type();
-
-//    if( k == CUDA_HOST_MEM )
-//        return ((const cuda::HostMem*)obj)->type();
-
     CV_Error(Error::StsNotImplemented, "Unknown/unsupported array type");
     return 0;
 }
@@ -1896,15 +1804,6 @@ bool _InputArray::empty() const
         const std::vector<UMat>& vv = *(const std::vector<UMat>*)obj;
         return vv.empty();
     }
-
-//    if( k == OPENGL_BUFFER )
-//        return ((const ogl::Buffer*)obj)->empty();
-
-//    if( k == CUDA_GPU_MAT )
-//        return ((const cuda::GpuMat*)obj)->empty();
-
-//    if( k == CUDA_HOST_MEM )
-//        return ((const cuda::HostMem*)obj)->empty();
 
     CV_Error(Error::StsNotImplemented, "Unknown/unsupported array type");
     return true;
@@ -2012,13 +1911,6 @@ size_t _InputArray::offset(int i) const
         return vv[i].offset;
     }
 
-//    if( k == CUDA_GPU_MAT )
-//    {
-//        CV_Assert( i < 0 );
-//        const cuda::GpuMat * const m = ((const cuda::GpuMat*)obj);
-//        return (size_t)(m->data - m->datastart);
-//    }
-
     CV_Error(Error::StsNotImplemented, "");
     return 0;
 }
@@ -2058,12 +1950,6 @@ size_t _InputArray::step(int i) const
         CV_Assert((size_t)i < vv.size());
         return vv[i].step;
     }
-
-//    if( k == CUDA_GPU_MAT )
-//    {
-//        CV_Assert( i < 0 );
-//        return ((const cuda::GpuMat*)obj)->step;
-//    }
 
     CV_Error(Error::StsNotImplemented, "");
     return 0;
@@ -2138,27 +2024,6 @@ void _OutputArray::create(Size _sz, int mtype, int i, bool allowTransposed, int 
         ((UMat*)obj)->create(_sz, mtype);
         return;
     }
-//    if( k == CUDA_GPU_MAT && i < 0 && !allowTransposed && fixedDepthMask == 0 )
-//    {
-//        CV_Assert(!fixedSize() || ((cuda::GpuMat*)obj)->size() == _sz);
-//        CV_Assert(!fixedType() || ((cuda::GpuMat*)obj)->type() == mtype);
-//        ((cuda::GpuMat*)obj)->create(_sz, mtype);
-//        return;
-//    }
-//    if( k == OPENGL_BUFFER && i < 0 && !allowTransposed && fixedDepthMask == 0 )
-//    {
-//        CV_Assert(!fixedSize() || ((ogl::Buffer*)obj)->size() == _sz);
-//        CV_Assert(!fixedType() || ((ogl::Buffer*)obj)->type() == mtype);
-//        ((ogl::Buffer*)obj)->create(_sz, mtype);
-//        return;
-//    }
-//    if( k == CUDA_HOST_MEM && i < 0 && !allowTransposed && fixedDepthMask == 0 )
-//    {
-//        CV_Assert(!fixedSize() || ((cuda::HostMem*)obj)->size() == _sz);
-//        CV_Assert(!fixedType() || ((cuda::HostMem*)obj)->type() == mtype);
-//        ((cuda::HostMem*)obj)->create(_sz, mtype);
-//        return;
-//    }
     int sizes[] = {_sz.height, _sz.width};
     create(2, sizes, mtype, i, allowTransposed, fixedDepthMask);
 }
@@ -2180,27 +2045,6 @@ void _OutputArray::create(int _rows, int _cols, int mtype, int i, bool allowTran
         ((UMat*)obj)->create(_rows, _cols, mtype);
         return;
     }
-//    if( k == CUDA_GPU_MAT && i < 0 && !allowTransposed && fixedDepthMask == 0 )
-//    {
-//        CV_Assert(!fixedSize() || ((cuda::GpuMat*)obj)->size() == Size(_cols, _rows));
-//        CV_Assert(!fixedType() || ((cuda::GpuMat*)obj)->type() == mtype);
-//        ((cuda::GpuMat*)obj)->create(_rows, _cols, mtype);
-//        return;
-//    }
-//    if( k == OPENGL_BUFFER && i < 0 && !allowTransposed && fixedDepthMask == 0 )
-//    {
-//        CV_Assert(!fixedSize() || ((ogl::Buffer*)obj)->size() == Size(_cols, _rows));
-//        CV_Assert(!fixedType() || ((ogl::Buffer*)obj)->type() == mtype);
-//        ((ogl::Buffer*)obj)->create(_rows, _cols, mtype);
-//        return;
-//    }
-//    if( k == CUDA_HOST_MEM && i < 0 && !allowTransposed && fixedDepthMask == 0 )
-//    {
-//        CV_Assert(!fixedSize() || ((cuda::HostMem*)obj)->size() == Size(_cols, _rows));
-//        CV_Assert(!fixedType() || ((cuda::HostMem*)obj)->type() == mtype);
-//        ((cuda::HostMem*)obj)->create(_rows, _cols, mtype);
-//        return;
-//    }
     int sizes[] = {_rows, _cols};
     create(2, sizes, mtype, i, allowTransposed, fixedDepthMask);
 }
@@ -2522,24 +2366,6 @@ void _OutputArray::release() const
         return;
     }
 
-//    if( k == CUDA_GPU_MAT )
-//    {
-//        ((cuda::GpuMat*)obj)->release();
-//        return;
-//    }
-
-//    if( k == CUDA_HOST_MEM )
-//    {
-//        ((cuda::HostMem*)obj)->release();
-//        return;
-//    }
-
-//    if( k == OPENGL_BUFFER )
-//    {
-//        ((ogl::Buffer*)obj)->release();
-//        return;
-//    }
-
     if( k == NONE )
         return;
 
@@ -2623,27 +2449,6 @@ UMat& _OutputArray::getUMatRef(int i) const
     }
 }
 
-//cuda::GpuMat& _OutputArray::getGpuMatRef() const
-//{
-//    int k = kind();
-//    CV_Assert( k == CUDA_GPU_MAT );
-//    return *(cuda::GpuMat*)obj;
-//}
-
-//ogl::Buffer& _OutputArray::getOGlBufferRef() const
-//{
-//    int k = kind();
-//    CV_Assert( k == OPENGL_BUFFER );
-//    return *(ogl::Buffer*)obj;
-//}
-
-//cuda::HostMem& _OutputArray::getHostMemRef() const
-//{
-//    int k = kind();
-//    CV_Assert( k == CUDA_HOST_MEM );
-//    return *(cuda::HostMem*)obj;
-//}
-
 void _OutputArray::setTo(const _InputArray& arr, const _InputArray & mask) const
 {
     int k = kind();
@@ -2657,12 +2462,6 @@ void _OutputArray::setTo(const _InputArray& arr, const _InputArray & mask) const
     }
     else if( k == UMAT )
         ((UMat*)obj)->setTo(arr, mask);
-//    else if( k == CUDA_GPU_MAT )
-//    {
-//        Mat value = arr.getMat();
-//        CV_Assert( checkScalar(value, type(), arr.kind(), _InputArray::CUDA_GPU_MAT) );
-//        ((cuda::GpuMat*)obj)->setTo(Scalar(Vec<double, 4>(value.ptr<double>())), mask);
-//    }
     else
         CV_Error(Error::StsNotImplemented, "");
 }
@@ -3026,67 +2825,6 @@ static TransposeInplaceFunc transposeInplaceTab[] =
     transposeI_32sC2, 0, 0, 0, transposeI_32sC3, 0, 0, 0, transposeI_32sC4,
     0, 0, 0, 0, 0, 0, 0, transposeI_32sC6, 0, 0, 0, 0, 0, 0, 0, transposeI_32sC8
 };
-
-#ifdef HAVE_OPENCL
-
-static inline int divUp(int a, int b)
-{
-    return (a + b - 1) / b;
-}
-
-static bool ocl_transpose( InputArray _src, OutputArray _dst )
-{
-    const ocl::Device & dev = ocl::Device::getDefault();
-    const int TILE_DIM = 32, BLOCK_ROWS = 8;
-    int type = _src.type(), cn = CV_MAT_CN(type), depth = CV_MAT_DEPTH(type),
-        rowsPerWI = dev.isIntel() ? 4 : 1;
-
-    UMat src = _src.getUMat();
-    _dst.create(src.cols, src.rows, type);
-    UMat dst = _dst.getUMat();
-
-    String kernelName("transpose");
-    bool inplace = dst.u == src.u;
-
-    if (inplace)
-    {
-        CV_Assert(dst.cols == dst.rows);
-        kernelName += "_inplace";
-    }
-    else
-    {
-        // check required local memory size
-        size_t required_local_memory = (size_t) TILE_DIM*(TILE_DIM+1)*CV_ELEM_SIZE(type);
-        if (required_local_memory > ocl::Device::getDefault().localMemSize())
-            return false;
-    }
-
-    ocl::Kernel k(kernelName.c_str(), ocl::core::transpose_oclsrc,
-                  format("-D T=%s -D T1=%s -D cn=%d -D TILE_DIM=%d -D BLOCK_ROWS=%d -D rowsPerWI=%d%s",
-                         ocl::memopTypeToStr(type), ocl::memopTypeToStr(depth),
-                         cn, TILE_DIM, BLOCK_ROWS, rowsPerWI, inplace ? " -D INPLACE" : ""));
-    if (k.empty())
-        return false;
-
-    if (inplace)
-        k.args(ocl::KernelArg::ReadWriteNoSize(dst), dst.rows);
-    else
-        k.args(ocl::KernelArg::ReadOnly(src),
-               ocl::KernelArg::WriteOnlyNoSize(dst));
-
-    size_t localsize[2]  = { TILE_DIM, BLOCK_ROWS };
-    size_t globalsize[2] = { src.cols, inplace ? (src.rows + rowsPerWI - 1) / rowsPerWI : (divUp(src.rows, TILE_DIM) * BLOCK_ROWS) };
-
-    if (inplace && dev.isIntel())
-    {
-        localsize[0] = 16;
-        localsize[1] = dev.maxWorkGroupSize() / localsize[0];
-    }
-
-    return k.run(2, globalsize, localsize, false);
-}
-
-#endif
 
 }
 

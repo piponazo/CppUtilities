@@ -40,15 +40,6 @@
 /* C= */
 /* #undef HAVE_CSTRIPES */
 
-/* NVidia Cuda Basic Linear Algebra Subprograms (BLAS) API*/
-/* #undef HAVE_CUBLAS */
-
-/* NVidia Cuda Runtime API*/
-/* #undef HAVE_CUDA */
-
-/* NVidia Cuda Fast Fourier Transform (FFT) API*/
-/* #undef HAVE_CUFFT */
-
 /* IEEE1394 capturing support */
 /* #undef HAVE_DC1394 */
 
