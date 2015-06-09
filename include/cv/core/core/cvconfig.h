@@ -85,13 +85,6 @@
 /* Intel Perceptual Computing SDK library */
 /* #undef HAVE_INTELPERC */
 
-/* Intel Integrated Performance Primitives */
-//#define HAVE_IPP
-//#define HAVE_IPP_ICV_ONLY
-
-/* Intel IPP Async */
-/* #undef HAVE_IPP_A */
-
 /* JPEG-2000 codec */
 /* #undef HAVE_JASPER */
 

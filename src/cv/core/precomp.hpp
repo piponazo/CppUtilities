@@ -200,11 +200,7 @@ extern volatile bool USE_AVX2;
 
 enum { BLOCK_SIZE = 1024 };
 
-#if defined HAVE_IPP && (IPP_VERSION_MAJOR >= 7)
-#define ARITHM_USE_IPP 1
-#else
 #define ARITHM_USE_IPP 0
-#endif
 
 inline bool checkScalar(const Mat& sc, int atype, int sckind, int akind)
 {

@@ -363,21 +363,6 @@ bool checkHardwareSupport(int feature)
 
 
 volatile bool useOptimizedFlag = true;
-#ifdef HAVE_IPP
-struct IPPInitializer
-{
-    IPPInitializer(void)
-    {
-#if IPP_VERSION_MAJOR >= 8
-        ippInit();
-#else
-        ippStaticInit();
-#endif
-    }
-};
-
-IPPInitializer ippInitializer;
-#endif
 
 volatile bool USE_SSE2 = featuresEnabled.have[CV_CPU_SSE2];
 volatile bool USE_SSE4_2 = featuresEnabled.have[CV_CPU_SSE4_2];
@@ -389,12 +374,6 @@ void setUseOptimized( bool flag )
     useOptimizedFlag = flag;
     currentFeatures = flag ? &featuresEnabled : &featuresDisabled;
     USE_SSE2 = currentFeatures->have[CV_CPU_SSE2];
-
-    ipp::setUseIPP(flag);
-//    ocl::setUseOpenCL(flag);
-#ifdef HAVE_TEGRA_OPTIMIZATION
-    ::tegra::setUseTegra(flag);
-#endif
 }
 
 bool useOptimized(void)
@@ -495,18 +474,6 @@ int64 getCPUTickCount(void)
 }
 
 #else
-
-//#ifdef HAVE_IPP
-//int64 getCPUTickCount(void)
-//{
-//    return ippGetCpuClocks();
-//}
-//#else
-int64 getCPUTickCount(void)
-{
-    return getTickCount();
-}
-//#endif
 
 #endif
 
@@ -1216,92 +1183,6 @@ void setUseCollection(bool flag)
 }
 #endif
 
-namespace ipp
-{
-
-static int ippStatus = 0; // 0 - all is ok, -1 - IPP functions failed
-static const char * funcname = NULL, * filename = NULL;
-static int linen = 0;
-
-void setIppStatus(int status, const char * const _funcname, const char * const _filename, int _line)
-{
-    ippStatus = status;
-    funcname = _funcname;
-    filename = _filename;
-    linen = _line;
-}
-
-int getIppStatus()
-{
-    return ippStatus;
-}
-
-String getIppErrorLocation()
-{
-    return format("%s:%d %s", filename ? filename : "", linen, funcname ? funcname : "");
-}
-
-bool useIPP()
-{
-#ifdef HAVE_IPP
-    CoreTLSData* data = getCoreTlsData().get();
-    if(data->useIPP < 0)
-    {
-        const char* pIppEnv = getenv("OPENCV_IPP");
-        if(pIppEnv && (cv::String(pIppEnv) == "disabled"))
-            data->useIPP = false;
-        else
-            data->useIPP = true;
-    }
-    return (data->useIPP > 0);
-#else
-    return false;
-#endif
-}
-
-void setUseIPP(bool flag)
-{
-    CoreTLSData* data = getCoreTlsData().get();
-#ifdef HAVE_IPP
-    data->useIPP = flag;
-#else
-    (void)flag;
-    data->useIPP = false;
-#endif
-}
-
-} // namespace ipp
-
 } // namespace cv
-
-#ifdef HAVE_TEGRA_OPTIMIZATION
-
-namespace tegra {
-
-bool useTegra()
-{
-    cv::CoreTLSData* data = cv::getCoreTlsData().get();
-
-    if (data->useTegra < 0)
-    {
-        const char* pTegraEnv = getenv("OPENCV_TEGRA");
-        if (pTegraEnv && (cv::String(pTegraEnv) == "disabled"))
-            data->useTegra = false;
-        else
-            data->useTegra = true;
-    }
-
-    return (data->useTegra > 0);
-}
-
-void setUseTegra(bool flag)
-{
-    cv::CoreTLSData* data = cv::getCoreTlsData().get();
-    data->useTegra = flag;
-}
-
-} // namespace tegra
-
-#endif
 
 /* End of file. */
