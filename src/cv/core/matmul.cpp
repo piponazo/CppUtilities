@@ -2357,536 +2357,536 @@ void cv::scaleAdd( InputArray _src1, double alpha, InputArray _src2, OutputArray
 *                                 Covariation Matrix                                     *
 \****************************************************************************************/
 
-void cv::calcCovarMatrix( const Mat* data, int nsamples, Mat& covar, Mat& _mean, int flags, int ctype )
-{
-    CV_Assert( data && nsamples > 0 );
-    Size size = data[0].size();
-    int sz = size.width * size.height, esz = (int)data[0].elemSize();
-    int type = data[0].type();
-    Mat mean;
-    ctype = std::max(std::max(CV_MAT_DEPTH(ctype >= 0 ? ctype : type), _mean.depth()), CV_32F);
+//void cv::calcCovarMatrix( const Mat* data, int nsamples, Mat& covar, Mat& _mean, int flags, int ctype )
+//{
+//    CV_Assert( data && nsamples > 0 );
+//    Size size = data[0].size();
+//    int sz = size.width * size.height, esz = (int)data[0].elemSize();
+//    int type = data[0].type();
+//    Mat mean;
+//    ctype = std::max(std::max(CV_MAT_DEPTH(ctype >= 0 ? ctype : type), _mean.depth()), CV_32F);
 
-    if( (flags & CV_COVAR_USE_AVG) != 0 )
-    {
-        CV_Assert( _mean.size() == size );
-        if( _mean.isContinuous() && _mean.type() == ctype )
-            mean = _mean.reshape(1, 1);
-        else
-        {
-            _mean.convertTo(mean, ctype);
-            mean = mean.reshape(1, 1);
-        }
-    }
+//    if( (flags & CV_COVAR_USE_AVG) != 0 )
+//    {
+//        CV_Assert( _mean.size() == size );
+//        if( _mean.isContinuous() && _mean.type() == ctype )
+//            mean = _mean.reshape(1, 1);
+//        else
+//        {
+//            _mean.convertTo(mean, ctype);
+//            mean = mean.reshape(1, 1);
+//        }
+//    }
 
-    Mat _data(nsamples, sz, type);
+//    Mat _data(nsamples, sz, type);
 
-    for( int i = 0; i < nsamples; i++ )
-    {
-        CV_Assert( data[i].size() == size && data[i].type() == type );
-        if( data[i].isContinuous() )
-            memcpy( _data.ptr(i), data[i].ptr(), sz*esz );
-        else
-        {
-            Mat dataRow(size.height, size.width, type, _data.ptr(i));
-            data[i].copyTo(dataRow);
-        }
-    }
+//    for( int i = 0; i < nsamples; i++ )
+//    {
+//        CV_Assert( data[i].size() == size && data[i].type() == type );
+//        if( data[i].isContinuous() )
+//            memcpy( _data.ptr(i), data[i].ptr(), sz*esz );
+//        else
+//        {
+//            Mat dataRow(size.height, size.width, type, _data.ptr(i));
+//            data[i].copyTo(dataRow);
+//        }
+//    }
 
-    calcCovarMatrix( _data, covar, mean, (flags & ~(CV_COVAR_ROWS|CV_COVAR_COLS)) | CV_COVAR_ROWS, ctype );
-    if( (flags & CV_COVAR_USE_AVG) == 0 )
-        _mean = mean.reshape(1, size.height);
-}
+//    calcCovarMatrix( _data, covar, mean, (flags & ~(CV_COVAR_ROWS|CV_COVAR_COLS)) | CV_COVAR_ROWS, ctype );
+//    if( (flags & CV_COVAR_USE_AVG) == 0 )
+//        _mean = mean.reshape(1, size.height);
+//}
 
-void cv::calcCovarMatrix( InputArray _src, OutputArray _covar, InputOutputArray _mean, int flags, int ctype )
-{
-    if(_src.kind() == _InputArray::STD_VECTOR_MAT)
-    {
-        std::vector<cv::Mat> src;
-        _src.getMatVector(src);
+//void cv::calcCovarMatrix( InputArray _src, OutputArray _covar, InputOutputArray _mean, int flags, int ctype )
+//{
+//    if(_src.kind() == _InputArray::STD_VECTOR_MAT)
+//    {
+//        std::vector<cv::Mat> src;
+//        _src.getMatVector(src);
 
-        CV_Assert( src.size() > 0 );
+//        CV_Assert( src.size() > 0 );
 
-        Size size = src[0].size();
-        int type = src[0].type();
+//        Size size = src[0].size();
+//        int type = src[0].type();
 
-        ctype = std::max(std::max(CV_MAT_DEPTH(ctype >= 0 ? ctype : type), _mean.depth()), CV_32F);
+//        ctype = std::max(std::max(CV_MAT_DEPTH(ctype >= 0 ? ctype : type), _mean.depth()), CV_32F);
 
-        Mat _data(static_cast<int>(src.size()), size.area(), type);
+//        Mat _data(static_cast<int>(src.size()), size.area(), type);
 
-        int i = 0;
-        for(std::vector<cv::Mat>::iterator each = src.begin(); each != src.end(); each++, i++ )
-        {
-            CV_Assert( (*each).size() == size && (*each).type() == type );
-            Mat dataRow(size.height, size.width, type, _data.ptr(i));
-            (*each).copyTo(dataRow);
-        }
+//        int i = 0;
+//        for(std::vector<cv::Mat>::iterator each = src.begin(); each != src.end(); each++, i++ )
+//        {
+//            CV_Assert( (*each).size() == size && (*each).type() == type );
+//            Mat dataRow(size.height, size.width, type, _data.ptr(i));
+//            (*each).copyTo(dataRow);
+//        }
 
-        Mat mean;
-        if( (flags & CV_COVAR_USE_AVG) != 0 )
-        {
-            CV_Assert( _mean.size() == size );
+//        Mat mean;
+//        if( (flags & CV_COVAR_USE_AVG) != 0 )
+//        {
+//            CV_Assert( _mean.size() == size );
 
-            if( mean.type() != ctype )
-            {
-                mean = _mean.getMat();
-                _mean.create(mean.size(), ctype);
-                Mat tmp = _mean.getMat();
-                mean.convertTo(tmp, ctype);
-                mean = tmp;
-            }
+//            if( mean.type() != ctype )
+//            {
+//                mean = _mean.getMat();
+//                _mean.create(mean.size(), ctype);
+//                Mat tmp = _mean.getMat();
+//                mean.convertTo(tmp, ctype);
+//                mean = tmp;
+//            }
 
-            mean = _mean.getMat().reshape(1, 1);
-        }
+//            mean = _mean.getMat().reshape(1, 1);
+//        }
 
-        calcCovarMatrix( _data, _covar, mean, (flags & ~(CV_COVAR_ROWS|CV_COVAR_COLS)) | CV_COVAR_ROWS, ctype );
+//        calcCovarMatrix( _data, _covar, mean, (flags & ~(CV_COVAR_ROWS|CV_COVAR_COLS)) | CV_COVAR_ROWS, ctype );
 
-        if( (flags & CV_COVAR_USE_AVG) == 0 )
-        {
-            mean = mean.reshape(1, size.height);
-            mean.copyTo(_mean);
-        }
-        return;
-    }
+//        if( (flags & CV_COVAR_USE_AVG) == 0 )
+//        {
+//            mean = mean.reshape(1, size.height);
+//            mean.copyTo(_mean);
+//        }
+//        return;
+//    }
 
-    Mat data = _src.getMat(), mean;
-    CV_Assert( ((flags & CV_COVAR_ROWS) != 0) ^ ((flags & CV_COVAR_COLS) != 0) );
-    bool takeRows = (flags & CV_COVAR_ROWS) != 0;
-    int type = data.type();
-    int nsamples = takeRows ? data.rows : data.cols;
-    CV_Assert( nsamples > 0 );
-    Size size = takeRows ? Size(data.cols, 1) : Size(1, data.rows);
+//    Mat data = _src.getMat(), mean;
+//    CV_Assert( ((flags & CV_COVAR_ROWS) != 0) ^ ((flags & CV_COVAR_COLS) != 0) );
+//    bool takeRows = (flags & CV_COVAR_ROWS) != 0;
+//    int type = data.type();
+//    int nsamples = takeRows ? data.rows : data.cols;
+//    CV_Assert( nsamples > 0 );
+//    Size size = takeRows ? Size(data.cols, 1) : Size(1, data.rows);
 
-    if( (flags & CV_COVAR_USE_AVG) != 0 )
-    {
-        mean = _mean.getMat();
-        ctype = std::max(std::max(CV_MAT_DEPTH(ctype >= 0 ? ctype : type), mean.depth()), CV_32F);
-        CV_Assert( mean.size() == size );
-        if( mean.type() != ctype )
-        {
-            _mean.create(mean.size(), ctype);
-            Mat tmp = _mean.getMat();
-            mean.convertTo(tmp, ctype);
-            mean = tmp;
-        }
-    }
-    else
-    {
-        ctype = std::max(CV_MAT_DEPTH(ctype >= 0 ? ctype : type), CV_32F);
-        reduce( _src, _mean, takeRows ? 0 : 1, CV_REDUCE_AVG, ctype );
-        mean = _mean.getMat();
-    }
+//    if( (flags & CV_COVAR_USE_AVG) != 0 )
+//    {
+//        mean = _mean.getMat();
+//        ctype = std::max(std::max(CV_MAT_DEPTH(ctype >= 0 ? ctype : type), mean.depth()), CV_32F);
+//        CV_Assert( mean.size() == size );
+//        if( mean.type() != ctype )
+//        {
+//            _mean.create(mean.size(), ctype);
+//            Mat tmp = _mean.getMat();
+//            mean.convertTo(tmp, ctype);
+//            mean = tmp;
+//        }
+//    }
+//    else
+//    {
+//        ctype = std::max(CV_MAT_DEPTH(ctype >= 0 ? ctype : type), CV_32F);
+//        reduce( _src, _mean, takeRows ? 0 : 1, CV_REDUCE_AVG, ctype );
+//        mean = _mean.getMat();
+//    }
 
-    mulTransposed( data, _covar, ((flags & CV_COVAR_NORMAL) == 0) ^ takeRows,
-        mean, (flags & CV_COVAR_SCALE) != 0 ? 1./nsamples : 1, ctype );
-}
+//    mulTransposed( data, _covar, ((flags & CV_COVAR_NORMAL) == 0) ^ takeRows,
+//        mean, (flags & CV_COVAR_SCALE) != 0 ? 1./nsamples : 1, ctype );
+//}
 
 /****************************************************************************************\
 *                                        Mahalanobis                                     *
 \****************************************************************************************/
 
-double cv::Mahalanobis( InputArray _v1, InputArray _v2, InputArray _icovar )
-{
-    Mat v1 = _v1.getMat(), v2 = _v2.getMat(), icovar = _icovar.getMat();
-    int type = v1.type(), depth = v1.depth();
-    Size sz = v1.size();
-    int i, j, len = sz.width*sz.height*v1.channels();
-    AutoBuffer<double> buf(len);
-    double result = 0;
+//double cv::Mahalanobis( InputArray _v1, InputArray _v2, InputArray _icovar )
+//{
+//    Mat v1 = _v1.getMat(), v2 = _v2.getMat(), icovar = _icovar.getMat();
+//    int type = v1.type(), depth = v1.depth();
+//    Size sz = v1.size();
+//    int i, j, len = sz.width*sz.height*v1.channels();
+//    AutoBuffer<double> buf(len);
+//    double result = 0;
 
-    CV_Assert( type == v2.type() && type == icovar.type() &&
-        sz == v2.size() && len == icovar.rows && len == icovar.cols );
+//    CV_Assert( type == v2.type() && type == icovar.type() &&
+//        sz == v2.size() && len == icovar.rows && len == icovar.cols );
 
-    sz.width *= v1.channels();
-    if( v1.isContinuous() && v2.isContinuous() )
-    {
-        sz.width *= sz.height;
-        sz.height = 1;
-    }
+//    sz.width *= v1.channels();
+//    if( v1.isContinuous() && v2.isContinuous() )
+//    {
+//        sz.width *= sz.height;
+//        sz.height = 1;
+//    }
 
-    if( depth == CV_32F )
-    {
-        const float* src1 = v1.ptr<float>();
-        const float* src2 = v2.ptr<float>();
-        size_t step1 = v1.step/sizeof(src1[0]);
-        size_t step2 = v2.step/sizeof(src2[0]);
-        double* diff = buf;
-        const float* mat = icovar.ptr<float>();
-        size_t matstep = icovar.step/sizeof(mat[0]);
+//    if( depth == CV_32F )
+//    {
+//        const float* src1 = v1.ptr<float>();
+//        const float* src2 = v2.ptr<float>();
+//        size_t step1 = v1.step/sizeof(src1[0]);
+//        size_t step2 = v2.step/sizeof(src2[0]);
+//        double* diff = buf;
+//        const float* mat = icovar.ptr<float>();
+//        size_t matstep = icovar.step/sizeof(mat[0]);
 
-        for( ; sz.height--; src1 += step1, src2 += step2, diff += sz.width )
-        {
-            for( i = 0; i < sz.width; i++ )
-                diff[i] = src1[i] - src2[i];
-        }
+//        for( ; sz.height--; src1 += step1, src2 += step2, diff += sz.width )
+//        {
+//            for( i = 0; i < sz.width; i++ )
+//                diff[i] = src1[i] - src2[i];
+//        }
 
-        diff = buf;
-        for( i = 0; i < len; i++, mat += matstep )
-        {
-            double row_sum = 0;
-            j = 0;
-             #if CV_ENABLE_UNROLLED
-            for(; j <= len - 4; j += 4 )
-                row_sum += diff[j]*mat[j] + diff[j+1]*mat[j+1] +
-                           diff[j+2]*mat[j+2] + diff[j+3]*mat[j+3];
-            #endif
-            for( ; j < len; j++ )
-                row_sum += diff[j]*mat[j];
-            result += row_sum * diff[i];
-        }
-    }
-    else if( depth == CV_64F )
-    {
-        const double* src1 = v1.ptr<double>();
-        const double* src2 = v2.ptr<double>();
-        size_t step1 = v1.step/sizeof(src1[0]);
-        size_t step2 = v2.step/sizeof(src2[0]);
-        double* diff = buf;
-        const double* mat = icovar.ptr<double>();
-        size_t matstep = icovar.step/sizeof(mat[0]);
+//        diff = buf;
+//        for( i = 0; i < len; i++, mat += matstep )
+//        {
+//            double row_sum = 0;
+//            j = 0;
+//             #if CV_ENABLE_UNROLLED
+//            for(; j <= len - 4; j += 4 )
+//                row_sum += diff[j]*mat[j] + diff[j+1]*mat[j+1] +
+//                           diff[j+2]*mat[j+2] + diff[j+3]*mat[j+3];
+//            #endif
+//            for( ; j < len; j++ )
+//                row_sum += diff[j]*mat[j];
+//            result += row_sum * diff[i];
+//        }
+//    }
+//    else if( depth == CV_64F )
+//    {
+//        const double* src1 = v1.ptr<double>();
+//        const double* src2 = v2.ptr<double>();
+//        size_t step1 = v1.step/sizeof(src1[0]);
+//        size_t step2 = v2.step/sizeof(src2[0]);
+//        double* diff = buf;
+//        const double* mat = icovar.ptr<double>();
+//        size_t matstep = icovar.step/sizeof(mat[0]);
 
-        for( ; sz.height--; src1 += step1, src2 += step2, diff += sz.width )
-        {
-            for( i = 0; i < sz.width; i++ )
-                diff[i] = src1[i] - src2[i];
-        }
+//        for( ; sz.height--; src1 += step1, src2 += step2, diff += sz.width )
+//        {
+//            for( i = 0; i < sz.width; i++ )
+//                diff[i] = src1[i] - src2[i];
+//        }
 
-        diff = buf;
-        for( i = 0; i < len; i++, mat += matstep )
-        {
-            double row_sum = 0;
-            j = 0;
-             #if CV_ENABLE_UNROLLED
-            for(; j <= len - 4; j += 4 )
-                row_sum += diff[j]*mat[j] + diff[j+1]*mat[j+1] +
-                           diff[j+2]*mat[j+2] + diff[j+3]*mat[j+3];
-            #endif
-            for( ; j < len; j++ )
-                row_sum += diff[j]*mat[j];
-            result += row_sum * diff[i];
-        }
-    }
-    else
-        CV_Error( CV_StsUnsupportedFormat, "" );
+//        diff = buf;
+//        for( i = 0; i < len; i++, mat += matstep )
+//        {
+//            double row_sum = 0;
+//            j = 0;
+//             #if CV_ENABLE_UNROLLED
+//            for(; j <= len - 4; j += 4 )
+//                row_sum += diff[j]*mat[j] + diff[j+1]*mat[j+1] +
+//                           diff[j+2]*mat[j+2] + diff[j+3]*mat[j+3];
+//            #endif
+//            for( ; j < len; j++ )
+//                row_sum += diff[j]*mat[j];
+//            result += row_sum * diff[i];
+//        }
+//    }
+//    else
+//        CV_Error( CV_StsUnsupportedFormat, "" );
 
-    return std::sqrt(result);
-}
+//    return std::sqrt(result);
+//}
 
 /****************************************************************************************\
 *                                        MulTransposed                                   *
 \****************************************************************************************/
 
-namespace cv
-{
+//namespace cv
+//{
 
-template<typename sT, typename dT> static void
-MulTransposedR( const Mat& srcmat, Mat& dstmat, const Mat& deltamat, double scale )
-{
-    int i, j, k;
-    const sT* src = srcmat.ptr<sT>();
-    dT* dst = dstmat.ptr<dT>();
-    const dT* delta = deltamat.ptr<dT>();
-    size_t srcstep = srcmat.step/sizeof(src[0]);
-    size_t dststep = dstmat.step/sizeof(dst[0]);
-    size_t deltastep = deltamat.rows > 1 ? deltamat.step/sizeof(delta[0]) : 0;
-    int delta_cols = deltamat.cols;
-    Size size = srcmat.size();
-    dT* tdst = dst;
-    dT* col_buf = 0;
-    dT* delta_buf = 0;
-    int buf_size = size.height*sizeof(dT);
-    AutoBuffer<uchar> buf;
+//template<typename sT, typename dT> static void
+//MulTransposedR( const Mat& srcmat, Mat& dstmat, const Mat& deltamat, double scale )
+//{
+//    int i, j, k;
+//    const sT* src = srcmat.ptr<sT>();
+//    dT* dst = dstmat.ptr<dT>();
+//    const dT* delta = deltamat.ptr<dT>();
+//    size_t srcstep = srcmat.step/sizeof(src[0]);
+//    size_t dststep = dstmat.step/sizeof(dst[0]);
+//    size_t deltastep = deltamat.rows > 1 ? deltamat.step/sizeof(delta[0]) : 0;
+//    int delta_cols = deltamat.cols;
+//    Size size = srcmat.size();
+//    dT* tdst = dst;
+//    dT* col_buf = 0;
+//    dT* delta_buf = 0;
+//    int buf_size = size.height*sizeof(dT);
+//    AutoBuffer<uchar> buf;
 
-    if( delta && delta_cols < size.width )
-    {
-        assert( delta_cols == 1 );
-        buf_size *= 5;
-    }
-    buf.allocate(buf_size);
-    col_buf = (dT*)(uchar*)buf;
+//    if( delta && delta_cols < size.width )
+//    {
+//        assert( delta_cols == 1 );
+//        buf_size *= 5;
+//    }
+//    buf.allocate(buf_size);
+//    col_buf = (dT*)(uchar*)buf;
 
-    if( delta && delta_cols < size.width )
-    {
-        delta_buf = col_buf + size.height;
-        for( i = 0; i < size.height; i++ )
-            delta_buf[i*4] = delta_buf[i*4+1] =
-                delta_buf[i*4+2] = delta_buf[i*4+3] = delta[i*deltastep];
-        delta = delta_buf;
-        deltastep = deltastep ? 4 : 0;
-    }
+//    if( delta && delta_cols < size.width )
+//    {
+//        delta_buf = col_buf + size.height;
+//        for( i = 0; i < size.height; i++ )
+//            delta_buf[i*4] = delta_buf[i*4+1] =
+//                delta_buf[i*4+2] = delta_buf[i*4+3] = delta[i*deltastep];
+//        delta = delta_buf;
+//        deltastep = deltastep ? 4 : 0;
+//    }
 
-    if( !delta )
-        for( i = 0; i < size.width; i++, tdst += dststep )
-        {
-            for( k = 0; k < size.height; k++ )
-                col_buf[k] = src[k*srcstep+i];
+//    if( !delta )
+//        for( i = 0; i < size.width; i++, tdst += dststep )
+//        {
+//            for( k = 0; k < size.height; k++ )
+//                col_buf[k] = src[k*srcstep+i];
 
-            for( j = i; j <= size.width - 4; j += 4 )
-            {
-                double s0 = 0, s1 = 0, s2 = 0, s3 = 0;
-                const sT *tsrc = src + j;
+//            for( j = i; j <= size.width - 4; j += 4 )
+//            {
+//                double s0 = 0, s1 = 0, s2 = 0, s3 = 0;
+//                const sT *tsrc = src + j;
 
-                for( k = 0; k < size.height; k++, tsrc += srcstep )
-                {
-                    double a = col_buf[k];
-                    s0 += a * tsrc[0];
-                    s1 += a * tsrc[1];
-                    s2 += a * tsrc[2];
-                    s3 += a * tsrc[3];
-                }
+//                for( k = 0; k < size.height; k++, tsrc += srcstep )
+//                {
+//                    double a = col_buf[k];
+//                    s0 += a * tsrc[0];
+//                    s1 += a * tsrc[1];
+//                    s2 += a * tsrc[2];
+//                    s3 += a * tsrc[3];
+//                }
 
-                tdst[j] = (dT)(s0*scale);
-                tdst[j+1] = (dT)(s1*scale);
-                tdst[j+2] = (dT)(s2*scale);
-                tdst[j+3] = (dT)(s3*scale);
-            }
+//                tdst[j] = (dT)(s0*scale);
+//                tdst[j+1] = (dT)(s1*scale);
+//                tdst[j+2] = (dT)(s2*scale);
+//                tdst[j+3] = (dT)(s3*scale);
+//            }
 
-            for( ; j < size.width; j++ )
-            {
-                double s0 = 0;
-                const sT *tsrc = src + j;
+//            for( ; j < size.width; j++ )
+//            {
+//                double s0 = 0;
+//                const sT *tsrc = src + j;
 
-                for( k = 0; k < size.height; k++, tsrc += srcstep )
-                    s0 += (double)col_buf[k] * tsrc[0];
+//                for( k = 0; k < size.height; k++, tsrc += srcstep )
+//                    s0 += (double)col_buf[k] * tsrc[0];
 
-                tdst[j] = (dT)(s0*scale);
-            }
-        }
-    else
-        for( i = 0; i < size.width; i++, tdst += dststep )
-        {
-            if( !delta_buf )
-                for( k = 0; k < size.height; k++ )
-                    col_buf[k] = src[k*srcstep+i] - delta[k*deltastep+i];
-            else
-                for( k = 0; k < size.height; k++ )
-                    col_buf[k] = src[k*srcstep+i] - delta_buf[k*deltastep];
+//                tdst[j] = (dT)(s0*scale);
+//            }
+//        }
+//    else
+//        for( i = 0; i < size.width; i++, tdst += dststep )
+//        {
+//            if( !delta_buf )
+//                for( k = 0; k < size.height; k++ )
+//                    col_buf[k] = src[k*srcstep+i] - delta[k*deltastep+i];
+//            else
+//                for( k = 0; k < size.height; k++ )
+//                    col_buf[k] = src[k*srcstep+i] - delta_buf[k*deltastep];
 
-            for( j = i; j <= size.width - 4; j += 4 )
-            {
-                double s0 = 0, s1 = 0, s2 = 0, s3 = 0;
-                const sT *tsrc = src + j;
-                const dT *d = delta_buf ? delta_buf : delta + j;
+//            for( j = i; j <= size.width - 4; j += 4 )
+//            {
+//                double s0 = 0, s1 = 0, s2 = 0, s3 = 0;
+//                const sT *tsrc = src + j;
+//                const dT *d = delta_buf ? delta_buf : delta + j;
 
-                for( k = 0; k < size.height; k++, tsrc+=srcstep, d+=deltastep )
-                {
-                    double a = col_buf[k];
-                    s0 += a * (tsrc[0] - d[0]);
-                    s1 += a * (tsrc[1] - d[1]);
-                    s2 += a * (tsrc[2] - d[2]);
-                    s3 += a * (tsrc[3] - d[3]);
-                }
+//                for( k = 0; k < size.height; k++, tsrc+=srcstep, d+=deltastep )
+//                {
+//                    double a = col_buf[k];
+//                    s0 += a * (tsrc[0] - d[0]);
+//                    s1 += a * (tsrc[1] - d[1]);
+//                    s2 += a * (tsrc[2] - d[2]);
+//                    s3 += a * (tsrc[3] - d[3]);
+//                }
 
-                tdst[j] = (dT)(s0*scale);
-                tdst[j+1] = (dT)(s1*scale);
-                tdst[j+2] = (dT)(s2*scale);
-                tdst[j+3] = (dT)(s3*scale);
-            }
+//                tdst[j] = (dT)(s0*scale);
+//                tdst[j+1] = (dT)(s1*scale);
+//                tdst[j+2] = (dT)(s2*scale);
+//                tdst[j+3] = (dT)(s3*scale);
+//            }
 
-            for( ; j < size.width; j++ )
-            {
-                double s0 = 0;
-                const sT *tsrc = src + j;
-                const dT *d = delta_buf ? delta_buf : delta + j;
+//            for( ; j < size.width; j++ )
+//            {
+//                double s0 = 0;
+//                const sT *tsrc = src + j;
+//                const dT *d = delta_buf ? delta_buf : delta + j;
 
-                for( k = 0; k < size.height; k++, tsrc+=srcstep, d+=deltastep )
-                    s0 += (double)col_buf[k] * (tsrc[0] - d[0]);
+//                for( k = 0; k < size.height; k++, tsrc+=srcstep, d+=deltastep )
+//                    s0 += (double)col_buf[k] * (tsrc[0] - d[0]);
 
-                tdst[j] = (dT)(s0*scale);
-            }
-        }
-}
+//                tdst[j] = (dT)(s0*scale);
+//            }
+//        }
+//}
 
 
-template<typename sT, typename dT> static void
-MulTransposedL( const Mat& srcmat, Mat& dstmat, const Mat& deltamat, double scale )
-{
-    int i, j, k;
-    const sT* src = srcmat.ptr<sT>();
-    dT* dst = dstmat.ptr<dT>();
-    const dT* delta = deltamat.ptr<dT>();
-    size_t srcstep = srcmat.step/sizeof(src[0]);
-    size_t dststep = dstmat.step/sizeof(dst[0]);
-    size_t deltastep = deltamat.rows > 1 ? deltamat.step/sizeof(delta[0]) : 0;
-    int delta_cols = deltamat.cols;
-    Size size = srcmat.size();
-    dT* tdst = dst;
+//template<typename sT, typename dT> static void
+//MulTransposedL( const Mat& srcmat, Mat& dstmat, const Mat& deltamat, double scale )
+//{
+//    int i, j, k;
+//    const sT* src = srcmat.ptr<sT>();
+//    dT* dst = dstmat.ptr<dT>();
+//    const dT* delta = deltamat.ptr<dT>();
+//    size_t srcstep = srcmat.step/sizeof(src[0]);
+//    size_t dststep = dstmat.step/sizeof(dst[0]);
+//    size_t deltastep = deltamat.rows > 1 ? deltamat.step/sizeof(delta[0]) : 0;
+//    int delta_cols = deltamat.cols;
+//    Size size = srcmat.size();
+//    dT* tdst = dst;
 
-    if( !delta )
-        for( i = 0; i < size.height; i++, tdst += dststep )
-            for( j = i; j < size.height; j++ )
-            {
-                double s = 0;
-                const sT *tsrc1 = src + i*srcstep;
-                const sT *tsrc2 = src + j*srcstep;
+//    if( !delta )
+//        for( i = 0; i < size.height; i++, tdst += dststep )
+//            for( j = i; j < size.height; j++ )
+//            {
+//                double s = 0;
+//                const sT *tsrc1 = src + i*srcstep;
+//                const sT *tsrc2 = src + j*srcstep;
 
-                for( k = 0; k <= size.width - 4; k += 4 )
-                    s += (double)tsrc1[k]*tsrc2[k] + (double)tsrc1[k+1]*tsrc2[k+1] +
-                         (double)tsrc1[k+2]*tsrc2[k+2] + (double)tsrc1[k+3]*tsrc2[k+3];
-                for( ; k < size.width; k++ )
-                    s += (double)tsrc1[k] * tsrc2[k];
-                tdst[j] = (dT)(s*scale);
-            }
-    else
-    {
-        dT delta_buf[4];
-        int delta_shift = delta_cols == size.width ? 4 : 0;
-        AutoBuffer<uchar> buf(size.width*sizeof(dT));
-        dT* row_buf = (dT*)(uchar*)buf;
+//                for( k = 0; k <= size.width - 4; k += 4 )
+//                    s += (double)tsrc1[k]*tsrc2[k] + (double)tsrc1[k+1]*tsrc2[k+1] +
+//                         (double)tsrc1[k+2]*tsrc2[k+2] + (double)tsrc1[k+3]*tsrc2[k+3];
+//                for( ; k < size.width; k++ )
+//                    s += (double)tsrc1[k] * tsrc2[k];
+//                tdst[j] = (dT)(s*scale);
+//            }
+//    else
+//    {
+//        dT delta_buf[4];
+//        int delta_shift = delta_cols == size.width ? 4 : 0;
+//        AutoBuffer<uchar> buf(size.width*sizeof(dT));
+//        dT* row_buf = (dT*)(uchar*)buf;
 
-        for( i = 0; i < size.height; i++, tdst += dststep )
-        {
-            const sT *tsrc1 = src + i*srcstep;
-            const dT *tdelta1 = delta + i*deltastep;
+//        for( i = 0; i < size.height; i++, tdst += dststep )
+//        {
+//            const sT *tsrc1 = src + i*srcstep;
+//            const dT *tdelta1 = delta + i*deltastep;
 
-            if( delta_cols < size.width )
-                for( k = 0; k < size.width; k++ )
-                    row_buf[k] = tsrc1[k] - tdelta1[0];
-            else
-                for( k = 0; k < size.width; k++ )
-                    row_buf[k] = tsrc1[k] - tdelta1[k];
+//            if( delta_cols < size.width )
+//                for( k = 0; k < size.width; k++ )
+//                    row_buf[k] = tsrc1[k] - tdelta1[0];
+//            else
+//                for( k = 0; k < size.width; k++ )
+//                    row_buf[k] = tsrc1[k] - tdelta1[k];
 
-            for( j = i; j < size.height; j++ )
-            {
-                double s = 0;
-                const sT *tsrc2 = src + j*srcstep;
-                const dT *tdelta2 = delta + j*deltastep;
-                if( delta_cols < size.width )
-                {
-                    delta_buf[0] = delta_buf[1] =
-                        delta_buf[2] = delta_buf[3] = tdelta2[0];
-                    tdelta2 = delta_buf;
-                }
-                for( k = 0; k <= size.width-4; k += 4, tdelta2 += delta_shift )
-                    s += (double)row_buf[k]*(tsrc2[k] - tdelta2[0]) +
-                         (double)row_buf[k+1]*(tsrc2[k+1] - tdelta2[1]) +
-                         (double)row_buf[k+2]*(tsrc2[k+2] - tdelta2[2]) +
-                         (double)row_buf[k+3]*(tsrc2[k+3] - tdelta2[3]);
-                for( ; k < size.width; k++, tdelta2++ )
-                    s += (double)row_buf[k]*(tsrc2[k] - tdelta2[0]);
-                tdst[j] = (dT)(s*scale);
-            }
-        }
-    }
-}
+//            for( j = i; j < size.height; j++ )
+//            {
+//                double s = 0;
+//                const sT *tsrc2 = src + j*srcstep;
+//                const dT *tdelta2 = delta + j*deltastep;
+//                if( delta_cols < size.width )
+//                {
+//                    delta_buf[0] = delta_buf[1] =
+//                        delta_buf[2] = delta_buf[3] = tdelta2[0];
+//                    tdelta2 = delta_buf;
+//                }
+//                for( k = 0; k <= size.width-4; k += 4, tdelta2 += delta_shift )
+//                    s += (double)row_buf[k]*(tsrc2[k] - tdelta2[0]) +
+//                         (double)row_buf[k+1]*(tsrc2[k+1] - tdelta2[1]) +
+//                         (double)row_buf[k+2]*(tsrc2[k+2] - tdelta2[2]) +
+//                         (double)row_buf[k+3]*(tsrc2[k+3] - tdelta2[3]);
+//                for( ; k < size.width; k++, tdelta2++ )
+//                    s += (double)row_buf[k]*(tsrc2[k] - tdelta2[0]);
+//                tdst[j] = (dT)(s*scale);
+//            }
+//        }
+//    }
+//}
 
-typedef void (*MulTransposedFunc)(const Mat& src, Mat& dst, const Mat& delta, double scale);
+//typedef void (*MulTransposedFunc)(const Mat& src, Mat& dst, const Mat& delta, double scale);
 
-}
+//}
 
-void cv::mulTransposed( InputArray _src, OutputArray _dst, bool ata,
-                        InputArray _delta, double scale, int dtype )
-{
-    Mat src = _src.getMat(), delta = _delta.getMat();
-    const int gemm_level = 100; // boundary above which GEMM is faster.
-    int stype = src.type();
-    dtype = std::max(std::max(CV_MAT_DEPTH(dtype >= 0 ? dtype : stype), delta.depth()), CV_32F);
-    CV_Assert( src.channels() == 1 );
+//void cv::mulTransposed( InputArray _src, OutputArray _dst, bool ata,
+//                        InputArray _delta, double scale, int dtype )
+//{
+//    Mat src = _src.getMat(), delta = _delta.getMat();
+//    const int gemm_level = 100; // boundary above which GEMM is faster.
+//    int stype = src.type();
+//    dtype = std::max(std::max(CV_MAT_DEPTH(dtype >= 0 ? dtype : stype), delta.depth()), CV_32F);
+//    CV_Assert( src.channels() == 1 );
 
-    if( !delta.empty() )
-    {
-        CV_Assert( delta.channels() == 1 &&
-            (delta.rows == src.rows || delta.rows == 1) &&
-            (delta.cols == src.cols || delta.cols == 1));
-        if( delta.type() != dtype )
-            delta.convertTo(delta, dtype);
-    }
+//    if( !delta.empty() )
+//    {
+//        CV_Assert( delta.channels() == 1 &&
+//            (delta.rows == src.rows || delta.rows == 1) &&
+//            (delta.cols == src.cols || delta.cols == 1));
+//        if( delta.type() != dtype )
+//            delta.convertTo(delta, dtype);
+//    }
 
-    int dsize = ata ? src.cols : src.rows;
-    _dst.create( dsize, dsize, dtype );
-    Mat dst = _dst.getMat();
+//    int dsize = ata ? src.cols : src.rows;
+//    _dst.create( dsize, dsize, dtype );
+//    Mat dst = _dst.getMat();
 
-    if( src.data == dst.data || (stype == dtype &&
-        (dst.cols >= gemm_level && dst.rows >= gemm_level &&
-         src.cols >= gemm_level && src.rows >= gemm_level)))
-    {
-        Mat src2;
-        const Mat* tsrc = &src;
-        if( !delta.empty() )
-        {
-            if( delta.size() == src.size() )
-                subtract( src, delta, src2 );
-            else
-            {
-                repeat(delta, src.rows/delta.rows, src.cols/delta.cols, src2);
-                subtract( src, src2, src2 );
-            }
-            tsrc = &src2;
-        }
-        gemm( *tsrc, *tsrc, scale, Mat(), 0, dst, ata ? GEMM_1_T : GEMM_2_T );
-    }
-    else
-    {
-        MulTransposedFunc func = 0;
-        if(stype == CV_8U && dtype == CV_32F)
-        {
-            if(ata)
-                func = MulTransposedR<uchar,float>;
-            else
-                func = MulTransposedL<uchar,float>;
-        }
-        else if(stype == CV_8U && dtype == CV_64F)
-        {
-            if(ata)
-                func = MulTransposedR<uchar,double>;
-            else
-                func = MulTransposedL<uchar,double>;
-        }
-        else if(stype == CV_16U && dtype == CV_32F)
-        {
-            if(ata)
-                func = MulTransposedR<ushort,float>;
-            else
-                func = MulTransposedL<ushort,float>;
-        }
-        else if(stype == CV_16U && dtype == CV_64F)
-        {
-            if(ata)
-                func = MulTransposedR<ushort,double>;
-            else
-                func = MulTransposedL<ushort,double>;
-        }
-        else if(stype == CV_16S && dtype == CV_32F)
-        {
-            if(ata)
-                func = MulTransposedR<short,float>;
-            else
-                func = MulTransposedL<short,float>;
-        }
-        else if(stype == CV_16S && dtype == CV_64F)
-        {
-            if(ata)
-                func = MulTransposedR<short,double>;
-            else
-                func = MulTransposedL<short,double>;
-        }
-        else if(stype == CV_32F && dtype == CV_32F)
-        {
-            if(ata)
-                func = MulTransposedR<float,float>;
-            else
-                func = MulTransposedL<float,float>;
-        }
-        else if(stype == CV_32F && dtype == CV_64F)
-        {
-            if(ata)
-                func = MulTransposedR<float,double>;
-            else
-                func = MulTransposedL<float,double>;
-        }
-        else if(stype == CV_64F && dtype == CV_64F)
-        {
-            if(ata)
-                func = MulTransposedR<double,double>;
-            else
-                func = MulTransposedL<double,double>;
-        }
-        if( !func )
-            CV_Error( CV_StsUnsupportedFormat, "" );
+//    if( src.data == dst.data || (stype == dtype &&
+//        (dst.cols >= gemm_level && dst.rows >= gemm_level &&
+//         src.cols >= gemm_level && src.rows >= gemm_level)))
+//    {
+//        Mat src2;
+//        const Mat* tsrc = &src;
+//        if( !delta.empty() )
+//        {
+//            if( delta.size() == src.size() )
+//                subtract( src, delta, src2 );
+//            else
+//            {
+//                repeat(delta, src.rows/delta.rows, src.cols/delta.cols, src2);
+//                subtract( src, src2, src2 );
+//            }
+//            tsrc = &src2;
+//        }
+//        gemm( *tsrc, *tsrc, scale, Mat(), 0, dst, ata ? GEMM_1_T : GEMM_2_T );
+//    }
+//    else
+//    {
+//        MulTransposedFunc func = 0;
+//        if(stype == CV_8U && dtype == CV_32F)
+//        {
+//            if(ata)
+//                func = MulTransposedR<uchar,float>;
+//            else
+//                func = MulTransposedL<uchar,float>;
+//        }
+//        else if(stype == CV_8U && dtype == CV_64F)
+//        {
+//            if(ata)
+//                func = MulTransposedR<uchar,double>;
+//            else
+//                func = MulTransposedL<uchar,double>;
+//        }
+//        else if(stype == CV_16U && dtype == CV_32F)
+//        {
+//            if(ata)
+//                func = MulTransposedR<ushort,float>;
+//            else
+//                func = MulTransposedL<ushort,float>;
+//        }
+//        else if(stype == CV_16U && dtype == CV_64F)
+//        {
+//            if(ata)
+//                func = MulTransposedR<ushort,double>;
+//            else
+//                func = MulTransposedL<ushort,double>;
+//        }
+//        else if(stype == CV_16S && dtype == CV_32F)
+//        {
+//            if(ata)
+//                func = MulTransposedR<short,float>;
+//            else
+//                func = MulTransposedL<short,float>;
+//        }
+//        else if(stype == CV_16S && dtype == CV_64F)
+//        {
+//            if(ata)
+//                func = MulTransposedR<short,double>;
+//            else
+//                func = MulTransposedL<short,double>;
+//        }
+//        else if(stype == CV_32F && dtype == CV_32F)
+//        {
+//            if(ata)
+//                func = MulTransposedR<float,float>;
+//            else
+//                func = MulTransposedL<float,float>;
+//        }
+//        else if(stype == CV_32F && dtype == CV_64F)
+//        {
+//            if(ata)
+//                func = MulTransposedR<float,double>;
+//            else
+//                func = MulTransposedL<float,double>;
+//        }
+//        else if(stype == CV_64F && dtype == CV_64F)
+//        {
+//            if(ata)
+//                func = MulTransposedR<double,double>;
+//            else
+//                func = MulTransposedL<double,double>;
+//        }
+//        if( !func )
+//            CV_Error( CV_StsUnsupportedFormat, "" );
 
-        func( src, dst, delta, scale );
-        completeSymm( dst, false );
-    }
-}
+//        func( src, dst, delta, scale );
+//        completeSymm( dst, false );
+//    }
+//}
 
 ///****************************************************************************************\
 //*                                      Dot Product                                       *

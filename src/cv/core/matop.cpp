@@ -1514,13 +1514,14 @@ inline void MatOp_GEMM::makeExpr(MatExpr& res, int flags, const Mat& a, const Ma
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void MatOp_Invert::assign(const MatExpr& e, Mat& m, int _type) const
+//void MatOp_Invert::assign(const MatExpr& e, Mat& m, int _type) const
+void MatOp_Invert::assign(const MatExpr& , Mat& , int ) const
 {
-    Mat temp, &dst = _type == -1 || _type == e.a.type() ? m : temp;
+//    Mat temp, &dst = _type == -1 || _type == e.a.type() ? m : temp;
 
-    cv::invert(e.a, dst, e.flags);
-    if( dst.data != m.data )
-        dst.convertTo(m, _type);
+//    cv::invert(e.a, dst, e.flags);
+//    if( dst.data != m.data )
+//        dst.convertTo(m, _type);
 }
 
 void MatOp_Invert::matmul(const MatExpr& e1, const MatExpr& e2, MatExpr& res) const
@@ -1540,13 +1541,14 @@ inline void MatOp_Invert::makeExpr(MatExpr& res, int method, const Mat& m)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void MatOp_Solve::assign(const MatExpr& e, Mat& m, int _type) const
+//void MatOp_Solve::assign(const MatExpr& e, Mat& m, int _type) const
+void MatOp_Solve::assign(const MatExpr& , Mat& , int ) const
 {
-    Mat temp, &dst = _type == -1 || _type == e.a.type() ? m : temp;
+//    Mat temp, &dst = _type == -1 || _type == e.a.type() ? m : temp;
 
-    cv::solve(e.a, e.b, dst, e.flags);
-    if( dst.data != m.data )
-        dst.convertTo(m, _type);
+//    cv::solve(e.a, e.b, dst, e.flags);
+//    if( dst.data != m.data )
+//        dst.convertTo(m, _type);
 }
 
 inline void MatOp_Solve::makeExpr(MatExpr& res, int method, const Mat& a, const Mat& b)

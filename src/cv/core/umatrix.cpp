@@ -836,12 +836,12 @@ UMat UMat::t() const
     return m;
 }
 
-UMat UMat::inv(int method) const
-{
-    UMat m;
-    invert(*this, m, method);
-    return m;
-}
+//UMat UMat::inv(int method) const
+//{
+//    UMat m;
+//    invert(*this, m, method);
+//    return m;
+//}
 
 UMat UMat::mul(InputArray m, double scale) const
 {
