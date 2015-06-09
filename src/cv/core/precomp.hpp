@@ -49,7 +49,6 @@
 #include "cv/core/core/core_c.h"
 
 #include "cv/core/core/private.hpp"
-#include "cv/core/core/ocl.hpp"
 
 #include "cv/hal/hal.hpp"
 
