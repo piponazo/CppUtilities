@@ -640,10 +640,10 @@ Mat MatExpr::cross(const Mat& m) const
     return ((Mat)*this).cross(m);
 }
 
-double MatExpr::dot(const Mat& m) const
-{
-    return ((Mat)*this).dot(m);
-}
+//double MatExpr::dot(const Mat& m) const
+//{
+//    return ((Mat)*this).dot(m);
+//}
 
 MatExpr MatExpr::t() const
 {

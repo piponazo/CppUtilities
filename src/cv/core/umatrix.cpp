@@ -904,17 +904,17 @@ static bool ocl_dot( InputArray _src1, InputArray _src2, double & res )
 
 #endif
 
-double UMat::dot(InputArray m) const
-{
-    CV_Assert(m.sameSize(*this) && m.type() == type());
+//double UMat::dot(InputArray m) const
+//{
+//    CV_Assert(m.sameSize(*this) && m.type() == type());
 
-#ifdef HAVE_OPENCL
-    double r = 0;
-    CV_OCL_RUN_(dims <= 2, ocl_dot(*this, m, r), r)
-#endif
+//#ifdef HAVE_OPENCL
+//    double r = 0;
+//    CV_OCL_RUN_(dims <= 2, ocl_dot(*this, m, r), r)
+//#endif
 
-    return getMat(ACCESS_READ).dot(m);
-}
+//    return getMat(ACCESS_READ).dot(m);
+//}
 
 UMat UMat::zeros(int rows, int cols, int type)
 {

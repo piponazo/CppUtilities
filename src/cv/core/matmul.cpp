@@ -2888,604 +2888,604 @@ void cv::mulTransposed( InputArray _src, OutputArray _dst, bool ata,
     }
 }
 
-/****************************************************************************************\
-*                                      Dot Product                                       *
-\****************************************************************************************/
+///****************************************************************************************\
+//*                                      Dot Product                                       *
+//\****************************************************************************************/
 
-namespace cv
-{
+//namespace cv
+//{
 
-template<typename T> double
-dotProd_(const T* src1, const T* src2, int len)
-{
-    int i = 0;
-    double result = 0;
+//template<typename T> double
+//dotProd_(const T* src1, const T* src2, int len)
+//{
+//    int i = 0;
+//    double result = 0;
 
-    #if CV_ENABLE_UNROLLED
-    for( ; i <= len - 4; i += 4 )
-        result += (double)src1[i]*src2[i] + (double)src1[i+1]*src2[i+1] +
-            (double)src1[i+2]*src2[i+2] + (double)src1[i+3]*src2[i+3];
-    #endif
-    for( ; i < len; i++ )
-        result += (double)src1[i]*src2[i];
+//    #if CV_ENABLE_UNROLLED
+//    for( ; i <= len - 4; i += 4 )
+//        result += (double)src1[i]*src2[i] + (double)src1[i+1]*src2[i+1] +
+//            (double)src1[i+2]*src2[i+2] + (double)src1[i+3]*src2[i+3];
+//    #endif
+//    for( ; i < len; i++ )
+//        result += (double)src1[i]*src2[i];
 
-    return result;
-}
-
-
-static double dotProd_8u(const uchar* src1, const uchar* src2, int len)
-{
-    double r = 0;
-#if ARITHM_USE_IPP && 0
-    CV_IPP_CHECK()
-    {
-        if (0 <= ippiDotProd_8u64f_C1R(src1, (int)(len*sizeof(src1[0])),
-                                       src2, (int)(len*sizeof(src2[0])),
-                                       ippiSize(len, 1), &r))
-        {
-            CV_IMPL_ADD(CV_IMPL_IPP);
-            return r;
-        }
-        setIppErrorStatus();
-    }
-#endif
-    int i = 0;
-
-#if CV_SSE2
-    if( USE_SSE2 )
-    {
-        int j, len0 = len & -4, blockSize0 = (1 << 13), blockSize;
-        __m128i z = _mm_setzero_si128();
-        CV_DECL_ALIGNED(16) int buf[4];
-
-        while( i < len0 )
-        {
-            blockSize = std::min(len0 - i, blockSize0);
-            __m128i s = z;
-            j = 0;
-            for( ; j <= blockSize - 16; j += 16 )
-            {
-                __m128i b0 = _mm_loadu_si128((const __m128i*)(src1 + j));
-                __m128i b1 = _mm_loadu_si128((const __m128i*)(src2 + j));
-                __m128i s0, s1, s2, s3;
-                s0 = _mm_unpacklo_epi8(b0, z);
-                s2 = _mm_unpackhi_epi8(b0, z);
-                s1 = _mm_unpacklo_epi8(b1, z);
-                s3 = _mm_unpackhi_epi8(b1, z);
-                s0 = _mm_madd_epi16(s0, s1);
-                s2 = _mm_madd_epi16(s2, s3);
-                s = _mm_add_epi32(s, s0);
-                s = _mm_add_epi32(s, s2);
-            }
-
-            for( ; j < blockSize; j += 4 )
-            {
-                __m128i s0 = _mm_unpacklo_epi8(_mm_cvtsi32_si128(*(const int*)(src1 + j)), z);
-                __m128i s1 = _mm_unpacklo_epi8(_mm_cvtsi32_si128(*(const int*)(src2 + j)), z);
-                s0 = _mm_madd_epi16(s0, s1);
-                s = _mm_add_epi32(s, s0);
-            }
-
-            _mm_store_si128((__m128i*)buf, s);
-            r += buf[0] + buf[1] + buf[2] + buf[3];
-
-            src1 += blockSize;
-            src2 += blockSize;
-            i += blockSize;
-        }
-    }
-#elif CV_NEON
-    int len0 = len & -8, blockSize0 = (1 << 15), blockSize;
-    uint32x4_t v_zero = vdupq_n_u32(0u);
-    CV_DECL_ALIGNED(16) uint buf[4];
-
-    while( i < len0 )
-    {
-        blockSize = std::min(len0 - i, blockSize0);
-        uint32x4_t v_sum = v_zero;
-
-        int j = 0;
-        for( ; j <= blockSize - 16; j += 16 )
-        {
-            uint8x16_t v_src1 = vld1q_u8(src1 + j), v_src2 = vld1q_u8(src2 + j);
-
-            uint16x8_t v_src10 = vmovl_u8(vget_low_u8(v_src1)), v_src20 = vmovl_u8(vget_low_u8(v_src2));
-            v_sum = vmlal_u16(v_sum, vget_low_u16(v_src10), vget_low_u16(v_src20));
-            v_sum = vmlal_u16(v_sum, vget_high_u16(v_src10), vget_high_u16(v_src20));
-
-            v_src10 = vmovl_u8(vget_high_u8(v_src1));
-            v_src20 = vmovl_u8(vget_high_u8(v_src2));
-            v_sum = vmlal_u16(v_sum, vget_low_u16(v_src10), vget_low_u16(v_src20));
-            v_sum = vmlal_u16(v_sum, vget_high_u16(v_src10), vget_high_u16(v_src20));
-        }
-
-        for( ; j <= blockSize - 8; j += 8 )
-        {
-            uint16x8_t v_src1 = vmovl_u8(vld1_u8(src1 + j)), v_src2 = vmovl_u8(vld1_u8(src2 + j));
-            v_sum = vmlal_u16(v_sum, vget_low_u16(v_src1), vget_low_u16(v_src2));
-            v_sum = vmlal_u16(v_sum, vget_high_u16(v_src1), vget_high_u16(v_src2));
-        }
-
-        vst1q_u32(buf, v_sum);
-        r += buf[0] + buf[1] + buf[2] + buf[3];
-
-        src1 += blockSize;
-        src2 += blockSize;
-        i += blockSize;
-    }
-#endif
-    return r + dotProd_(src1, src2, len - i);
-}
+//    return result;
+//}
 
 
-static double dotProd_8s(const schar* src1, const schar* src2, int len)
-{
-    int i = 0;
-    double r = 0.0;
+//static double dotProd_8u(const uchar* src1, const uchar* src2, int len)
+//{
+//    double r = 0;
+//#if ARITHM_USE_IPP && 0
+//    CV_IPP_CHECK()
+//    {
+//        if (0 <= ippiDotProd_8u64f_C1R(src1, (int)(len*sizeof(src1[0])),
+//                                       src2, (int)(len*sizeof(src2[0])),
+//                                       ippiSize(len, 1), &r))
+//        {
+//            CV_IMPL_ADD(CV_IMPL_IPP);
+//            return r;
+//        }
+//        setIppErrorStatus();
+//    }
+//#endif
+//    int i = 0;
 
-#if CV_SSE2
-    if( USE_SSE2 )
-    {
-        int j, len0 = len & -4, blockSize0 = (1 << 13), blockSize;
-        __m128i z = _mm_setzero_si128();
-        CV_DECL_ALIGNED(16) int buf[4];
+//#if CV_SSE2
+//    if( USE_SSE2 )
+//    {
+//        int j, len0 = len & -4, blockSize0 = (1 << 13), blockSize;
+//        __m128i z = _mm_setzero_si128();
+//        CV_DECL_ALIGNED(16) int buf[4];
 
-        while( i < len0 )
-        {
-            blockSize = std::min(len0 - i, blockSize0);
-            __m128i s = z;
-            j = 0;
-            for( ; j <= blockSize - 16; j += 16 )
-            {
-                __m128i b0 = _mm_loadu_si128((const __m128i*)(src1 + j));
-                __m128i b1 = _mm_loadu_si128((const __m128i*)(src2 + j));
-                __m128i s0, s1, s2, s3;
-                s0 = _mm_srai_epi16(_mm_unpacklo_epi8(b0, b0), 8);
-                s2 = _mm_srai_epi16(_mm_unpackhi_epi8(b0, b0), 8);
-                s1 = _mm_srai_epi16(_mm_unpacklo_epi8(b1, b1), 8);
-                s3 = _mm_srai_epi16(_mm_unpackhi_epi8(b1, b1), 8);
-                s0 = _mm_madd_epi16(s0, s1);
-                s2 = _mm_madd_epi16(s2, s3);
-                s = _mm_add_epi32(s, s0);
-                s = _mm_add_epi32(s, s2);
-            }
+//        while( i < len0 )
+//        {
+//            blockSize = std::min(len0 - i, blockSize0);
+//            __m128i s = z;
+//            j = 0;
+//            for( ; j <= blockSize - 16; j += 16 )
+//            {
+//                __m128i b0 = _mm_loadu_si128((const __m128i*)(src1 + j));
+//                __m128i b1 = _mm_loadu_si128((const __m128i*)(src2 + j));
+//                __m128i s0, s1, s2, s3;
+//                s0 = _mm_unpacklo_epi8(b0, z);
+//                s2 = _mm_unpackhi_epi8(b0, z);
+//                s1 = _mm_unpacklo_epi8(b1, z);
+//                s3 = _mm_unpackhi_epi8(b1, z);
+//                s0 = _mm_madd_epi16(s0, s1);
+//                s2 = _mm_madd_epi16(s2, s3);
+//                s = _mm_add_epi32(s, s0);
+//                s = _mm_add_epi32(s, s2);
+//            }
 
-            for( ; j < blockSize; j += 4 )
-            {
-                __m128i s0 = _mm_cvtsi32_si128(*(const int*)(src1 + j));
-                __m128i s1 = _mm_cvtsi32_si128(*(const int*)(src2 + j));
-                s0 = _mm_srai_epi16(_mm_unpacklo_epi8(s0, s0), 8);
-                s1 = _mm_srai_epi16(_mm_unpacklo_epi8(s1, s1), 8);
-                s0 = _mm_madd_epi16(s0, s1);
-                s = _mm_add_epi32(s, s0);
-            }
+//            for( ; j < blockSize; j += 4 )
+//            {
+//                __m128i s0 = _mm_unpacklo_epi8(_mm_cvtsi32_si128(*(const int*)(src1 + j)), z);
+//                __m128i s1 = _mm_unpacklo_epi8(_mm_cvtsi32_si128(*(const int*)(src2 + j)), z);
+//                s0 = _mm_madd_epi16(s0, s1);
+//                s = _mm_add_epi32(s, s0);
+//            }
 
-            _mm_store_si128((__m128i*)buf, s);
-            r += buf[0] + buf[1] + buf[2] + buf[3];
+//            _mm_store_si128((__m128i*)buf, s);
+//            r += buf[0] + buf[1] + buf[2] + buf[3];
 
-            src1 += blockSize;
-            src2 += blockSize;
-            i += blockSize;
-        }
-    }
-#elif CV_NEON
-    int len0 = len & -8, blockSize0 = (1 << 14), blockSize;
-    int32x4_t v_zero = vdupq_n_s32(0);
-    CV_DECL_ALIGNED(16) int buf[4];
+//            src1 += blockSize;
+//            src2 += blockSize;
+//            i += blockSize;
+//        }
+//    }
+//#elif CV_NEON
+//    int len0 = len & -8, blockSize0 = (1 << 15), blockSize;
+//    uint32x4_t v_zero = vdupq_n_u32(0u);
+//    CV_DECL_ALIGNED(16) uint buf[4];
 
-    while( i < len0 )
-    {
-        blockSize = std::min(len0 - i, blockSize0);
-        int32x4_t v_sum = v_zero;
+//    while( i < len0 )
+//    {
+//        blockSize = std::min(len0 - i, blockSize0);
+//        uint32x4_t v_sum = v_zero;
 
-        int j = 0;
-        for( ; j <= blockSize - 16; j += 16 )
-        {
-            int8x16_t v_src1 = vld1q_s8(src1 + j), v_src2 = vld1q_s8(src2 + j);
+//        int j = 0;
+//        for( ; j <= blockSize - 16; j += 16 )
+//        {
+//            uint8x16_t v_src1 = vld1q_u8(src1 + j), v_src2 = vld1q_u8(src2 + j);
 
-            int16x8_t v_src10 = vmovl_s8(vget_low_s8(v_src1)), v_src20 = vmovl_s8(vget_low_s8(v_src2));
-            v_sum = vmlal_s16(v_sum, vget_low_s16(v_src10), vget_low_s16(v_src20));
-            v_sum = vmlal_s16(v_sum, vget_high_s16(v_src10), vget_high_s16(v_src20));
+//            uint16x8_t v_src10 = vmovl_u8(vget_low_u8(v_src1)), v_src20 = vmovl_u8(vget_low_u8(v_src2));
+//            v_sum = vmlal_u16(v_sum, vget_low_u16(v_src10), vget_low_u16(v_src20));
+//            v_sum = vmlal_u16(v_sum, vget_high_u16(v_src10), vget_high_u16(v_src20));
 
-            v_src10 = vmovl_s8(vget_high_s8(v_src1));
-            v_src20 = vmovl_s8(vget_high_s8(v_src2));
-            v_sum = vmlal_s16(v_sum, vget_low_s16(v_src10), vget_low_s16(v_src20));
-            v_sum = vmlal_s16(v_sum, vget_high_s16(v_src10), vget_high_s16(v_src20));
-        }
+//            v_src10 = vmovl_u8(vget_high_u8(v_src1));
+//            v_src20 = vmovl_u8(vget_high_u8(v_src2));
+//            v_sum = vmlal_u16(v_sum, vget_low_u16(v_src10), vget_low_u16(v_src20));
+//            v_sum = vmlal_u16(v_sum, vget_high_u16(v_src10), vget_high_u16(v_src20));
+//        }
 
-        for( ; j <= blockSize - 8; j += 8 )
-        {
-            int16x8_t v_src1 = vmovl_s8(vld1_s8(src1 + j)), v_src2 = vmovl_s8(vld1_s8(src2 + j));
-            v_sum = vmlal_s16(v_sum, vget_low_s16(v_src1), vget_low_s16(v_src2));
-            v_sum = vmlal_s16(v_sum, vget_high_s16(v_src1), vget_high_s16(v_src2));
-        }
+//        for( ; j <= blockSize - 8; j += 8 )
+//        {
+//            uint16x8_t v_src1 = vmovl_u8(vld1_u8(src1 + j)), v_src2 = vmovl_u8(vld1_u8(src2 + j));
+//            v_sum = vmlal_u16(v_sum, vget_low_u16(v_src1), vget_low_u16(v_src2));
+//            v_sum = vmlal_u16(v_sum, vget_high_u16(v_src1), vget_high_u16(v_src2));
+//        }
 
-        vst1q_s32(buf, v_sum);
-        r += buf[0] + buf[1] + buf[2] + buf[3];
+//        vst1q_u32(buf, v_sum);
+//        r += buf[0] + buf[1] + buf[2] + buf[3];
 
-        src1 += blockSize;
-        src2 += blockSize;
-        i += blockSize;
-    }
-#endif
-
-    return r + dotProd_(src1, src2, len - i);
-}
-
-static double dotProd_16u(const ushort* src1, const ushort* src2, int len)
-{
-#if (ARITHM_USE_IPP == 1)
-    CV_IPP_CHECK()
-    {
-        double r = 0;
-        if (0 <= ippiDotProd_16u64f_C1R(src1, (int)(len*sizeof(src1[0])), src2, (int)(len*sizeof(src2[0])), ippiSize(len, 1), &r))
-        {
-            CV_IMPL_ADD(CV_IMPL_IPP);
-            return r;
-        }
-        setIppErrorStatus();
-    }
-#endif
-    return dotProd_(src1, src2, len);
-}
-
-static double dotProd_16s(const short* src1, const short* src2, int len)
-{
-#if (ARITHM_USE_IPP == 1)
-    CV_IPP_CHECK()
-    {
-        double r = 0;
-        if (0 <= ippiDotProd_16s64f_C1R(src1, (int)(len*sizeof(src1[0])), src2, (int)(len*sizeof(src2[0])), ippiSize(len, 1), &r))
-        {
-            CV_IMPL_ADD(CV_IMPL_IPP);
-            return r;
-        }
-        setIppErrorStatus();
-    }
-#endif
-    return dotProd_(src1, src2, len);
-}
-
-static double dotProd_32s(const int* src1, const int* src2, int len)
-{
-#if (ARITHM_USE_IPP == 1)
-    CV_IPP_CHECK()
-    {
-        double r = 0;
-        if (0 <= ippiDotProd_32s64f_C1R(src1, (int)(len*sizeof(src1[0])), src2, (int)(len*sizeof(src2[0])), ippiSize(len, 1), &r))
-        {
-            CV_IMPL_ADD(CV_IMPL_IPP);
-            return r;
-        }
-        setIppErrorStatus();
-    }
-#endif
-    return dotProd_(src1, src2, len);
-}
-
-static double dotProd_32f(const float* src1, const float* src2, int len)
-{
-    double r = 0.0;
-    int i = 0;
-
-#if (ARITHM_USE_IPP == 1)
-    CV_IPP_CHECK()
-    {
-        if (0 <= ippsDotProd_32f64f(src1, src2, len, &r))
-        {
-            CV_IMPL_ADD(CV_IMPL_IPP);
-            return r;
-        }
-        setIppErrorStatus();
-    }
-#elif CV_NEON
-    int len0 = len & -4, blockSize0 = (1 << 13), blockSize;
-    float32x4_t v_zero = vdupq_n_f32(0.0f);
-    CV_DECL_ALIGNED(16) float buf[4];
-
-    while( i < len0 )
-    {
-        blockSize = std::min(len0 - i, blockSize0);
-        float32x4_t v_sum = v_zero;
-
-        int j = 0;
-        for( ; j <= blockSize - 4; j += 4 )
-            v_sum = vmlaq_f32(v_sum, vld1q_f32(src1 + j), vld1q_f32(src2 + j));
-
-        vst1q_f32(buf, v_sum);
-        r += buf[0] + buf[1] + buf[2] + buf[3];
-
-        src1 += blockSize;
-        src2 += blockSize;
-        i += blockSize;
-    }
-#endif
-    return r + dotProd_(src1, src2, len - i);
-}
-
-static double dotProd_64f(const double* src1, const double* src2, int len)
-{
-#if (ARITHM_USE_IPP == 1)
-    CV_IPP_CHECK()
-    {
-        double r = 0;
-        if (0 <= ippsDotProd_64f(src1, src2, len, &r))
-        {
-            CV_IMPL_ADD(CV_IMPL_IPP);
-            return r;
-        }
-        setIppErrorStatus();
-    }
-#endif
-    return dotProd_(src1, src2, len);
-}
+//        src1 += blockSize;
+//        src2 += blockSize;
+//        i += blockSize;
+//    }
+//#endif
+//    return r + dotProd_(src1, src2, len - i);
+//}
 
 
-typedef double (*DotProdFunc)(const uchar* src1, const uchar* src2, int len);
+//static double dotProd_8s(const schar* src1, const schar* src2, int len)
+//{
+//    int i = 0;
+//    double r = 0.0;
 
-static DotProdFunc getDotProdFunc(int depth)
-{
-    static DotProdFunc dotProdTab[] =
-    {
-        (DotProdFunc)GET_OPTIMIZED(dotProd_8u), (DotProdFunc)GET_OPTIMIZED(dotProd_8s),
-        (DotProdFunc)dotProd_16u, (DotProdFunc)dotProd_16s,
-        (DotProdFunc)dotProd_32s, (DotProdFunc)GET_OPTIMIZED(dotProd_32f),
-        (DotProdFunc)dotProd_64f, 0
-    };
+//#if CV_SSE2
+//    if( USE_SSE2 )
+//    {
+//        int j, len0 = len & -4, blockSize0 = (1 << 13), blockSize;
+//        __m128i z = _mm_setzero_si128();
+//        CV_DECL_ALIGNED(16) int buf[4];
 
-    return dotProdTab[depth];
-}
+//        while( i < len0 )
+//        {
+//            blockSize = std::min(len0 - i, blockSize0);
+//            __m128i s = z;
+//            j = 0;
+//            for( ; j <= blockSize - 16; j += 16 )
+//            {
+//                __m128i b0 = _mm_loadu_si128((const __m128i*)(src1 + j));
+//                __m128i b1 = _mm_loadu_si128((const __m128i*)(src2 + j));
+//                __m128i s0, s1, s2, s3;
+//                s0 = _mm_srai_epi16(_mm_unpacklo_epi8(b0, b0), 8);
+//                s2 = _mm_srai_epi16(_mm_unpackhi_epi8(b0, b0), 8);
+//                s1 = _mm_srai_epi16(_mm_unpacklo_epi8(b1, b1), 8);
+//                s3 = _mm_srai_epi16(_mm_unpackhi_epi8(b1, b1), 8);
+//                s0 = _mm_madd_epi16(s0, s1);
+//                s2 = _mm_madd_epi16(s2, s3);
+//                s = _mm_add_epi32(s, s0);
+//                s = _mm_add_epi32(s, s2);
+//            }
 
-double Mat::dot(InputArray _mat) const
-{
-    Mat mat = _mat.getMat();
-    int cn = channels();
-    DotProdFunc func = getDotProdFunc(depth());
-    CV_Assert( mat.type() == type() && mat.size == size && func != 0 );
+//            for( ; j < blockSize; j += 4 )
+//            {
+//                __m128i s0 = _mm_cvtsi32_si128(*(const int*)(src1 + j));
+//                __m128i s1 = _mm_cvtsi32_si128(*(const int*)(src2 + j));
+//                s0 = _mm_srai_epi16(_mm_unpacklo_epi8(s0, s0), 8);
+//                s1 = _mm_srai_epi16(_mm_unpacklo_epi8(s1, s1), 8);
+//                s0 = _mm_madd_epi16(s0, s1);
+//                s = _mm_add_epi32(s, s0);
+//            }
 
-    if( isContinuous() && mat.isContinuous() )
-    {
-        size_t len = total()*cn;
-        if( len == (size_t)(int)len )
-            return func(data, mat.data, (int)len);
-    }
+//            _mm_store_si128((__m128i*)buf, s);
+//            r += buf[0] + buf[1] + buf[2] + buf[3];
 
-    const Mat* arrays[] = {this, &mat, 0};
-    uchar* ptrs[2];
-    NAryMatIterator it(arrays, ptrs);
-    int len = (int)(it.size*cn);
-    double r = 0;
+//            src1 += blockSize;
+//            src2 += blockSize;
+//            i += blockSize;
+//        }
+//    }
+//#elif CV_NEON
+//    int len0 = len & -8, blockSize0 = (1 << 14), blockSize;
+//    int32x4_t v_zero = vdupq_n_s32(0);
+//    CV_DECL_ALIGNED(16) int buf[4];
 
-    for( size_t i = 0; i < it.nplanes; i++, ++it )
-        r += func( ptrs[0], ptrs[1], len );
+//    while( i < len0 )
+//    {
+//        blockSize = std::min(len0 - i, blockSize0);
+//        int32x4_t v_sum = v_zero;
 
-    return r;
-}
+//        int j = 0;
+//        for( ; j <= blockSize - 16; j += 16 )
+//        {
+//            int8x16_t v_src1 = vld1q_s8(src1 + j), v_src2 = vld1q_s8(src2 + j);
 
-}
+//            int16x8_t v_src10 = vmovl_s8(vget_low_s8(v_src1)), v_src20 = vmovl_s8(vget_low_s8(v_src2));
+//            v_sum = vmlal_s16(v_sum, vget_low_s16(v_src10), vget_low_s16(v_src20));
+//            v_sum = vmlal_s16(v_sum, vget_high_s16(v_src10), vget_high_s16(v_src20));
+
+//            v_src10 = vmovl_s8(vget_high_s8(v_src1));
+//            v_src20 = vmovl_s8(vget_high_s8(v_src2));
+//            v_sum = vmlal_s16(v_sum, vget_low_s16(v_src10), vget_low_s16(v_src20));
+//            v_sum = vmlal_s16(v_sum, vget_high_s16(v_src10), vget_high_s16(v_src20));
+//        }
+
+//        for( ; j <= blockSize - 8; j += 8 )
+//        {
+//            int16x8_t v_src1 = vmovl_s8(vld1_s8(src1 + j)), v_src2 = vmovl_s8(vld1_s8(src2 + j));
+//            v_sum = vmlal_s16(v_sum, vget_low_s16(v_src1), vget_low_s16(v_src2));
+//            v_sum = vmlal_s16(v_sum, vget_high_s16(v_src1), vget_high_s16(v_src2));
+//        }
+
+//        vst1q_s32(buf, v_sum);
+//        r += buf[0] + buf[1] + buf[2] + buf[3];
+
+//        src1 += blockSize;
+//        src2 += blockSize;
+//        i += blockSize;
+//    }
+//#endif
+
+//    return r + dotProd_(src1, src2, len - i);
+//}
+
+//static double dotProd_16u(const ushort* src1, const ushort* src2, int len)
+//{
+//#if (ARITHM_USE_IPP == 1)
+//    CV_IPP_CHECK()
+//    {
+//        double r = 0;
+//        if (0 <= ippiDotProd_16u64f_C1R(src1, (int)(len*sizeof(src1[0])), src2, (int)(len*sizeof(src2[0])), ippiSize(len, 1), &r))
+//        {
+//            CV_IMPL_ADD(CV_IMPL_IPP);
+//            return r;
+//        }
+//        setIppErrorStatus();
+//    }
+//#endif
+//    return dotProd_(src1, src2, len);
+//}
+
+//static double dotProd_16s(const short* src1, const short* src2, int len)
+//{
+//#if (ARITHM_USE_IPP == 1)
+//    CV_IPP_CHECK()
+//    {
+//        double r = 0;
+//        if (0 <= ippiDotProd_16s64f_C1R(src1, (int)(len*sizeof(src1[0])), src2, (int)(len*sizeof(src2[0])), ippiSize(len, 1), &r))
+//        {
+//            CV_IMPL_ADD(CV_IMPL_IPP);
+//            return r;
+//        }
+//        setIppErrorStatus();
+//    }
+//#endif
+//    return dotProd_(src1, src2, len);
+//}
+
+//static double dotProd_32s(const int* src1, const int* src2, int len)
+//{
+//#if (ARITHM_USE_IPP == 1)
+//    CV_IPP_CHECK()
+//    {
+//        double r = 0;
+//        if (0 <= ippiDotProd_32s64f_C1R(src1, (int)(len*sizeof(src1[0])), src2, (int)(len*sizeof(src2[0])), ippiSize(len, 1), &r))
+//        {
+//            CV_IMPL_ADD(CV_IMPL_IPP);
+//            return r;
+//        }
+//        setIppErrorStatus();
+//    }
+//#endif
+//    return dotProd_(src1, src2, len);
+//}
+
+//static double dotProd_32f(const float* src1, const float* src2, int len)
+//{
+//    double r = 0.0;
+//    int i = 0;
+
+//#if (ARITHM_USE_IPP == 1)
+//    CV_IPP_CHECK()
+//    {
+//        if (0 <= ippsDotProd_32f64f(src1, src2, len, &r))
+//        {
+//            CV_IMPL_ADD(CV_IMPL_IPP);
+//            return r;
+//        }
+//        setIppErrorStatus();
+//    }
+//#elif CV_NEON
+//    int len0 = len & -4, blockSize0 = (1 << 13), blockSize;
+//    float32x4_t v_zero = vdupq_n_f32(0.0f);
+//    CV_DECL_ALIGNED(16) float buf[4];
+
+//    while( i < len0 )
+//    {
+//        blockSize = std::min(len0 - i, blockSize0);
+//        float32x4_t v_sum = v_zero;
+
+//        int j = 0;
+//        for( ; j <= blockSize - 4; j += 4 )
+//            v_sum = vmlaq_f32(v_sum, vld1q_f32(src1 + j), vld1q_f32(src2 + j));
+
+//        vst1q_f32(buf, v_sum);
+//        r += buf[0] + buf[1] + buf[2] + buf[3];
+
+//        src1 += blockSize;
+//        src2 += blockSize;
+//        i += blockSize;
+//    }
+//#endif
+//    return r + dotProd_(src1, src2, len - i);
+//}
+
+//static double dotProd_64f(const double* src1, const double* src2, int len)
+//{
+//#if (ARITHM_USE_IPP == 1)
+//    CV_IPP_CHECK()
+//    {
+//        double r = 0;
+//        if (0 <= ippsDotProd_64f(src1, src2, len, &r))
+//        {
+//            CV_IMPL_ADD(CV_IMPL_IPP);
+//            return r;
+//        }
+//        setIppErrorStatus();
+//    }
+//#endif
+//    return dotProd_(src1, src2, len);
+//}
+
+
+//typedef double (*DotProdFunc)(const uchar* src1, const uchar* src2, int len);
+
+//static DotProdFunc getDotProdFunc(int depth)
+//{
+//    static DotProdFunc dotProdTab[] =
+//    {
+//        (DotProdFunc)GET_OPTIMIZED(dotProd_8u), (DotProdFunc)GET_OPTIMIZED(dotProd_8s),
+//        (DotProdFunc)dotProd_16u, (DotProdFunc)dotProd_16s,
+//        (DotProdFunc)dotProd_32s, (DotProdFunc)GET_OPTIMIZED(dotProd_32f),
+//        (DotProdFunc)dotProd_64f, 0
+//    };
+
+//    return dotProdTab[depth];
+//}
+
+//double Mat::dot(InputArray _mat) const
+//{
+//    Mat mat = _mat.getMat();
+//    int cn = channels();
+//    DotProdFunc func = getDotProdFunc(depth());
+//    CV_Assert( mat.type() == type() && mat.size == size && func != 0 );
+
+//    if( isContinuous() && mat.isContinuous() )
+//    {
+//        size_t len = total()*cn;
+//        if( len == (size_t)(int)len )
+//            return func(data, mat.data, (int)len);
+//    }
+
+//    const Mat* arrays[] = {this, &mat, 0};
+//    uchar* ptrs[2];
+//    NAryMatIterator it(arrays, ptrs);
+//    int len = (int)(it.size*cn);
+//    double r = 0;
+
+//    for( size_t i = 0; i < it.nplanes; i++, ++it )
+//        r += func( ptrs[0], ptrs[1], len );
+
+//    return r;
+//}
+
+//}
 
 /****************************************************************************************\
 *                                    Earlier API                                         *
 \****************************************************************************************/
 
-CV_IMPL void cvGEMM( const CvArr* Aarr, const CvArr* Barr, double alpha,
-                     const CvArr* Carr, double beta, CvArr* Darr, int flags )
-{
-    cv::Mat A = cv::cvarrToMat(Aarr), B = cv::cvarrToMat(Barr);
-    cv::Mat C, D = cv::cvarrToMat(Darr);
+//CV_IMPL void cvGEMM( const CvArr* Aarr, const CvArr* Barr, double alpha,
+//                     const CvArr* Carr, double beta, CvArr* Darr, int flags )
+//{
+//    cv::Mat A = cv::cvarrToMat(Aarr), B = cv::cvarrToMat(Barr);
+//    cv::Mat C, D = cv::cvarrToMat(Darr);
 
-    if( Carr )
-        C = cv::cvarrToMat(Carr);
+//    if( Carr )
+//        C = cv::cvarrToMat(Carr);
 
-    CV_Assert( (D.rows == ((flags & CV_GEMM_A_T) == 0 ? A.rows : A.cols)) &&
-               (D.cols == ((flags & CV_GEMM_B_T) == 0 ? B.cols : B.rows)) &&
-               D.type() == A.type() );
+//    CV_Assert( (D.rows == ((flags & CV_GEMM_A_T) == 0 ? A.rows : A.cols)) &&
+//               (D.cols == ((flags & CV_GEMM_B_T) == 0 ? B.cols : B.rows)) &&
+//               D.type() == A.type() );
 
-    gemm( A, B, alpha, C, beta, D, flags );
-}
-
-
-CV_IMPL void
-cvTransform( const CvArr* srcarr, CvArr* dstarr,
-             const CvMat* transmat, const CvMat* shiftvec )
-{
-    cv::Mat m = cv::cvarrToMat(transmat), src = cv::cvarrToMat(srcarr), dst = cv::cvarrToMat(dstarr);
-
-    if( shiftvec )
-    {
-        cv::Mat v = cv::cvarrToMat(shiftvec).reshape(1,m.rows),
-            _m(m.rows, m.cols + 1, m.type()), m1 = _m.colRange(0,m.cols), v1 = _m.col(m.cols);
-        m.convertTo(m1, m1.type());
-        v.convertTo(v1, v1.type());
-        m = _m;
-    }
-
-    CV_Assert( dst.depth() == src.depth() && dst.channels() == m.rows );
-    cv::transform( src, dst, m );
-}
+//    gemm( A, B, alpha, C, beta, D, flags );
+//}
 
 
-CV_IMPL void
-cvPerspectiveTransform( const CvArr* srcarr, CvArr* dstarr, const CvMat* mat )
-{
-    cv::Mat m = cv::cvarrToMat(mat), src = cv::cvarrToMat(srcarr), dst = cv::cvarrToMat(dstarr);
+//CV_IMPL void
+//cvTransform( const CvArr* srcarr, CvArr* dstarr,
+//             const CvMat* transmat, const CvMat* shiftvec )
+//{
+//    cv::Mat m = cv::cvarrToMat(transmat), src = cv::cvarrToMat(srcarr), dst = cv::cvarrToMat(dstarr);
 
-    CV_Assert( dst.type() == src.type() && dst.channels() == m.rows-1 );
-    cv::perspectiveTransform( src, dst, m );
-}
+//    if( shiftvec )
+//    {
+//        cv::Mat v = cv::cvarrToMat(shiftvec).reshape(1,m.rows),
+//            _m(m.rows, m.cols + 1, m.type()), m1 = _m.colRange(0,m.cols), v1 = _m.col(m.cols);
+//        m.convertTo(m1, m1.type());
+//        v.convertTo(v1, v1.type());
+//        m = _m;
+//    }
 
-
-CV_IMPL void cvScaleAdd( const CvArr* srcarr1, CvScalar scale,
-                         const CvArr* srcarr2, CvArr* dstarr )
-{
-    cv::Mat src1 = cv::cvarrToMat(srcarr1), dst = cv::cvarrToMat(dstarr);
-
-    CV_Assert( src1.size == dst.size && src1.type() == dst.type() );
-    cv::scaleAdd( src1, scale.val[0], cv::cvarrToMat(srcarr2), dst );
-}
-
-
-CV_IMPL void
-cvCalcCovarMatrix( const CvArr** vecarr, int count,
-                   CvArr* covarr, CvArr* avgarr, int flags )
-{
-    cv::Mat cov0 = cv::cvarrToMat(covarr), cov = cov0, mean0, mean;
-    CV_Assert( vecarr != 0 && count >= 1 );
-
-    if( avgarr )
-        mean = mean0 = cv::cvarrToMat(avgarr);
-
-    if( (flags & CV_COVAR_COLS) != 0 || (flags & CV_COVAR_ROWS) != 0 )
-    {
-
-        cv::Mat data = cv::cvarrToMat(vecarr[0]);
-        cv::calcCovarMatrix( data, cov, mean, flags, cov.type() );
-    }
-    else
-    {
-        std::vector<cv::Mat> data(count);
-        for( int i = 0; i < count; i++ )
-            data[i] = cv::cvarrToMat(vecarr[i]);
-        cv::calcCovarMatrix( &data[0], count, cov, mean, flags, cov.type() );
-    }
-
-    if( mean.data != mean0.data && mean0.data )
-        mean.convertTo(mean0, mean0.type());
-
-    if( cov.data != cov0.data )
-        cov.convertTo(cov0, cov0.type());
-}
+//    CV_Assert( dst.depth() == src.depth() && dst.channels() == m.rows );
+//    cv::transform( src, dst, m );
+//}
 
 
-CV_IMPL double
-cvMahalanobis( const CvArr* srcAarr, const CvArr* srcBarr, const CvArr* matarr )
-{
-    return cv::Mahalanobis(cv::cvarrToMat(srcAarr),
-        cv::cvarrToMat(srcBarr), cv::cvarrToMat(matarr));
-}
+//CV_IMPL void
+//cvPerspectiveTransform( const CvArr* srcarr, CvArr* dstarr, const CvMat* mat )
+//{
+//    cv::Mat m = cv::cvarrToMat(mat), src = cv::cvarrToMat(srcarr), dst = cv::cvarrToMat(dstarr);
 
-CV_IMPL void
-cvMulTransposed( const CvArr* srcarr, CvArr* dstarr,
-                 int order, const CvArr* deltaarr, double scale )
-{
-    cv::Mat src = cv::cvarrToMat(srcarr), dst0 = cv::cvarrToMat(dstarr), dst = dst0, delta;
-    if( deltaarr )
-        delta = cv::cvarrToMat(deltaarr);
-    cv::mulTransposed( src, dst, order != 0, delta, scale, dst.type());
-    if( dst.data != dst0.data )
-        dst.convertTo(dst0, dst0.type());
-}
-
-CV_IMPL double cvDotProduct( const CvArr* srcAarr, const CvArr* srcBarr )
-{
-    return cv::cvarrToMat(srcAarr).dot(cv::cvarrToMat(srcBarr));
-}
+//    CV_Assert( dst.type() == src.type() && dst.channels() == m.rows-1 );
+//    cv::perspectiveTransform( src, dst, m );
+//}
 
 
-CV_IMPL void
-cvCalcPCA( const CvArr* data_arr, CvArr* avg_arr, CvArr* eigenvals, CvArr* eigenvects, int flags )
-{
-    cv::Mat data = cv::cvarrToMat(data_arr), mean0 = cv::cvarrToMat(avg_arr);
-    cv::Mat evals0 = cv::cvarrToMat(eigenvals), evects0 = cv::cvarrToMat(eigenvects);
-    cv::Mat mean = mean0, evals = evals0, evects = evects0;
+//CV_IMPL void cvScaleAdd( const CvArr* srcarr1, CvScalar scale,
+//                         const CvArr* srcarr2, CvArr* dstarr )
+//{
+//    cv::Mat src1 = cv::cvarrToMat(srcarr1), dst = cv::cvarrToMat(dstarr);
 
-    cv::PCA pca;
-    pca.mean = mean;
-    pca.eigenvalues = evals;
-    pca.eigenvectors = evects;
-
-    pca(data, (flags & CV_PCA_USE_AVG) ? mean : cv::Mat(),
-        flags, !evals.empty() ? evals.rows + evals.cols - 1 : 0);
-
-    if( pca.mean.size() == mean.size() )
-        pca.mean.convertTo( mean, mean.type() );
-    else
-    {
-        cv::Mat temp; pca.mean.convertTo( temp, mean.type() );
-        transpose( temp, mean );
-    }
-
-    evals = pca.eigenvalues;
-    evects = pca.eigenvectors;
-    int ecount0 = evals0.cols + evals0.rows - 1;
-    int ecount = evals.cols + evals.rows - 1;
-
-    CV_Assert( (evals0.cols == 1 || evals0.rows == 1) &&
-                ecount0 <= ecount &&
-                evects0.cols == evects.cols &&
-                evects0.rows == ecount0 );
-
-    cv::Mat temp = evals0;
-    if( evals.rows == 1 )
-        evals.colRange(0, ecount0).convertTo(temp, evals0.type());
-    else
-        evals.rowRange(0, ecount0).convertTo(temp, evals0.type());
-    if( temp.data != evals0.data )
-        transpose(temp, evals0);
-    evects.rowRange(0, ecount0).convertTo( evects0, evects0.type() );
-
-    // otherwise some datatype's or size's were incorrect, so the output arrays have been reallocated
-    CV_Assert( mean0.data == mean.data );
-}
+//    CV_Assert( src1.size == dst.size && src1.type() == dst.type() );
+//    cv::scaleAdd( src1, scale.val[0], cv::cvarrToMat(srcarr2), dst );
+//}
 
 
-CV_IMPL void
-cvProjectPCA( const CvArr* data_arr, const CvArr* avg_arr,
-              const CvArr* eigenvects, CvArr* result_arr )
-{
-    cv::Mat data = cv::cvarrToMat(data_arr), mean = cv::cvarrToMat(avg_arr);
-    cv::Mat evects = cv::cvarrToMat(eigenvects), dst0 = cv::cvarrToMat(result_arr), dst = dst0;
+//CV_IMPL void
+//cvCalcCovarMatrix( const CvArr** vecarr, int count,
+//                   CvArr* covarr, CvArr* avgarr, int flags )
+//{
+//    cv::Mat cov0 = cv::cvarrToMat(covarr), cov = cov0, mean0, mean;
+//    CV_Assert( vecarr != 0 && count >= 1 );
 
-    cv::PCA pca;
-    pca.mean = mean;
-    int n;
-    if( mean.rows == 1 )
-    {
-        CV_Assert(dst.cols <= evects.rows && dst.rows == data.rows);
-        n = dst.cols;
-    }
-    else
-    {
-        CV_Assert(dst.rows <= evects.rows && dst.cols == data.cols);
-        n = dst.rows;
-    }
-    pca.eigenvectors = evects.rowRange(0, n);
+//    if( avgarr )
+//        mean = mean0 = cv::cvarrToMat(avgarr);
 
-    cv::Mat result = pca.project(data);
-    if( result.cols != dst.cols )
-        result = result.reshape(1, 1);
-    result.convertTo(dst, dst.type());
+//    if( (flags & CV_COVAR_COLS) != 0 || (flags & CV_COVAR_ROWS) != 0 )
+//    {
 
-    CV_Assert(dst0.data == dst.data);
-}
+//        cv::Mat data = cv::cvarrToMat(vecarr[0]);
+//        cv::calcCovarMatrix( data, cov, mean, flags, cov.type() );
+//    }
+//    else
+//    {
+//        std::vector<cv::Mat> data(count);
+//        for( int i = 0; i < count; i++ )
+//            data[i] = cv::cvarrToMat(vecarr[i]);
+//        cv::calcCovarMatrix( &data[0], count, cov, mean, flags, cov.type() );
+//    }
+
+//    if( mean.data != mean0.data && mean0.data )
+//        mean.convertTo(mean0, mean0.type());
+
+//    if( cov.data != cov0.data )
+//        cov.convertTo(cov0, cov0.type());
+//}
 
 
-CV_IMPL void
-cvBackProjectPCA( const CvArr* proj_arr, const CvArr* avg_arr,
-                  const CvArr* eigenvects, CvArr* result_arr )
-{
-    cv::Mat data = cv::cvarrToMat(proj_arr), mean = cv::cvarrToMat(avg_arr);
-    cv::Mat evects = cv::cvarrToMat(eigenvects), dst0 = cv::cvarrToMat(result_arr), dst = dst0;
+//CV_IMPL double
+//cvMahalanobis( const CvArr* srcAarr, const CvArr* srcBarr, const CvArr* matarr )
+//{
+//    return cv::Mahalanobis(cv::cvarrToMat(srcAarr),
+//        cv::cvarrToMat(srcBarr), cv::cvarrToMat(matarr));
+//}
 
-    cv::PCA pca;
-    pca.mean = mean;
-    int n;
-    if( mean.rows == 1 )
-    {
-        CV_Assert(data.cols <= evects.rows && dst.rows == data.rows);
-        n = data.cols;
-    }
-    else
-    {
-        CV_Assert(data.rows <= evects.rows && dst.cols == data.cols);
-        n = data.rows;
-    }
-    pca.eigenvectors = evects.rowRange(0, n);
+//CV_IMPL void
+//cvMulTransposed( const CvArr* srcarr, CvArr* dstarr,
+//                 int order, const CvArr* deltaarr, double scale )
+//{
+//    cv::Mat src = cv::cvarrToMat(srcarr), dst0 = cv::cvarrToMat(dstarr), dst = dst0, delta;
+//    if( deltaarr )
+//        delta = cv::cvarrToMat(deltaarr);
+//    cv::mulTransposed( src, dst, order != 0, delta, scale, dst.type());
+//    if( dst.data != dst0.data )
+//        dst.convertTo(dst0, dst0.type());
+//}
 
-    cv::Mat result = pca.backProject(data);
-    result.convertTo(dst, dst.type());
+//CV_IMPL double cvDotProduct( const CvArr* srcAarr, const CvArr* srcBarr )
+//{
+//    return cv::cvarrToMat(srcAarr).dot(cv::cvarrToMat(srcBarr));
+//}
 
-    CV_Assert(dst0.data == dst.data);
-}
+
+//CV_IMPL void
+//cvCalcPCA( const CvArr* data_arr, CvArr* avg_arr, CvArr* eigenvals, CvArr* eigenvects, int flags )
+//{
+//    cv::Mat data = cv::cvarrToMat(data_arr), mean0 = cv::cvarrToMat(avg_arr);
+//    cv::Mat evals0 = cv::cvarrToMat(eigenvals), evects0 = cv::cvarrToMat(eigenvects);
+//    cv::Mat mean = mean0, evals = evals0, evects = evects0;
+
+//    cv::PCA pca;
+//    pca.mean = mean;
+//    pca.eigenvalues = evals;
+//    pca.eigenvectors = evects;
+
+//    pca(data, (flags & CV_PCA_USE_AVG) ? mean : cv::Mat(),
+//        flags, !evals.empty() ? evals.rows + evals.cols - 1 : 0);
+
+//    if( pca.mean.size() == mean.size() )
+//        pca.mean.convertTo( mean, mean.type() );
+//    else
+//    {
+//        cv::Mat temp; pca.mean.convertTo( temp, mean.type() );
+//        transpose( temp, mean );
+//    }
+
+//    evals = pca.eigenvalues;
+//    evects = pca.eigenvectors;
+//    int ecount0 = evals0.cols + evals0.rows - 1;
+//    int ecount = evals.cols + evals.rows - 1;
+
+//    CV_Assert( (evals0.cols == 1 || evals0.rows == 1) &&
+//                ecount0 <= ecount &&
+//                evects0.cols == evects.cols &&
+//                evects0.rows == ecount0 );
+
+//    cv::Mat temp = evals0;
+//    if( evals.rows == 1 )
+//        evals.colRange(0, ecount0).convertTo(temp, evals0.type());
+//    else
+//        evals.rowRange(0, ecount0).convertTo(temp, evals0.type());
+//    if( temp.data != evals0.data )
+//        transpose(temp, evals0);
+//    evects.rowRange(0, ecount0).convertTo( evects0, evects0.type() );
+
+//    // otherwise some datatype's or size's were incorrect, so the output arrays have been reallocated
+//    CV_Assert( mean0.data == mean.data );
+//}
+
+
+//CV_IMPL void
+//cvProjectPCA( const CvArr* data_arr, const CvArr* avg_arr,
+//              const CvArr* eigenvects, CvArr* result_arr )
+//{
+//    cv::Mat data = cv::cvarrToMat(data_arr), mean = cv::cvarrToMat(avg_arr);
+//    cv::Mat evects = cv::cvarrToMat(eigenvects), dst0 = cv::cvarrToMat(result_arr), dst = dst0;
+
+//    cv::PCA pca;
+//    pca.mean = mean;
+//    int n;
+//    if( mean.rows == 1 )
+//    {
+//        CV_Assert(dst.cols <= evects.rows && dst.rows == data.rows);
+//        n = dst.cols;
+//    }
+//    else
+//    {
+//        CV_Assert(dst.rows <= evects.rows && dst.cols == data.cols);
+//        n = dst.rows;
+//    }
+//    pca.eigenvectors = evects.rowRange(0, n);
+
+//    cv::Mat result = pca.project(data);
+//    if( result.cols != dst.cols )
+//        result = result.reshape(1, 1);
+//    result.convertTo(dst, dst.type());
+
+//    CV_Assert(dst0.data == dst.data);
+//}
+
+
+//CV_IMPL void
+//cvBackProjectPCA( const CvArr* proj_arr, const CvArr* avg_arr,
+//                  const CvArr* eigenvects, CvArr* result_arr )
+//{
+//    cv::Mat data = cv::cvarrToMat(proj_arr), mean = cv::cvarrToMat(avg_arr);
+//    cv::Mat evects = cv::cvarrToMat(eigenvects), dst0 = cv::cvarrToMat(result_arr), dst = dst0;
+
+//    cv::PCA pca;
+//    pca.mean = mean;
+//    int n;
+//    if( mean.rows == 1 )
+//    {
+//        CV_Assert(data.cols <= evects.rows && dst.rows == data.rows);
+//        n = data.cols;
+//    }
+//    else
+//    {
+//        CV_Assert(data.rows <= evects.rows && dst.cols == data.cols);
+//        n = data.rows;
+//    }
+//    pca.eigenvectors = evects.rowRange(0, n);
+
+//    cv::Mat result = pca.backProject(data);
+//    result.convertTo(dst, dst.type());
+
+//    CV_Assert(dst0.data == dst.data);
+//}
 
 /* End of file. */

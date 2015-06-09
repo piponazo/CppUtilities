@@ -60,16 +60,6 @@ int LU(double* A, size_t astep, int m, double* b, size_t bstep, int n)
     return hal::LU(A, astep, m, b, bstep, n);
 }
 
-bool Cholesky(float* A, size_t astep, int m, float* b, size_t bstep, int n)
-{
-    return hal::Cholesky(A, astep, m, b, bstep, n);
-}
-
-bool Cholesky(double* A, size_t astep, int m, double* b, size_t bstep, int n)
-{
-    return hal::Cholesky(A, astep, m, b, bstep, n);
-}
-
 template<typename _Tp> static inline _Tp hypot(_Tp a, _Tp b)
 {
     a = std::abs(a);
@@ -88,163 +78,163 @@ template<typename _Tp> static inline _Tp hypot(_Tp a, _Tp b)
 }
 
 
-template<typename _Tp> bool
-JacobiImpl_( _Tp* A, size_t astep, _Tp* W, _Tp* V, size_t vstep, int n, uchar* buf )
-{
-    const _Tp eps = std::numeric_limits<_Tp>::epsilon();
-    int i, j, k, m;
+//template<typename _Tp> bool
+//JacobiImpl_( _Tp* A, size_t astep, _Tp* W, _Tp* V, size_t vstep, int n, uchar* buf )
+//{
+//    const _Tp eps = std::numeric_limits<_Tp>::epsilon();
+//    int i, j, k, m;
 
-    astep /= sizeof(A[0]);
-    if( V )
-    {
-        vstep /= sizeof(V[0]);
-        for( i = 0; i < n; i++ )
-        {
-            for( j = 0; j < n; j++ )
-                V[i*vstep + j] = (_Tp)0;
-            V[i*vstep + i] = (_Tp)1;
-        }
-    }
+//    astep /= sizeof(A[0]);
+//    if( V )
+//    {
+//        vstep /= sizeof(V[0]);
+//        for( i = 0; i < n; i++ )
+//        {
+//            for( j = 0; j < n; j++ )
+//                V[i*vstep + j] = (_Tp)0;
+//            V[i*vstep + i] = (_Tp)1;
+//        }
+//    }
 
-    int iters, maxIters = n*n*30;
+//    int iters, maxIters = n*n*30;
 
-    int* indR = (int*)alignPtr(buf, sizeof(int));
-    int* indC = indR + n;
-    _Tp mv = (_Tp)0;
+//    int* indR = (int*)alignPtr(buf, sizeof(int));
+//    int* indC = indR + n;
+//    _Tp mv = (_Tp)0;
 
-    for( k = 0; k < n; k++ )
-    {
-        W[k] = A[(astep + 1)*k];
-        if( k < n - 1 )
-        {
-            for( m = k+1, mv = std::abs(A[astep*k + m]), i = k+2; i < n; i++ )
-            {
-                _Tp val = std::abs(A[astep*k+i]);
-                if( mv < val )
-                    mv = val, m = i;
-            }
-            indR[k] = m;
-        }
-        if( k > 0 )
-        {
-            for( m = 0, mv = std::abs(A[k]), i = 1; i < k; i++ )
-            {
-                _Tp val = std::abs(A[astep*i+k]);
-                if( mv < val )
-                    mv = val, m = i;
-            }
-            indC[k] = m;
-        }
-    }
+//    for( k = 0; k < n; k++ )
+//    {
+//        W[k] = A[(astep + 1)*k];
+//        if( k < n - 1 )
+//        {
+//            for( m = k+1, mv = std::abs(A[astep*k + m]), i = k+2; i < n; i++ )
+//            {
+//                _Tp val = std::abs(A[astep*k+i]);
+//                if( mv < val )
+//                    mv = val, m = i;
+//            }
+//            indR[k] = m;
+//        }
+//        if( k > 0 )
+//        {
+//            for( m = 0, mv = std::abs(A[k]), i = 1; i < k; i++ )
+//            {
+//                _Tp val = std::abs(A[astep*i+k]);
+//                if( mv < val )
+//                    mv = val, m = i;
+//            }
+//            indC[k] = m;
+//        }
+//    }
 
-    if( n > 1 ) for( iters = 0; iters < maxIters; iters++ )
-    {
-        // find index (k,l) of pivot p
-        for( k = 0, mv = std::abs(A[indR[0]]), i = 1; i < n-1; i++ )
-        {
-            _Tp val = std::abs(A[astep*i + indR[i]]);
-            if( mv < val )
-                mv = val, k = i;
-        }
-        int l = indR[k];
-        for( i = 1; i < n; i++ )
-        {
-            _Tp val = std::abs(A[astep*indC[i] + i]);
-            if( mv < val )
-                mv = val, k = indC[i], l = i;
-        }
+//    if( n > 1 ) for( iters = 0; iters < maxIters; iters++ )
+//    {
+//        // find index (k,l) of pivot p
+//        for( k = 0, mv = std::abs(A[indR[0]]), i = 1; i < n-1; i++ )
+//        {
+//            _Tp val = std::abs(A[astep*i + indR[i]]);
+//            if( mv < val )
+//                mv = val, k = i;
+//        }
+//        int l = indR[k];
+//        for( i = 1; i < n; i++ )
+//        {
+//            _Tp val = std::abs(A[astep*indC[i] + i]);
+//            if( mv < val )
+//                mv = val, k = indC[i], l = i;
+//        }
 
-        _Tp p = A[astep*k + l];
-        if( std::abs(p) <= eps )
-            break;
-        _Tp y = (_Tp)((W[l] - W[k])*0.5);
-        _Tp t = std::abs(y) + hypot(p, y);
-        _Tp s = hypot(p, t);
-        _Tp c = t/s;
-        s = p/s; t = (p/t)*p;
-        if( y < 0 )
-            s = -s, t = -t;
-        A[astep*k + l] = 0;
+//        _Tp p = A[astep*k + l];
+//        if( std::abs(p) <= eps )
+//            break;
+//        _Tp y = (_Tp)((W[l] - W[k])*0.5);
+//        _Tp t = std::abs(y) + hypot(p, y);
+//        _Tp s = hypot(p, t);
+//        _Tp c = t/s;
+//        s = p/s; t = (p/t)*p;
+//        if( y < 0 )
+//            s = -s, t = -t;
+//        A[astep*k + l] = 0;
 
-        W[k] -= t;
-        W[l] += t;
+//        W[k] -= t;
+//        W[l] += t;
 
-        _Tp a0, b0;
+//        _Tp a0, b0;
 
-#undef rotate
-#define rotate(v0, v1) a0 = v0, b0 = v1, v0 = a0*c - b0*s, v1 = a0*s + b0*c
+//#undef rotate
+//#define rotate(v0, v1) a0 = v0, b0 = v1, v0 = a0*c - b0*s, v1 = a0*s + b0*c
 
-        // rotate rows and columns k and l
-        for( i = 0; i < k; i++ )
-            rotate(A[astep*i+k], A[astep*i+l]);
-        for( i = k+1; i < l; i++ )
-            rotate(A[astep*k+i], A[astep*i+l]);
-        for( i = l+1; i < n; i++ )
-            rotate(A[astep*k+i], A[astep*l+i]);
+//        // rotate rows and columns k and l
+//        for( i = 0; i < k; i++ )
+//            rotate(A[astep*i+k], A[astep*i+l]);
+//        for( i = k+1; i < l; i++ )
+//            rotate(A[astep*k+i], A[astep*i+l]);
+//        for( i = l+1; i < n; i++ )
+//            rotate(A[astep*k+i], A[astep*l+i]);
 
-        // rotate eigenvectors
-        if( V )
-            for( i = 0; i < n; i++ )
-                rotate(V[vstep*k+i], V[vstep*l+i]);
+//        // rotate eigenvectors
+//        if( V )
+//            for( i = 0; i < n; i++ )
+//                rotate(V[vstep*k+i], V[vstep*l+i]);
 
-#undef rotate
+//#undef rotate
 
-        for( j = 0; j < 2; j++ )
-        {
-            int idx = j == 0 ? k : l;
-            if( idx < n - 1 )
-            {
-                for( m = idx+1, mv = std::abs(A[astep*idx + m]), i = idx+2; i < n; i++ )
-                {
-                    _Tp val = std::abs(A[astep*idx+i]);
-                    if( mv < val )
-                        mv = val, m = i;
-                }
-                indR[idx] = m;
-            }
-            if( idx > 0 )
-            {
-                for( m = 0, mv = std::abs(A[idx]), i = 1; i < idx; i++ )
-                {
-                    _Tp val = std::abs(A[astep*i+idx]);
-                    if( mv < val )
-                        mv = val, m = i;
-                }
-                indC[idx] = m;
-            }
-        }
-    }
+//        for( j = 0; j < 2; j++ )
+//        {
+//            int idx = j == 0 ? k : l;
+//            if( idx < n - 1 )
+//            {
+//                for( m = idx+1, mv = std::abs(A[astep*idx + m]), i = idx+2; i < n; i++ )
+//                {
+//                    _Tp val = std::abs(A[astep*idx+i]);
+//                    if( mv < val )
+//                        mv = val, m = i;
+//                }
+//                indR[idx] = m;
+//            }
+//            if( idx > 0 )
+//            {
+//                for( m = 0, mv = std::abs(A[idx]), i = 1; i < idx; i++ )
+//                {
+//                    _Tp val = std::abs(A[astep*i+idx]);
+//                    if( mv < val )
+//                        mv = val, m = i;
+//                }
+//                indC[idx] = m;
+//            }
+//        }
+//    }
 
-    // sort eigenvalues & eigenvectors
-    for( k = 0; k < n-1; k++ )
-    {
-        m = k;
-        for( i = k+1; i < n; i++ )
-        {
-            if( W[m] < W[i] )
-                m = i;
-        }
-        if( k != m )
-        {
-            std::swap(W[m], W[k]);
-            if( V )
-                for( i = 0; i < n; i++ )
-                    std::swap(V[vstep*m + i], V[vstep*k + i]);
-        }
-    }
+//    // sort eigenvalues & eigenvectors
+//    for( k = 0; k < n-1; k++ )
+//    {
+//        m = k;
+//        for( i = k+1; i < n; i++ )
+//        {
+//            if( W[m] < W[i] )
+//                m = i;
+//        }
+//        if( k != m )
+//        {
+//            std::swap(W[m], W[k]);
+//            if( V )
+//                for( i = 0; i < n; i++ )
+//                    std::swap(V[vstep*m + i], V[vstep*k + i]);
+//        }
+//    }
 
-    return true;
-}
+//    return true;
+//}
 
-static bool Jacobi( float* S, size_t sstep, float* e, float* E, size_t estep, int n, uchar* buf )
-{
-    return JacobiImpl_(S, sstep, e, E, estep, n, buf);
-}
+//static bool Jacobi( float* S, size_t sstep, float* e, float* E, size_t estep, int n, uchar* buf )
+//{
+//    return JacobiImpl_(S, sstep, e, E, estep, n, buf);
+//}
 
-static bool Jacobi( double* S, size_t sstep, double* e, double* E, size_t estep, int n, uchar* buf )
-{
-    return JacobiImpl_(S, sstep, e, E, estep, n, buf);
-}
+//static bool Jacobi( double* S, size_t sstep, double* e, double* E, size_t estep, int n, uchar* buf )
+//{
+//    return JacobiImpl_(S, sstep, e, E, estep, n, buf);
+//}
 
 
 template<typename T> struct VBLAS
@@ -821,23 +811,23 @@ double cv::invert( InputArray _src, OutputArray _dst, int method )
 
     CV_Assert( m == n );
 
-    if( method == DECOMP_EIG )
-    {
-        AutoBuffer<uchar> _buf((n*n*2 + n)*esz + sizeof(double));
-        uchar* buf = alignPtr((uchar*)_buf, (int)esz);
-        Mat u(n, n, type, buf);
-        Mat w(n, 1, type, u.ptr() + n*n*esz);
-        Mat vt(n, n, type, w.ptr() + n*esz);
+//    if( method == DECOMP_EIG )
+//    {
+//        AutoBuffer<uchar> _buf((n*n*2 + n)*esz + sizeof(double));
+//        uchar* buf = alignPtr((uchar*)_buf, (int)esz);
+//        Mat u(n, n, type, buf);
+//        Mat w(n, 1, type, u.ptr() + n*n*esz);
+//        Mat vt(n, n, type, w.ptr() + n*esz);
 
-        eigen(src, w, vt);
-        transpose(vt, u);
-        SVD::backSubst(w, u, vt, Mat(), _dst);
-        return type == CV_32F ?
-        (w.ptr<float>()[0] >= FLT_EPSILON ?
-         w.ptr<float>()[n-1]/w.ptr<float>()[0] : 0) :
-        (w.ptr<double>()[0] >= DBL_EPSILON ?
-         w.ptr<double>()[n-1]/w.ptr<double>()[0] : 0);
-    }
+//        eigen(src, w, vt);
+//        transpose(vt, u);
+//        SVD::backSubst(w, u, vt, Mat(), _dst);
+//        return type == CV_32F ?
+//        (w.ptr<float>()[0] >= FLT_EPSILON ?
+//         w.ptr<float>()[n-1]/w.ptr<float>()[0] : 0) :
+//        (w.ptr<double>()[0] >= DBL_EPSILON ?
+//         w.ptr<double>()[n-1]/w.ptr<double>()[0] : 0);
+//    }
 
     CV_Assert( method == DECOMP_LU || method == DECOMP_CHOLESKY );
 
@@ -1030,10 +1020,11 @@ double cv::invert( InputArray _src, OutputArray _dst, int method )
         result = hal::LU(src1.ptr<float>(), src1.step, n, dst.ptr<float>(), dst.step, n) != 0;
     else if( method == DECOMP_LU && type == CV_64F )
         result = hal::LU(src1.ptr<double>(), src1.step, n, dst.ptr<double>(), dst.step, n) != 0;
-    else if( method == DECOMP_CHOLESKY && type == CV_32F )
-        result = hal::Cholesky(src1.ptr<float>(), src1.step, n, dst.ptr<float>(), dst.step, n);
+//    else if( method == DECOMP_CHOLESKY && type == CV_32F )
+//        result = hal::Cholesky(src1.ptr<float>(), src1.step, n, dst.ptr<float>(), dst.step, n);
     else
-        result = hal::Cholesky(src1.ptr<double>(), src1.step, n, dst.ptr<double>(), dst.step, n);
+            throw std::runtime_error("removed something important");
+//        result = hal::Cholesky(src1.ptr<double>(), src1.step, n, dst.ptr<double>(), dst.step, n);
 
     if( !result )
         dst = Scalar(0);
@@ -1269,50 +1260,43 @@ bool cv::solve( InputArray _src, InputArray _src2arg, OutputArray _dst, int meth
         else
             result = hal::LU(a.ptr<double>(), a.step, n, dst.ptr<double>(), dst.step, nb) != 0;
     }
-    else if( method == DECOMP_CHOLESKY )
-    {
-        if( type == CV_32F )
-            result = hal::Cholesky(a.ptr<float>(), a.step, n, dst.ptr<float>(), dst.step, nb);
-        else
-            result = hal::Cholesky(a.ptr<double>(), a.step, n, dst.ptr<double>(), dst.step, nb);
-    }
-    else
-    {
-        ptr = alignPtr(ptr, 16);
-        Mat v(n, n, type, ptr, vstep), w(n, 1, type, ptr + vstep*n), u;
-        ptr += n*(vstep + esz);
+//    else
+//    {
+//        ptr = alignPtr(ptr, 16);
+//        Mat v(n, n, type, ptr, vstep), w(n, 1, type, ptr + vstep*n), u;
+//        ptr += n*(vstep + esz);
 
-        if( method == DECOMP_EIG )
-        {
-            if( type == CV_32F )
-                Jacobi(a.ptr<float>(), a.step, w.ptr<float>(), v.ptr<float>(), v.step, n, ptr);
-            else
-                Jacobi(a.ptr<double>(), a.step, w.ptr<double>(), v.ptr<double>(), v.step, n, ptr);
-            u = v;
-        }
-        else
-        {
-            if( type == CV_32F )
-                JacobiSVD(a.ptr<float>(), a.step, w.ptr<float>(), v.ptr<float>(), v.step, m_, n);
-            else
-                JacobiSVD(a.ptr<double>(), a.step, w.ptr<double>(), v.ptr<double>(), v.step, m_, n);
-            u = a;
-        }
+//        if( method == DECOMP_EIG )
+//        {
+//            if( type == CV_32F )
+//                Jacobi(a.ptr<float>(), a.step, w.ptr<float>(), v.ptr<float>(), v.step, n, ptr);
+//            else
+//                Jacobi(a.ptr<double>(), a.step, w.ptr<double>(), v.ptr<double>(), v.step, n, ptr);
+//            u = v;
+//        }
+//        else
+//        {
+//            if( type == CV_32F )
+//                JacobiSVD(a.ptr<float>(), a.step, w.ptr<float>(), v.ptr<float>(), v.step, m_, n);
+//            else
+//                JacobiSVD(a.ptr<double>(), a.step, w.ptr<double>(), v.ptr<double>(), v.step, m_, n);
+//            u = a;
+//        }
 
-        if( type == CV_32F )
-        {
-            SVBkSb(m_, n, w.ptr<float>(), 0, u.ptr<float>(), u.step, true,
-                   v.ptr<float>(), v.step, true, src2.ptr<float>(),
-                   src2.step, nb, dst.ptr<float>(), dst.step, ptr);
-        }
-        else
-        {
-            SVBkSb(m_, n, w.ptr<double>(), 0, u.ptr<double>(), u.step, true,
-                   v.ptr<double>(), v.step, true, src2.ptr<double>(),
-                   src2.step, nb, dst.ptr<double>(), dst.step, ptr);
-        }
-        result = true;
-    }
+//        if( type == CV_32F )
+//        {
+//            SVBkSb(m_, n, w.ptr<float>(), 0, u.ptr<float>(), u.step, true,
+//                   v.ptr<float>(), v.step, true, src2.ptr<float>(),
+//                   src2.step, nb, dst.ptr<float>(), dst.step, ptr);
+//        }
+//        else
+//        {
+//            SVBkSb(m_, n, w.ptr<double>(), 0, u.ptr<double>(), u.step, true,
+//                   v.ptr<double>(), v.step, true, src2.ptr<double>(),
+//                   src2.step, nb, dst.ptr<double>(), dst.step, ptr);
+//        }
+//        result = true;
+//    }
 
     if( !result )
         dst = Scalar(0);
@@ -1323,35 +1307,35 @@ bool cv::solve( InputArray _src, InputArray _src2arg, OutputArray _dst, int meth
 
 /////////////////// finding eigenvalues and eigenvectors of a symmetric matrix ///////////////
 
-bool cv::eigen( InputArray _src, OutputArray _evals, OutputArray _evects )
-{
-    Mat src = _src.getMat();
-    int type = src.type();
-    int n = src.rows;
+//bool cv::eigen( InputArray _src, OutputArray _evals, OutputArray _evects )
+//{
+//    Mat src = _src.getMat();
+//    int type = src.type();
+//    int n = src.rows;
 
-    CV_Assert( src.rows == src.cols );
-    CV_Assert (type == CV_32F || type == CV_64F);
+//    CV_Assert( src.rows == src.cols );
+//    CV_Assert (type == CV_32F || type == CV_64F);
 
-    Mat v;
-    if( _evects.needed() )
-    {
-        _evects.create(n, n, type);
-        v = _evects.getMat();
-    }
+//    Mat v;
+//    if( _evects.needed() )
+//    {
+//        _evects.create(n, n, type);
+//        v = _evects.getMat();
+//    }
 
-    size_t elemSize = src.elemSize(), astep = alignSize(n*elemSize, 16);
-    AutoBuffer<uchar> buf(n*astep + n*5*elemSize + 32);
-    uchar* ptr = alignPtr((uchar*)buf, 16);
-    Mat a(n, n, type, ptr, astep), w(n, 1, type, ptr + astep*n);
-    ptr += astep*n + elemSize*n;
-    src.copyTo(a);
-    bool ok = type == CV_32F ?
-        Jacobi(a.ptr<float>(), a.step, w.ptr<float>(), v.ptr<float>(), v.step, n, ptr) :
-        Jacobi(a.ptr<double>(), a.step, w.ptr<double>(), v.ptr<double>(), v.step, n, ptr);
+//    size_t elemSize = src.elemSize(), astep = alignSize(n*elemSize, 16);
+//    AutoBuffer<uchar> buf(n*astep + n*5*elemSize + 32);
+//    uchar* ptr = alignPtr((uchar*)buf, 16);
+//    Mat a(n, n, type, ptr, astep), w(n, 1, type, ptr + astep*n);
+//    ptr += astep*n + elemSize*n;
+//    src.copyTo(a);
+//    bool ok = type == CV_32F ?
+//        Jacobi(a.ptr<float>(), a.step, w.ptr<float>(), v.ptr<float>(), v.step, n, ptr) :
+//        Jacobi(a.ptr<double>(), a.step, w.ptr<double>(), v.ptr<double>(), v.step, n, ptr);
 
-    w.copyTo(_evals);
-    return ok;
-}
+//    w.copyTo(_evals);
+//    return ok;
+//}
 
 namespace cv
 {
@@ -1556,36 +1540,36 @@ cvSolve( const CvArr* Aarr, const CvArr* barr, CvArr* xarr, int method )
 }
 
 
-CV_IMPL void
-cvEigenVV( CvArr* srcarr, CvArr* evectsarr, CvArr* evalsarr, double,
-           int, int )
-{
-    cv::Mat src = cv::cvarrToMat(srcarr), evals0 = cv::cvarrToMat(evalsarr), evals = evals0;
-    if( evectsarr )
-    {
-        cv::Mat evects0 = cv::cvarrToMat(evectsarr), evects = evects0;
-        eigen(src, evals, evects);
-        if( evects0.data != evects.data )
-        {
-            const uchar* p = evects0.ptr();
-            evects.convertTo(evects0, evects0.type());
-            CV_Assert( p == evects0.ptr() );
-        }
-    }
-    else
-        eigen(src, evals);
-    if( evals0.data != evals.data )
-    {
-        const uchar* p = evals0.ptr();
-        if( evals0.size() == evals.size() )
-            evals.convertTo(evals0, evals0.type());
-        else if( evals0.type() == evals.type() )
-            cv::transpose(evals, evals0);
-        else
-            cv::Mat(evals.t()).convertTo(evals0, evals0.type());
-        CV_Assert( p == evals0.ptr() );
-    }
-}
+//CV_IMPL void
+//cvEigenVV( CvArr* srcarr, CvArr* evectsarr, CvArr* evalsarr, double,
+//           int, int )
+//{
+//    cv::Mat src = cv::cvarrToMat(srcarr), evals0 = cv::cvarrToMat(evalsarr), evals = evals0;
+//    if( evectsarr )
+//    {
+//        cv::Mat evects0 = cv::cvarrToMat(evectsarr), evects = evects0;
+//        eigen(src, evals, evects);
+//        if( evects0.data != evects.data )
+//        {
+//            const uchar* p = evects0.ptr();
+//            evects.convertTo(evects0, evects0.type());
+//            CV_Assert( p == evects0.ptr() );
+//        }
+//    }
+//    else
+//        eigen(src, evals);
+//    if( evals0.data != evals.data )
+//    {
+//        const uchar* p = evals0.ptr();
+//        if( evals0.size() == evals.size() )
+//            evals.convertTo(evals0, evals0.type());
+//        else if( evals0.type() == evals.type() )
+//            cv::transpose(evals, evals0);
+//        else
+//            cv::Mat(evals.t()).convertTo(evals0, evals0.type());
+//        CV_Assert( p == evals0.ptr() );
+//    }
+//}
 
 
 CV_IMPL void
