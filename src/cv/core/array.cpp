@@ -48,39 +48,6 @@
 
 #include "precomp.hpp"
 
-#define  CV_ORIGIN_TL  0
-#define  CV_ORIGIN_BL  1
-
-/* default image row align (in bytes) */
-#define  CV_DEFAULT_IMAGE_ROW_ALIGN  4
-
-
-//CvSparseNode*
-//cvInitSparseMatIterator( const CvSparseMat* mat, CvSparseMatIterator* iterator )
-//{
-//    CvSparseNode* node = 0;
-//    int idx;
-
-//    if( !CV_IS_SPARSE_MAT( mat ))
-//        CV_Error( CV_StsBadArg, "Invalid sparse matrix header" );
-
-//    if( !iterator )
-//        CV_Error( CV_StsNullPtr, "NULL iterator pointer" );
-
-//    iterator->mat = (CvSparseMat*)mat;
-//    iterator->node = 0;
-
-//    for( idx = 0; idx < mat->hashsize; idx++ )
-//        if( mat->hashtable[idx] )
-//        {
-//            node = iterator->node = (CvSparseNode*)mat->hashtable[idx];
-//            break;
-//        }
-
-//    iterator->curidx = idx;
-//    return node;
-//}
-
 CV_IMPL int
 cvGetImageCOI( const IplImage* image )
 {
