@@ -48,7 +48,6 @@ namespace cv {
 
 // it should be a prime number for the best hash function
 enum { UMAT_NLOCKS = 31 };
-static Mutex umatLocks[UMAT_NLOCKS];
 
 UMatData::UMatData(const MatAllocator* allocator)
 {
@@ -74,15 +73,6 @@ UMatData::~UMatData()
     allocatorFlags_ = 0;
 }
 
-void UMatData::lock()
-{
-    umatLocks[(size_t)(void*)this % UMAT_NLOCKS].lock();
-}
-
-void UMatData::unlock()
-{
-    umatLocks[(size_t)(void*)this % UMAT_NLOCKS].unlock();
-}
 
 
 MatAllocator* UMat::getStdAllocator()

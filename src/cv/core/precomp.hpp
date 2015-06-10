@@ -232,24 +232,6 @@ inline bool checkScalar(InputArray sc, int atype, int sckind, int akind)
 
 void convertAndUnrollScalar( const Mat& sc, int buftype, uchar* scbuf, size_t blocksize );
 
-#ifdef CV_COLLECT_IMPL_DATA
-struct ImplCollector
-{
-    ImplCollector()
-    {
-        useCollection   = false;
-        implFlags       = 0;
-    }
-    bool useCollection; // enable/disable impl data collection
-
-    int implFlags;
-    std::vector<int>    implCode;
-    std::vector<String> implFun;
-
-    cv::Mutex mutex;
-};
-#endif
-
 #if defined(BUILD_SHARED_LIBS)
 #if defined WIN32 || defined _WIN32 || defined WINCE
 #define CL_RUNTIME_EXPORT __declspec(dllexport)

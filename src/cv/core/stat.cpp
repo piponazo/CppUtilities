@@ -245,27 +245,6 @@ Hamming::ResultType Hamming::operator()( const unsigned char* a, const unsigned 
     return cv::hal::normHamming(a, b, size);
 }
 
-//#define CV_DEF_NORM_FUNC(L, suffix, type, ntype) \
-//    static int norm##L##_##suffix(const type* src, const uchar* mask, ntype* r, int len, int cn) \
-//{ return norm##L##_(src, mask, r, len, cn); } \
-//    static int normDiff##L##_##suffix(const type* src1, const type* src2, \
-//    const uchar* mask, ntype* r, int len, int cn) \
-//{ return normDiff##L##_(src1, src2, mask, r, (int)len, cn); }
-
-//#define CV_DEF_NORM_ALL(suffix, type, inftype, l1type, l2type) \
-//    CV_DEF_NORM_FUNC(Inf, suffix, type, inftype) \
-//    CV_DEF_NORM_FUNC(L1, suffix, type, l1type) \
-//    CV_DEF_NORM_FUNC(L2, suffix, type, l2type)
-
-//CV_DEF_NORM_ALL(8u, uchar, int, int, int)
-//CV_DEF_NORM_ALL(8s, schar, int, int, int)
-//CV_DEF_NORM_ALL(16u, ushort, int, int, double)
-//CV_DEF_NORM_ALL(16s, short, int, int, double)
-//CV_DEF_NORM_ALL(32s, int, int, double, double)
-//CV_DEF_NORM_ALL(32f, float, float, double, double)
-//CV_DEF_NORM_ALL(64f, double, double, double, double)
-
-
 typedef int (*NormFunc)(const uchar*, const uchar*, uchar*, int, int);
 typedef int (*NormDiffFunc)(const uchar*, const uchar*, const uchar*, uchar*, int, int);
 
