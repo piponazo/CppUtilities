@@ -52,7 +52,7 @@
 #include "base.hpp"
 #include "traits.hpp"
 
-namespace cv
+namespace minicv
 {
 
 //! @addtogroup core_basic
@@ -273,7 +273,7 @@ template<typename _Tp, int m, int n> static double norm(const Matx<_Tp, m, n>& M
 
 This template class represents short numerical vectors (of 1, 2, 3, 4 ... elements) on which you
 can perform basic arithmetical operations, access individual elements using [] operator etc. The
-vectors are allocated on stack, as opposite to std::valarray, std::vector, cv::Mat etc., which
+vectors are allocated on stack, as opposite to std::valarray, std::vector, minicv::Mat etc., which
 elements are dynamically allocated in the heap.
 
 The template takes 2 parameters:
@@ -817,7 +817,7 @@ Vec<_Tp, n> Matx<_Tp, m, n>::solve(const Vec<_Tp, m>& rhs, int method) const
 template<typename _Tp, int m> static inline
 double determinant(const Matx<_Tp, m, m>& a)
 {
-    return cv::internal::Matx_DetOp<_Tp, m>()(a);
+    return minicv::internal::Matx_DetOp<_Tp, m>()(a);
 }
 
 template<typename _Tp, int m, int n> static inline
@@ -960,25 +960,25 @@ Vec<_Tp, cn> Vec<_Tp, cn>::mul(const Vec<_Tp, cn>& v) const
 template<> inline
 Vec<float, 2> Vec<float, 2>::conj() const
 {
-    return cv::internal::conjugate(*this);
+    return minicv::internal::conjugate(*this);
 }
 
 template<> inline
 Vec<double, 2> Vec<double, 2>::conj() const
 {
-    return cv::internal::conjugate(*this);
+    return minicv::internal::conjugate(*this);
 }
 
 template<> inline
 Vec<float, 4> Vec<float, 4>::conj() const
 {
-    return cv::internal::conjugate(*this);
+    return minicv::internal::conjugate(*this);
 }
 
 template<> inline
 Vec<double, 4> Vec<double, 4>::conj() const
 {
-    return cv::internal::conjugate(*this);
+    return minicv::internal::conjugate(*this);
 }
 
 template<typename _Tp, int cn> inline
@@ -1083,7 +1083,7 @@ Vec<_Tp, cn> VecCommaInitializer<_Tp, cn>::operator *() const
 
 ///////////////////////////// Matx out-of-class operators ////////////////////////////////
 
-//! @relates cv::Matx
+//! @relates minicv::Matx
 //! @{
 
 template<typename _Tp1, typename _Tp2, int m, int n> static inline
@@ -1211,7 +1211,7 @@ bool operator != (const Matx<_Tp, m, n>& a, const Matx<_Tp, m, n>& b)
 
 ////////////////////////////// Vec out-of-class operators ////////////////////////////////
 
-//! @relates cv::Vec
+//! @relates minicv::Vec
 //! @{
 
 template<typename _Tp1, typename _Tp2, int cn> static inline
@@ -1371,6 +1371,6 @@ template<typename _Tp> inline Vec<_Tp, 4>& operator *= (Vec<_Tp, 4>& v1, const V
 
 //! @}
 
-} // cv
+} // minicv
 
 #endif // __OPENCV_CORE_MATX_HPP__

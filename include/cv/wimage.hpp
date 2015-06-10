@@ -46,7 +46,7 @@
 
 #ifdef __cplusplus
 
-namespace cv {
+namespace minicv {
 
 //! @addtogroup core
 //! @{

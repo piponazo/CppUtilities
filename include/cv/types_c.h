@@ -90,7 +90,7 @@
 #endif
 
 
-/** @see cv::Error::Code */
+/** @see minicv::Error::Code */
 enum {
  CV_StsOk=                       0,  /**< everything is ok                */
  CV_StsBackTrace=               -1,  /**< pseudo error for back trace     */

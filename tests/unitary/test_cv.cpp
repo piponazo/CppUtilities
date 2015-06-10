@@ -1,8 +1,8 @@
-#include "cv/core/core.hpp"
+#include "cv/core.hpp"
 
 #include <gtest/gtest.h>
 
-using namespace cv;
+using namespace minicv;
 
 TEST(MatTest, shouldCreateAndDestroyInstancesCorrectly_onlyUsingConstructors)
 {
@@ -82,7 +82,7 @@ TEST(MatTest, shouldFindMinMaxElements)
         Point minPoint, maxPoint;
         double minVal, maxVal;
 
-        cv::minMaxLoc(source, &minVal, &maxVal, &minPoint, &maxPoint);
+        minMaxLoc(source, &minVal, &maxVal, &minPoint, &maxPoint);
         ASSERT_DOUBLE_EQ(minVal, 0.);
         ASSERT_DOUBLE_EQ(maxVal, 3.);
         ASSERT_EQ(minPoint, Point(0,0));

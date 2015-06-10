@@ -55,10 +55,10 @@
 #define OPENCV_HAL_NOP(a) (a)
 #define OPENCV_HAL_1ST(a, b) (a)
 
-// unlike HAL API, which is in cv::hal,
-// we put intrinsics into cv namespace to make its
+// unlike HAL API, which is in minicv::hal,
+// we put intrinsics into minicv namespace to make its
 // access from within opencv code more accessible
-namespace cv {
+namespace minicv {
 
 template<typename _Tp> struct V_TypeTraits
 {

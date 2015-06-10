@@ -55,7 +55,7 @@
 #include "cvstd.hpp"
 #include "hal.hpp"
 
-namespace cv
+namespace minicv
 {
 
 //! @addtogroup core_utils
@@ -211,7 +211,7 @@ enum NormTypes { NORM_INF       = 1,
      template <> struct CV_StaticAssert_failed<true> { enum { val = 1 }; };
      template<int x> struct CV_StaticAssert_test {};
 #    define CV_StaticAssert(condition, reason)\
-       typedef cv::CV_StaticAssert_test< sizeof(cv::CV_StaticAssert_failed< static_cast<bool>(condition) >) > CVAUX_CONCAT(CV_StaticAssert_failed_at_, __LINE__)
+       typedef minicv::CV_StaticAssert_test< sizeof(minicv::CV_StaticAssert_failed< static_cast<bool>(condition) >) > CVAUX_CONCAT(CV_StaticAssert_failed_at_, __LINE__)
 #  endif
 #endif
 
@@ -261,7 +261,7 @@ CV_EXPORTS void error(int _code, const String& _err, const char* _func, const ch
 # endif
 #endif
 
-/** same as cv::error, but does not return */
+/** same as minicv::error, but does not return */
 CV_INLINE CV_NORETURN void errorNoReturn(int _code, const String& _err, const char* _func, const char* _file, int _line)
 {
     error(_code, _err, _func, _file, _line);
@@ -297,7 +297,7 @@ configuration, the exception is thrown.
 @param code one of Error::Code
 @param msg error message
 */
-#define CV_Error( code, msg ) cv::error( code, msg, CV_Func, __FILE__, __LINE__ )
+#define CV_Error( code, msg ) minicv::error( code, msg, CV_Func, __FILE__, __LINE__ )
 
 /**  @brief Call the error handler.
 
@@ -311,21 +311,21 @@ for example:
 @param code one of Error::Code
 @param args printf-like formatted error message in parentheses
 */
-#define CV_Error_( code, args ) cv::error( code, cv::format args, CV_Func, __FILE__, __LINE__ )
+#define CV_Error_( code, args ) minicv::error( code, minicv::format args, CV_Func, __FILE__, __LINE__ )
 
 /** @brief Checks a condition at runtime and throws exception if it fails
 
 The macros CV_Assert (and CV_DbgAssert(expr)) evaluate the specified expression. If it is 0, the macros
-raise an error (see cv::error). The macro CV_Assert checks the condition in both Debug and Release
+raise an error (see minicv::error). The macro CV_Assert checks the condition in both Debug and Release
 configurations while CV_DbgAssert is only retained in the Debug configuration.
 */
-#define CV_Assert( expr ) if(!!(expr)) ; else cv::error( cv::Error::StsAssert, #expr, CV_Func, __FILE__, __LINE__ )
+#define CV_Assert( expr ) if(!!(expr)) ; else minicv::error( minicv::Error::StsAssert, #expr, CV_Func, __FILE__, __LINE__ )
 
 /** same as CV_Error(code,msg), but does not return */
-#define CV_ErrorNoReturn( code, msg ) cv::errorNoReturn( code, msg, CV_Func, __FILE__, __LINE__ )
+#define CV_ErrorNoReturn( code, msg ) minicv::errorNoReturn( code, msg, CV_Func, __FILE__, __LINE__ )
 
 /** same as CV_Error_(code,args), but does not return */
-#define CV_ErrorNoReturn_( code, args ) cv::errorNoReturn( code, cv::format args, CV_Func, __FILE__, __LINE__ )
+#define CV_ErrorNoReturn_( code, args ) minicv::errorNoReturn( code, minicv::format args, CV_Func, __FILE__, __LINE__ )
 
 /** replaced with CV_Assert(expr) in Debug configuration */
 #ifdef _DEBUG
@@ -537,7 +537,7 @@ inline float32x2_t cv_vsqrt_f32(float32x2_t val)
 
 //! @} core_utils_neon
 
-} // cv
+} // minicv
 
 #include "sse_utils.hpp"
 

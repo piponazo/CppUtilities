@@ -49,7 +49,7 @@
 *                                       minMaxLoc                                        *
 \****************************************************************************************/
 
-namespace cv
+namespace minicv
 {
 
 template<typename T, typename WT> static void
@@ -166,7 +166,7 @@ static void ofs2idx(const Mat& a, size_t ofs, int* idx)
 
 }
 
-void cv::minMaxIdx(InputArray _src, double* minVal,
+void minicv::minMaxIdx(InputArray _src, double* minVal,
                    double* maxVal, int* minIdx, int* maxIdx,
                    InputArray _mask)
 {
@@ -221,7 +221,7 @@ void cv::minMaxIdx(InputArray _src, double* minVal,
         ofs2idx(src, maxidx, maxIdx);
 }
 
-void cv::minMaxLoc( InputArray _img, double* minVal, double* maxVal,
+void minicv::minMaxLoc( InputArray _img, double* minVal, double* maxVal,
                     Point* minLoc, Point* maxLoc, InputArray mask )
 {
     CV_Assert(_img.dims() <= 2);
@@ -237,12 +237,12 @@ void cv::minMaxLoc( InputArray _img, double* minVal, double* maxVal,
 *                                         norm                                           *
 \****************************************************************************************/
 
-namespace cv
+namespace minicv
 {
 
 Hamming::ResultType Hamming::operator()( const unsigned char* a, const unsigned char* b, int size ) const
 {
-    return cv::hal::normHamming(a, b, size);
+    return minicv::hal::normHamming(a, b, size);
 }
 
 typedef int (*NormFunc)(const uchar*, const uchar*, uchar*, int, int);

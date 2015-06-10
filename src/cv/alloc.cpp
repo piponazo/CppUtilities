@@ -44,7 +44,7 @@
 
 #define CV_USE_SYSTEM_MALLOC 1
 
-namespace cv
+namespace minicv
 {
 
 static void* OutOfMemoryError(size_t size)
@@ -86,12 +86,12 @@ void fastFree(void* ptr)
 
 CV_IMPL void* cvAlloc( size_t size )
 {
-    return cv::fastMalloc( size );
+    return minicv::fastMalloc( size );
 }
 
 CV_IMPL void cvFree_( void* ptr )
 {
-    cv::fastFree( ptr );
+    minicv::fastFree( ptr );
 }
 
 

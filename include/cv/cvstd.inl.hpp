@@ -51,7 +51,7 @@
 
 //! @cond IGNORED
 
-namespace cv
+namespace minicv
 {
 #ifndef OPENCV_NOSTL
 
@@ -239,7 +239,7 @@ std::ostream& operator << (std::ostream& out, const Rect_<_Tp>& rect)
 
 
 #endif // OPENCV_NOSTL
-} // cv
+} // minicv
 
 //! @endcond
 

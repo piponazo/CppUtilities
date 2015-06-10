@@ -45,7 +45,7 @@
 #ifndef __OPENCV_HAL_INTRIN_NEON_HPP__
 #define __OPENCV_HAL_INTRIN_NEON_HPP__
 
-namespace cv
+namespace minicv
 {
 
 #define CV_SIMD128 1

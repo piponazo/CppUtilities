@@ -569,7 +569,7 @@ CV_INLINE int cvIsInf( float value )
 
 #include <algorithm>
 
-namespace cv
+namespace minicv
 {
 
 /////////////// saturate_cast (used in image & signal processing) ///////////////////

@@ -1,7 +1,7 @@
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
-file(GLOB_RECURSE core_hdrs_inc "${PROJECT_SOURCE_DIR}/include/cv/*.h"
-                           "${PROJECT_SOURCE_DIR}/include/cv/*.hpp")
+file(GLOB_RECURSE core_hdrs_inc "${PROJECT_SOURCE_DIR}/include/minicv/*.h"
+                           "${PROJECT_SOURCE_DIR}/include/minicv/*.hpp")
 file(GLOB_RECURSE core_hdrs "*.h" "*.hpp")
 file(GLOB_RECURSE core_srcs "*.cpp")
 

@@ -7,7 +7,7 @@
 #ifndef __OPENCV_CORE_BUFFER_POOL_HPP__
 #define __OPENCV_CORE_BUFFER_POOL_HPP__
 
-namespace cv
+namespace minicv
 {
 
 //! @addtogroup core

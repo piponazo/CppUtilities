@@ -44,10 +44,10 @@
 
 #include "precomp.hpp"
 
-char* cv::String::allocate(size_t len)
+char* minicv::String::allocate(size_t len)
 {
     size_t totalsize = alignSize(len + 1, (int)sizeof(int));
-    int* data = (int*)cv::fastMalloc(totalsize + sizeof(int));
+    int* data = (int*)minicv::fastMalloc(totalsize + sizeof(int));
     data[0] = 1;
     cstr_ = (char*)(data + 1);
     len_ = len;
@@ -56,7 +56,7 @@ char* cv::String::allocate(size_t len)
 }
 
 
-void cv::String::deallocate()
+void minicv::String::deallocate()
 {
     int* data = (int*)cstr_;
     len_ = 0;
@@ -64,6 +64,6 @@ void cv::String::deallocate()
 
     if(data && 1 == CV_XADD(data-1, -1))
     {
-        cv::fastFree(data-1);
+        minicv::fastFree(data-1);
     }
 }

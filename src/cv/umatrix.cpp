@@ -44,7 +44,7 @@
 
 ///////////////////////////////// UMat implementation ///////////////////////////////
 
-namespace cv {
+namespace minicv {
 
 // it should be a prime number for the best hash function
 enum { UMAT_NLOCKS = 31 };

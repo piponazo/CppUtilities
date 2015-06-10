@@ -194,7 +194,7 @@ std::wstring GetTempFileNameWinRT(std::wstring prefix)
 # include <android/log.h>
 #endif
 
-namespace cv
+namespace minicv
 {
 
 Exception::Exception() { code = 0; line = 0; }
@@ -429,7 +429,7 @@ void error( const Exception& exc )
         fprintf( stderr, "%s\n", buf );
         fflush( stderr );
 #  ifdef __ANDROID__
-        __android_log_print(ANDROID_LOG_ERROR, "cv::error()", "%s", buf);
+        __android_log_print(ANDROID_LOG_ERROR, "minicv::error()", "%s", buf);
 #  endif
     }
 
@@ -444,7 +444,7 @@ void error( const Exception& exc )
 
 void error(int _code, const String& _err, const char* _func, const char* _file, int _line)
 {
-    error(cv::Exception(_code, _err, _func, _file, _line));
+    error(minicv::Exception(_code, _err, _func, _file, _line));
 }
 
 CvErrorCallback
@@ -466,20 +466,20 @@ redirectError( CvErrorCallback errCallback, void* userdata, void** prevUserdata)
 CV_IMPL int cvCheckHardwareSupport(int feature)
 {
     CV_DbgAssert( 0 <= feature && feature <= CV_HARDWARE_MAX_FEATURE );
-    return cv::currentFeatures->have[feature];
+    return minicv::currentFeatures->have[feature];
 }
 
 CV_IMPL int cvUseOptimized( int flag )
 {
-    int prevMode = cv::useOptimizedFlag;
-    cv::setUseOptimized( flag != 0 );
+    int prevMode = minicv::useOptimizedFlag;
+    minicv::setUseOptimized( flag != 0 );
     return prevMode;
 }
 
 CV_IMPL CvErrorCallback
 cvRedirectError( CvErrorCallback errCallback, void* userdata, void** prevUserdata)
 {
-    return cv::redirectError(errCallback, userdata, prevUserdata);
+    return minicv::redirectError(errCallback, userdata, prevUserdata);
 }
 
 CV_IMPL int cvNulDevReport( int, const char*, const char*,
@@ -574,10 +574,10 @@ CV_IMPL void cvError( int code, const char* func_name,
                       const char* err_msg,
                       const char* file_name, int line )
 {
-    cv::error(cv::Exception(code, err_msg, func_name, file_name, line));
+    minicv::error(minicv::Exception(code, err_msg, func_name, file_name, line));
 }
 
-namespace cv {
+namespace minicv {
 bool __termination = false;
 }
 

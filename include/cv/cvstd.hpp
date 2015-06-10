@@ -65,7 +65,7 @@
 #  include <cstdlib> //for abs(int)
 #  include <cmath>
 
-namespace cv
+namespace minicv
 {
     using std::min;
     using std::max;
@@ -86,7 +86,7 @@ namespace std
 }
 
 #else
-namespace cv
+namespace minicv
 {
     template<typename T> static inline T min(T a, T b) { return a < b ? a : b; }
     template<typename T> static inline T max(T a, T b) { return a > b ? a : b; }
@@ -100,7 +100,7 @@ namespace cv
 }
 #endif
 
-namespace cv {
+namespace minicv {
 
 //! @addtogroup core_utils
 //! @{
@@ -125,7 +125,7 @@ double memory deallocation.
 CV_EXPORTS void fastFree(void* ptr);
 
 /*!
-  The STL-compilant memory Allocator based on cv::fastMalloc() and cv::fastFree()
+  The STL-compilant memory Allocator based on minicv::fastMalloc() and minicv::fastFree()
 */
 template<typename _Tp> class Allocator
 {
@@ -155,7 +155,7 @@ public:
     void construct(pointer p, const _Tp& v) { new(static_cast<void*>(p)) _Tp(v); }
     void destroy(pointer p) { p->~_Tp(); }
 
-    size_type max_size() const { return cv::max(static_cast<_Tp>(-1)/sizeof(_Tp), 1); }
+    size_type max_size() const { return minicv::max(static_cast<_Tp>(-1)/sizeof(_Tp), 1); }
 };
 
 //! @} core_utils
@@ -254,7 +254,7 @@ argument. For example, if you want to wrap FILE, you may do so as follows:
 Alternatively, if you want all pointers of a particular type to be deleted the same way, you can
 specialize DefaultDeleter<T>::operator() for that type, like this:
 @code
-    namespace cv {
+    namespace minicv {
     template<> void DefaultDeleter<FILE>::operator ()(FILE * obj) const
     {
         fclose(obj);
@@ -575,7 +575,7 @@ private:
 
 //! @} core_basic
 
-////////////////////////// cv::String implementation /////////////////////////
+////////////////////////// minicv::String implementation /////////////////////////
 
 //! @cond IGNORED
 
@@ -762,8 +762,8 @@ const char* String::c_str() const
 inline
 void String::swap(String& str)
 {
-    cv::swap(cstr_, str.cstr_);
-    cv::swap(len_, str.len_);
+    minicv::swap(cstr_, str.cstr_);
+    minicv::swap(len_, str.len_);
 }
 
 inline
@@ -958,9 +958,9 @@ String String::toLowerCase() const
 
 //! @endcond
 
-// ************************* cv::String non-member functions *************************
+// ************************* minicv::String non-member functions *************************
 
-//! @relates cv::String
+//! @relates minicv::String
 //! @{
 
 inline
@@ -1034,20 +1034,20 @@ static inline bool operator>= (const String& lhs, const String& rhs) { return lh
 static inline bool operator>= (const char*   lhs, const String& rhs) { return rhs.compare(lhs) <= 0; }
 static inline bool operator>= (const String& lhs, const char*   rhs) { return lhs.compare(rhs) >= 0; }
 
-//! @} relates cv::String
+//! @} relates minicv::String
 
-} // cv
+} // minicv
 
 #ifndef OPENCV_NOSTL_TRANSITIONAL
 namespace std
 {
-    static inline void swap(cv::String& a, cv::String& b) { a.swap(b); }
+    static inline void swap(minicv::String& a, minicv::String& b) { a.swap(b); }
 }
 #else
-namespace cv
+namespace minicv
 {
     template<> inline
-    void swap<cv::String>(cv::String& a, cv::String& b)
+    void swap<minicv::String>(minicv::String& a, minicv::String& b)
     {
         a.swap(b);
     }

@@ -46,7 +46,7 @@
 
 //! @cond IGNORED
 
-namespace cv {
+namespace minicv {
 
 template<typename Y>
 void DefaultDeleter<Y>::operator () (Y* p) const
@@ -335,7 +335,7 @@ Ptr<T> makePtr(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5&
     return Ptr<T>(new T(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10));
 }
 
-} // namespace cv
+} // namespace minicv
 
 //! @endcond
 

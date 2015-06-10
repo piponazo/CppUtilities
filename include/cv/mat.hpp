@@ -53,7 +53,7 @@
 
 #include "bufferpool.hpp"
 
-namespace cv
+namespace minicv
 {
 
 //! @addtogroup core_basic
@@ -82,8 +82,8 @@ do not describe it in details. There are a few key things, though, that should b
 -   When you see in the reference manual or in OpenCV source code a function that takes
     InputArray, it means that you can actually pass `Mat`, `Matx`, `vector<T>` etc. (see above the
     complete list).
--   Optional input arguments: If some of the input arrays may be empty, pass cv::noArray() (or
-    simply cv::Mat() as you probably did before).
+-   Optional input arguments: If some of the input arrays may be empty, pass minicv::noArray() (or
+    simply minicv::Mat() as you probably did before).
 -   The class is designed solely for passing parameters. That is, normally you *should not*
     declare class members, local and global variables of this type.
 -   If you want to design your own function or a class method that can operate of arrays of
@@ -99,7 +99,7 @@ Here is how you can use a function that takes InputArray :
     for( int i = 0; i < 30; i++ )
         vec.push_back(Point2f((float)(100 + 30*cos(i*CV_PI*2/5)),
                               (float)(100 - 30*sin(i*CV_PI*2/5))));
-    cv::transform(vec, vec, cv::Matx23f(0.707, -0.707, 10, 0.707, 0.707, 20));
+    minicv::transform(vec, vec, minicv::Matx23f(0.707, -0.707, 10, 0.707, 0.707, 20));
 @endcode
 That is, we form an STL vector containing points, and apply in-place affine transformation to the
 vector using the 2x3 matrix created inline as `Matx<float, 2, 3>` instance.
@@ -242,7 +242,7 @@ _OutputArray::create() needs to be called before _OutputArray::getMat(). This wa
 that the output array is properly allocated.
 
 Optional output parameters. If you do not need certain output array to be computed and returned to
-you, pass cv::noArray(), just like you would in the case of optional input array. At the
+you, pass minicv::noArray(), just like you would in the case of optional input array. At the
 implementation level, use _OutputArray::needed() to check if certain output array needs to be
 computed or not.
 
@@ -419,7 +419,7 @@ public:
 template<typename _Tp> class MatCommaInitializer_
 {
 public:
-    //! the constructor, created by "matrix << firstValue" operator, where matrix is cv::Mat
+    //! the constructor, created by "matrix << firstValue" operator, where matrix is minicv::Mat
     MatCommaInitializer_(Mat_<_Tp>* _m);
     //! the operator that takes the next value and put it to the matrix
     template<typename T2> MatCommaInitializer_<_Tp>& operator , (T2 v);
@@ -510,7 +510,7 @@ protected:
 };
 
 /** @example cout_mat.cpp
-An example demonstrating the serial out capabilities of cv::Mat
+An example demonstrating the serial out capabilities of minicv::Mat
 */
 
  /** @brief n-dimensional dense array class
@@ -619,7 +619,7 @@ sub-matrices.
     @endcode
     .
     Partial yet very common cases of this *user-allocated data* case are conversions from CvMat and
-    IplImage to Mat. For this purpose, there is function cv::cvarrToMat taking pointers to CvMat or
+    IplImage to Mat. For this purpose, there is function minicv::cvarrToMat taking pointers to CvMat or
     IplImage and the optional flag indicating whether to copy the data or not.
     @snippet samples/cpp/image.cpp iplimage
 
@@ -1127,7 +1127,7 @@ public:
     The method performs a matrix inversion by means of matrix expressions. This means that a temporary
     matrix inversion object is returned by the method and can be used further as a part of more complex
     matrix expressions or can be assigned to a matrix.
-    @param method Matrix inversion method. One of cv::DecompTypes
+    @param method Matrix inversion method. One of minicv::DecompTypes
      */
     MatExpr inv(int method=DECOMP_LU) const;
 
@@ -1774,7 +1774,7 @@ public:
     All of below operation is equal. Put 0xFF to first channel of all matrix elements:
     @code
         Mat image(1920, 1080, CV_8UC3);
-        typedef cv::Point3_<uint8_t> Pixel;
+        typedef minicv::Point3_<uint8_t> Pixel;
 
         // first. raw pointer access.
         for (int r = 0; r < image.rows; ++r) {
@@ -1786,7 +1786,7 @@ public:
         }
 
         // Using MatIterator. (Simple but there are a Iterator's overhead)
-        for (Pixel &p : cv::Mat_<Pixel>(image)) {
+        for (Pixel &p : minicv::Mat_<Pixel>(image)) {
             p.x = 255;
         }
 
@@ -1810,7 +1810,7 @@ public:
         //  i.e. pixels (x,y,z) = (1,2,3) is (b,g,r) = (1,2,3).
 
         int sizes[] = { 255, 255, 255 };
-        typedef cv::Point3_<uint8_t> Pixel;
+        typedef minicv::Point3_<uint8_t> Pixel;
 
         Mat_<Pixel> image = Mat::zeros(3, sizes, CV_8UC3);
 
@@ -2114,9 +2114,9 @@ public:
     UMat(const UMat& m, const Range* ranges);
     //! builds matrix from std::vector with or without copying the data
     template<typename _Tp> explicit UMat(const std::vector<_Tp>& vec, bool copyData=false);
-    //! builds matrix from cv::Vec; the data is copied by default
+    //! builds matrix from minicv::Vec; the data is copied by default
     template<typename _Tp, int n> explicit UMat(const Vec<_Tp, n>& vec, bool copyData=true);
-    //! builds matrix from cv::Matx; the data is copied by default
+    //! builds matrix from minicv::Matx; the data is copied by default
     template<typename _Tp, int m, int n> explicit UMat(const Matx<_Tp, m, n>& mtx, bool copyData=true);
     //! builds matrix from a 2D point
     template<typename _Tp> explicit UMat(const Point_<_Tp>& pt, bool copyData=true);
@@ -2669,7 +2669,7 @@ public:
 
     //! makes full copy of the matrix. All the elements are duplicated
     SparseMat_ clone() const;
-    //! equivalent to cv::SparseMat::create(dims, _sizes, DataType<_Tp>::type)
+    //! equivalent to minicv::SparseMat::create(dims, _sizes, DataType<_Tp>::type)
     void create(int dims, const int* _sizes);
     //! converts sparse matrix to the old-style CvSparseMat. All the elements are copied
     //operator CvSparseMat*() const;
@@ -2936,7 +2936,7 @@ public:
 
 /** @brief  Read-write Sparse Matrix Iterator
 
- The class is similar to cv::SparseMatConstIterator,
+ The class is similar to minicv::SparseMatConstIterator,
  but can be used for in-place modification of the matrix elements.
 */
 class CV_EXPORTS SparseMatIterator : public SparseMatConstIterator
@@ -3006,7 +3006,7 @@ public:
 
 /** @brief  Template Read-Write Sparse Matrix Iterator Class.
 
- This is the derived from cv::SparseMatConstIterator_ class that
+ This is the derived from minicv::SparseMatConstIterator_ class that
  introduces more convenient operator *() for accessing the current element.
 */
 template<typename _Tp> class SparseMatIterator_ : public SparseMatConstIterator_<_Tp>
@@ -3256,7 +3256,7 @@ public:
 
 //! @} core_basic
 
-//! @relates cv::MatExpr
+//! @relates minicv::MatExpr
 //! @{
 CV_EXPORTS MatExpr operator + (const Mat& a, const Mat& b);
 CV_EXPORTS MatExpr operator + (const Mat& a, const Scalar& s);
@@ -3361,9 +3361,9 @@ CV_EXPORTS MatExpr abs(const Mat& m);
 @param e matrix expression.
 */
 CV_EXPORTS MatExpr abs(const MatExpr& e);
-//! @} relates cv::MatExpr
+//! @} relates minicv::MatExpr
 
-} // cv
+} // minicv
 
 #include "mat.inl.hpp"
 

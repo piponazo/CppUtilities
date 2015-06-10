@@ -62,9 +62,9 @@
 /* the alignment of all the allocated buffers */
 #define  CV_MALLOC_ALIGN    16
 
-namespace cv
+namespace minicv
 {
-CV_EXPORTS void scalarToRawData(const cv::Scalar& s, void* buf, int type, int unroll_to = 0);
+CV_EXPORTS void scalarToRawData(const minicv::Scalar& s, void* buf, int type, int unroll_to = 0);
 }
 
 #ifdef HAVE_TEGRA_OPTIMIZATION
@@ -73,7 +73,7 @@ CV_EXPORTS void scalarToRawData(const cv::Scalar& s, void* buf, int type, int un
 #define GET_OPTIMIZED(func) (func)
 #endif
 
-namespace cv
+namespace minicv
 {
 
 typedef void (*BinaryFunc)(const uchar* src1, size_t step1,
@@ -97,13 +97,13 @@ BinaryFunc getCopyMaskFunc(size_t esz);
 
 // -128.f ... 255.f
 extern const float g_8x32fTab[];
-#define CV_8TO32F(x)  cv::g_8x32fTab[(x)+128]
+#define CV_8TO32F(x)  minicv::g_8x32fTab[(x)+128]
 
 extern const ushort g_8x16uSqrTab[];
-#define CV_SQR_8U(x)  cv::g_8x16uSqrTab[(x)+255]
+#define CV_SQR_8U(x)  minicv::g_8x16uSqrTab[(x)+255]
 
 extern const uchar g_Saturate8u[];
-#define CV_FAST_CAST_8U(t)   (assert(-256 <= (t) && (t) <= 512), cv::g_Saturate8u[(t)+256])
+#define CV_FAST_CAST_8U(t)   (assert(-256 <= (t) && (t) <= 512), minicv::g_Saturate8u[(t)+256])
 #define CV_MIN_8U(a,b)       ((a) - CV_FAST_CAST_8U((a) - (b)))
 #define CV_MAX_8U(a,b)       ((a) + CV_FAST_CAST_8U((b) - (a)))
 

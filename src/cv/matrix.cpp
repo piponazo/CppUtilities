@@ -49,7 +49,7 @@
 *                           [scaled] Identity matrix initialization                      *
 \****************************************************************************************/
 
-namespace cv {
+namespace minicv {
 
 void MatAllocator::map(UMatData*, int) const
 {
@@ -686,7 +686,7 @@ void Mat::push_back(const Mat& elems)
 
 }
 
-namespace cv
+namespace minicv
 {
 
 void scalarToRawData(const Scalar& s, void* _buf, int type, int unroll_to)
@@ -1998,7 +1998,7 @@ InputOutputArray noArray() { return _none; }
 
 ///////////////////////////// n-dimensional matrices ////////////////////////////
 
-namespace cv
+namespace minicv
 {
 
 //Mat Mat::reshape(int _cn, int _newndims, const int* _newsz) const

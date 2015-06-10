@@ -48,7 +48,7 @@
 #define CV_SIMD128 1
 #define CV_SIMD128_64F 1
 
-namespace cv
+namespace minicv
 {
 
 struct v_uint8x16

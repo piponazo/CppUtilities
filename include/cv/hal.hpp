@@ -51,7 +51,7 @@
   @defgroup hal Hardware Acceleration Layer
 */
 
-namespace cv { namespace hal {
+namespace minicv { namespace hal {
 
 namespace Error {
 
@@ -75,6 +75,6 @@ int normL1_(const uchar* a, const uchar* b, int n);
 float normL1_(const float* a, const float* b, int n);
 float normL2Sqr_(const float* a, const float* b, int n);
 
-}} //cv::hal
+}} //minicv::hal
 
 #endif //__OPENCV_HAL_HPP__

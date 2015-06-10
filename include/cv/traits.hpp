@@ -46,7 +46,7 @@
 
 #include "cvdef.h"
 
-namespace cv
+namespace minicv
 {
 
 //! @addtogroup core_basic
@@ -254,7 +254,7 @@ public:
 };
 
 
-/** @brief A helper class for cv::DataType
+/** @brief A helper class for minicv::DataType
 
 The class is specialized for each fundamental numerical data type supported by OpenCV. It provides
 DataDepth<T>::value constant.
@@ -321,6 +321,6 @@ template<> class TypeDepth<CV_64F>
 
 //! @}
 
-} // cv
+} // minicv
 
 #endif // __OPENCV_CORE_TRAITS_HPP__

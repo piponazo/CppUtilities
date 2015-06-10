@@ -58,7 +58,7 @@
 #include "types.hpp"
 #include "mat.hpp"
 
-namespace cv {
+namespace minicv {
 
 //! @addtogroup core_utils
 //! @{
@@ -102,8 +102,8 @@ public:
 /*! @brief Signals an error and raises the exception.
 
 By default the function prints information about the error to stderr,
-then it either stops if cv::setBreakOnError() had been called before or raises the exception.
-It is possible to alternate error processing by using cv::redirectError().
+then it either stops if minicv::setBreakOnError() had been called before or raises the exception.
+It is possible to alternate error processing by using minicv::redirectError().
 @param exc the exception raisen.
 @deprecated drop this version
  */
@@ -159,7 +159,7 @@ For example:
 @param dst output array.
 @param alpha optional scale factor.
 @param beta optional delta added to the scaled values.
-@sa  Mat::convertTo, cv::abs(const Mat&)
+@sa  Mat::convertTo, minicv::abs(const Mat&)
 */
 CV_EXPORTS_W void convertScaleAbs(InputArray src, OutputArray dst,
                                   double alpha = 1, double beta = 0);
@@ -229,7 +229,7 @@ CV_EXPORTS void minMaxLoc(const SparseMat& a, double* minVal,
 //! @addtogroup core_basic
 //! @{
 
-/////////////////////////////// Formatted output of cv::Mat ///////////////////////////
+/////////////////////////////// Formatted output of minicv::Mat ///////////////////////////
 
 /** @todo document */
 class CV_EXPORTS Formatted
@@ -269,7 +269,7 @@ public:
 
 //! @} core_basic
 
-} //namespace cv
+} //namespace minicv
 
 #include "cvstd.inl.hpp"
 #include "utility.hpp"

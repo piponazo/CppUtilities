@@ -49,7 +49,7 @@
 #include "precomp.hpp"
 //#include "opencl_kernels_core.hpp"
 
-namespace cv
+namespace minicv
 {
 
 template<typename T> static void
@@ -378,4 +378,4 @@ Mat& Mat::operator = (const Scalar& s)
     }
     return *this;
 }
-} // cv
+} // minicv

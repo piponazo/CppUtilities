@@ -51,7 +51,7 @@
 
 #include "core.hpp"
 
-namespace cv
+namespace minicv
 {
 
 #define CV_IMPL_ADD(impl)
@@ -74,13 +74,13 @@ namespace cv
  the number of stack-allocated elements. Here is how the class is used:
 
  \code
- void my_func(const cv::Mat& m)
+ void my_func(const minicv::Mat& m)
  {
-    cv::AutoBuffer<float> buf; // create automatic buffer containing 1000 floats
+    minicv::AutoBuffer<float> buf; // create automatic buffer containing 1000 floats
 
     buf.allocate(m.rows); // if m.rows <= 1000, the pre-allocated buffer is used,
                           // otherwise the buffer of "m.rows" floats will be allocated
-                          // dynamically and deallocated in cv::AutoBuffer destructor
+                          // dynamically and deallocated in minicv::AutoBuffer destructor
     ...
  }
  \endcode
@@ -141,7 +141,7 @@ extern "C" typedef int (*ErrorCallback)( int status, const char* func_name,
 
 /** @brief Sets the new error handler and the optional user data.
 
-  The function sets the new error handler, called from cv::error().
+  The function sets the new error handler, called from minicv::error().
 
   \param errCallback the new error handler. If NULL, the default error handler is used.
   \param userdata the optional user data pointer, passed to the callback.
@@ -198,7 +198,7 @@ The function returns true if the host hardware supports the specified feature. W
 setUseOptimized(false), the subsequent calls to checkHardwareSupport() will return false until
 setUseOptimized(true) is called. This way user can dynamically switch on and off the optimized code
 in OpenCV.
-@param feature The feature of interest, one of cv::CpuFeatures
+@param feature The feature of interest, one of minicv::CpuFeatures
  */
 CV_EXPORTS_W bool checkHardwareSupport(int feature);
 
@@ -362,7 +362,7 @@ AutoBuffer<_Tp, fixed_size>::operator const _Tp* () const
 
 //! @endcond
 
-} //namespace cv
+} //namespace minicv
 
 #ifndef DISABLE_OPENCV_24_COMPATIBILITY
 #include "core_c.h"

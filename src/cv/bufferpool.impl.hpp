@@ -9,7 +9,7 @@
 
 #include "cv/bufferpool.hpp"
 
-namespace cv {
+namespace minicv {
 
 class DummyBufferPoolController : public BufferPoolController
 {

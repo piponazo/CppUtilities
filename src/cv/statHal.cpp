@@ -43,7 +43,7 @@
 #include "cv/hal.hpp"
 #include "cv/intrin.hpp"
 
-namespace cv { namespace hal {
+namespace minicv { namespace hal {
 
 static const uchar popCountTable[] =
 {
@@ -182,4 +182,4 @@ int normHamming(const uchar* a, const uchar* b, int n, int cellSize)
     return result;
 }
 
-}} //cv::hal
+}} //minicv::hal

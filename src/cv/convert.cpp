@@ -49,7 +49,7 @@
 #define CV_NEON 0
 #endif
 
-namespace cv
+namespace minicv
 {
 
 /****************************************************************************************\
@@ -764,7 +764,7 @@ typedef void (*MergeFunc)(const uchar** src, uchar* dst, int len, int cn);
 *                                convertScale[Abs]                                       *
 \****************************************************************************************/
 
-namespace cv
+namespace minicv
 {
 
 template<typename T, typename DT, typename WT>
@@ -4753,7 +4753,7 @@ static BinaryFunc getConvertScaleFunc(int sdepth, int ddepth)
 
 }
 
-void cv::convertScaleAbs( InputArray _src, OutputArray _dst, double alpha, double beta )
+void minicv::convertScaleAbs( InputArray _src, OutputArray _dst, double alpha, double beta )
 {
 //    CV_OCL_RUN(_src.dims() <= 2 && _dst.isUMat(),
 //               ocl_convertScaleAbs(_src, _dst, alpha, beta))
@@ -4783,7 +4783,7 @@ void cv::convertScaleAbs( InputArray _src, OutputArray _dst, double alpha, doubl
     }
 }
 
-void cv::Mat::convertTo(OutputArray _dst, int _type, double alpha, double beta) const
+void minicv::Mat::convertTo(OutputArray _dst, int _type, double alpha, double beta) const
 {
     bool noScale = fabs(alpha-1) < DBL_EPSILON && fabs(beta) < DBL_EPSILON;
 

@@ -49,7 +49,7 @@
 #  error mat.inl.hpp header must be compiled as C++
 #endif
 
-namespace cv
+namespace minicv
 {
 
 //! @cond IGNORED
@@ -2921,43 +2921,43 @@ MatExpr::operator Mat_<_Tp>() const
 template<typename _Tp> static inline
 MatExpr min(const Mat_<_Tp>& a, const Mat_<_Tp>& b)
 {
-    return cv::min((const Mat&)a, (const Mat&)b);
+    return minicv::min((const Mat&)a, (const Mat&)b);
 }
 
 template<typename _Tp> static inline
 MatExpr min(const Mat_<_Tp>& a, double s)
 {
-    return cv::min((const Mat&)a, s);
+    return minicv::min((const Mat&)a, s);
 }
 
 template<typename _Tp> static inline
 MatExpr min(double s, const Mat_<_Tp>& a)
 {
-    return cv::min((const Mat&)a, s);
+    return minicv::min((const Mat&)a, s);
 }
 
 template<typename _Tp> static inline
 MatExpr max(const Mat_<_Tp>& a, const Mat_<_Tp>& b)
 {
-    return cv::max((const Mat&)a, (const Mat&)b);
+    return minicv::max((const Mat&)a, (const Mat&)b);
 }
 
 template<typename _Tp> static inline
 MatExpr max(const Mat_<_Tp>& a, double s)
 {
-    return cv::max((const Mat&)a, s);
+    return minicv::max((const Mat&)a, s);
 }
 
 template<typename _Tp> static inline
 MatExpr max(double s, const Mat_<_Tp>& a)
 {
-    return cv::max((const Mat&)a, s);
+    return minicv::max((const Mat&)a, s);
 }
 
 template<typename _Tp> static inline
 MatExpr abs(const Mat_<_Tp>& m)
 {
-    return cv::abs((const Mat&)m);
+    return minicv::abs((const Mat&)m);
 }
 
 
@@ -3391,6 +3391,6 @@ inline UMatDataAutoLock::~UMatDataAutoLock() { u->unlock(); }
 
 //! @endcond
 
-} //cv
+} //minicv
 
 #endif

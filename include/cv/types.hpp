@@ -56,7 +56,7 @@
 #include "cvstd.hpp"
 #include "matx.hpp"
 
-namespace cv
+namespace minicv
 {
 
 //! @addtogroup core_basic
@@ -213,7 +213,7 @@ The following Point3_\<\> aliases are available:
     typedef Point3_<float> Point3f;
     typedef Point3_<double> Point3d;
 @endcode
-@see cv::Point3i, cv::Point3f and cv::Point3d
+@see minicv::Point3i, minicv::Point3f and minicv::Point3d
 */
 template<typename _Tp> class Point3_
 {
@@ -230,7 +230,7 @@ public:
     Point3_& operator = (const Point3_& pt);
     //! conversion to another data type
     template<typename _Tp2> operator Point3_<_Tp2>() const;
-    //! conversion to cv::Vec<>
+    //! conversion to minicv::Vec<>
     operator Vec<_Tp, 3>() const;
 
     //! dot product
@@ -369,7 +369,7 @@ rect2):
         return (r1 & r2) == r1;
     }
 @endcode
-For your convenience, the Rect_\<\> alias is available: cv::Rect
+For your convenience, the Rect_\<\> alias is available: minicv::Rect
 */
 template<typename _Tp> class Rect_
 {
@@ -432,7 +432,7 @@ public:
 /** @brief The class represents rotated (i.e. not up-right) rectangles on a plane.
 
 Each rectangle is specified by the center point (mass center), length of each side (represented by
-cv::Size2f structure) and the rotation angle in degrees.
+minicv::Size2f structure) and the rotation angle in degrees.
 
 The sample below demonstrates how to use RotatedRect:
 @code
@@ -620,7 +620,7 @@ public:
 //! @addtogroup imgproc_shape
 //! @{
 
-/** @brief struct returned by cv::moments
+/** @brief struct returned by minicv::moments
 
 The spatial moments \f$\texttt{Moments::m}_{ji}\f$ are computed as:
 
@@ -1767,7 +1767,7 @@ Scalar_<_Tp>::Scalar_(const Vec<_Tp2, cn>& v)
 {
     int i;
     for( i = 0; i < (cn < 4 ? cn : 4); i++ )
-        this->val[i] = cv::saturate_cast<_Tp>(v.val[i]);
+        this->val[i] = minicv::saturate_cast<_Tp>(v.val[i]);
     for( ; i < 4; i++ )
         this->val[i] = 0;
 }
@@ -1988,6 +1988,6 @@ Scalar operator * (const Matx<double, 4, 4>& a, const Scalar& b)
     return reinterpret_cast<const Scalar&>(c);
 }
 
-} // cv
+} // minicv
 
 #endif //__OPENCV_CORE_TYPES_HPP__
