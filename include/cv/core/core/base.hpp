@@ -176,58 +176,6 @@ enum NormTypes { NORM_INF       = 1,
                  NORM_MINMAX    = 32 //!< flag
                };
 
-//! comparison types
-enum CmpTypes { CMP_EQ = 0, //!< src1 is equal to src2.
-                CMP_GT = 1, //!< src1 is greater than src2.
-                CMP_GE = 2, //!< src1 is greater than or equal to src2.
-                CMP_LT = 3, //!< src1 is less than src2.
-                CMP_LE = 4, //!< src1 is less than or equal to src2.
-                CMP_NE = 5  //!< src1 is unequal to src2.
-              };
-
-//! generalized matrix multiplication flags
-enum GemmFlags { GEMM_1_T = 1, //!< transposes src1
-                 GEMM_2_T = 2, //!< transposes src2
-                 GEMM_3_T = 4 //!< transposes src3
-               };
-
-enum DftFlags {
-    /** performs an inverse 1D or 2D transform instead of the default forward
-        transform. */
-    DFT_INVERSE        = 1,
-    /** scales the result: divide it by the number of array elements. Normally, it is
-        combined with DFT_INVERSE. */
-    DFT_SCALE          = 2,
-    /** performs a forward or inverse transform of every individual row of the input
-        matrix; this flag enables you to transform multiple vectors simultaneously and can be used to
-        decrease the overhead (which is sometimes several times larger than the processing itself) to
-        perform 3D and higher-dimensional transformations and so forth.*/
-    DFT_ROWS           = 4,
-    /** performs a forward transformation of 1D or 2D real array; the result,
-        though being a complex array, has complex-conjugate symmetry (*CCS*, see the function
-        description below for details), and such an array can be packed into a real array of the same
-        size as input, which is the fastest option and which is what the function does by default;
-        however, you may wish to get a full complex array (for simpler spectrum analysis, and so on) -
-        pass the flag to enable the function to produce a full-size complex output array. */
-    DFT_COMPLEX_OUTPUT = 16,
-    /** performs an inverse transformation of a 1D or 2D complex array; the
-        result is normally a complex array of the same size, however, if the input array has
-        conjugate-complex symmetry (for example, it is a result of forward transformation with
-        DFT_COMPLEX_OUTPUT flag), the output is a real array; while the function itself does not
-        check whether the input is symmetrical or not, you can pass the flag and then the function
-        will assume the symmetry and produce the real output array (note that when the input is packed
-        into a real array and inverse transformation is executed, the function treats the input as a
-        packed complex-conjugate symmetrical array, and the output will also be a real array). */
-    DFT_REAL_OUTPUT    = 32,
-    /** performs an inverse 1D or 2D transform instead of the default forward transform. */
-    DCT_INVERSE        = DFT_INVERSE,
-    /** performs a forward or inverse transform of every individual row of the input
-        matrix. This flag enables you to transform multiple vectors simultaneously and can be used to
-        decrease the overhead (which is sometimes several times larger than the processing itself) to
-        perform 3D and higher-dimensional transforms and so forth.*/
-    DCT_ROWS           = DFT_ROWS
-};
-
 //! @} core_array
 
 //! @addtogroup core_utils
@@ -412,26 +360,6 @@ inline int cv_abs(ushort x) { return x; }
 inline int cv_abs(short x) { return std::abs(x); }
 
 template<typename _Tp, typename _AccTp> static inline
-_AccTp normL2Sqr(const _Tp* a, int n)
-{
-    _AccTp s = 0;
-    int i=0;
-#if CV_ENABLE_UNROLLED
-    for( ; i <= n - 4; i += 4 )
-    {
-        _AccTp v0 = a[i], v1 = a[i+1], v2 = a[i+2], v3 = a[i+3];
-        s += v0*v0 + v1*v1 + v2*v2 + v3*v3;
-    }
-#endif
-    for( ; i < n; i++ )
-    {
-        _AccTp v = a[i];
-        s += v*v;
-    }
-    return s;
-}
-
-template<typename _Tp, typename _AccTp> static inline
 _AccTp normL1(const _Tp* a, int n)
 {
     _AccTp s = 0;
@@ -504,10 +432,6 @@ template<typename _Tp> class Scalar_;
 
 class CV_EXPORTS RotatedRect;
 class CV_EXPORTS Range;
-class CV_EXPORTS TermCriteria;
-class CV_EXPORTS KeyPoint;
-class CV_EXPORTS DMatch;
-class CV_EXPORTS RNG;
 
 class CV_EXPORTS Mat;
 class CV_EXPORTS MatExpr;
@@ -527,24 +451,6 @@ template<typename _Tp> class MatIterator_;
 template<typename _Tp> class MatConstIterator_;
 template<typename _Tp> class SparseMatIterator_;
 template<typename _Tp> class SparseMatConstIterator_;
-
-namespace ogl
-{
-    class CV_EXPORTS Buffer;
-    class CV_EXPORTS Texture2D;
-    class CV_EXPORTS Arrays;
-}
-
-namespace ipp
-{
-CV_EXPORTS void setIppStatus(int status, const char * const funcname = NULL, const char * const filename = NULL,
-                             int line = 0);
-CV_EXPORTS int getIppStatus();
-CV_EXPORTS String getIppErrorLocation();
-CV_EXPORTS bool useIPP();
-CV_EXPORTS void setUseIPP(bool flag);
-
-} // ipp
 
 //! @endcond
 

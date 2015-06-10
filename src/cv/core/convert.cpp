@@ -752,113 +752,13 @@ merge_( const T** src, T* dst, int len, int cn )
     }
 }
 
-static void split8u(const uchar* src, uchar** dst, int len, int cn )
-{
-    split_(src, dst, len, cn);
-}
-
-static void split16u(const ushort* src, ushort** dst, int len, int cn )
-{
-    split_(src, dst, len, cn);
-}
-
-static void split32s(const int* src, int** dst, int len, int cn )
-{
-    split_(src, dst, len, cn);
-}
-
-static void split64s(const int64* src, int64** dst, int len, int cn )
-{
-    split_(src, dst, len, cn);
-}
-
 typedef void (*SplitFunc)(const uchar* src, uchar** dst, int len, int cn);
 typedef void (*MergeFunc)(const uchar** src, uchar* dst, int len, int cn);
 
-static SplitFunc getSplitFunc(int depth)
-{
-    static SplitFunc splitTab[] =
-    {
-        (SplitFunc)GET_OPTIMIZED(split8u), (SplitFunc)GET_OPTIMIZED(split8u), (SplitFunc)GET_OPTIMIZED(split16u), (SplitFunc)GET_OPTIMIZED(split16u),
-        (SplitFunc)GET_OPTIMIZED(split32s), (SplitFunc)GET_OPTIMIZED(split32s), (SplitFunc)GET_OPTIMIZED(split64s), 0
-    };
-
-    return splitTab[depth];
-}
 
 
 }
 
-void cv::split(const Mat& src, Mat* mv)
-{
-    int k, depth = src.depth(), cn = src.channels();
-    if( cn == 1 )
-    {
-        src.copyTo(mv[0]);
-        return;
-    }
-
-    SplitFunc func = getSplitFunc(depth);
-    CV_Assert( func != 0 );
-
-    int esz = (int)src.elemSize(), esz1 = (int)src.elemSize1();
-    int blocksize0 = (BLOCK_SIZE + esz-1)/esz;
-    AutoBuffer<uchar> _buf((cn+1)*(sizeof(Mat*) + sizeof(uchar*)) + 16);
-    const Mat** arrays = (const Mat**)(uchar*)_buf;
-    uchar** ptrs = (uchar**)alignPtr(arrays + cn + 1, 16);
-
-    arrays[0] = &src;
-    for( k = 0; k < cn; k++ )
-    {
-        mv[k].create(src.dims, src.size, depth);
-        arrays[k+1] = &mv[k];
-    }
-
-    NAryMatIterator it(arrays, ptrs, cn+1);
-    int total = (int)it.size, blocksize = cn <= 4 ? total : std::min(total, blocksize0);
-
-    for( size_t i = 0; i < it.nplanes; i++, ++it )
-    {
-        for( int j = 0; j < total; j += blocksize )
-        {
-            int bsz = std::min(total - j, blocksize);
-            func( ptrs[0], &ptrs[1], bsz, cn );
-
-            if( j + blocksize < total )
-            {
-                ptrs[0] += bsz*esz;
-                for( k = 0; k < cn; k++ )
-                    ptrs[k+1] += bsz*esz1;
-            }
-        }
-    }
-}
-
-void cv::split(InputArray _m, OutputArrayOfArrays _mv)
-{
-//    CV_OCL_RUN(_m.dims() <= 2 && _mv.isUMatVector(),
-//               ocl_split(_m, _mv))
-
-    Mat m = _m.getMat();
-    if( m.empty() )
-    {
-        _mv.release();
-        return;
-    }
-
-    CV_Assert( !_mv.fixedType() || _mv.empty() || _mv.type() == m.depth() );
-
-    Size size = m.size();
-    int depth = m.depth(), cn = m.channels();
-    _mv.create(cn, 1, depth);
-    for (int i = 0; i < cn; ++i)
-        _mv.create(size, depth, i);
-
-    std::vector<Mat> dst;
-    _mv.getMatVector(dst);
-
-    split(m, &dst[0]);
-}
 
 /****************************************************************************************\
 *                                convertScale[Abs]                                       *

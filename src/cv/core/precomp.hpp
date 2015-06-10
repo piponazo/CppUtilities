@@ -48,8 +48,6 @@
 #include "cv/core/core/utility.hpp"
 #include "cv/core/core/core_c.h"
 
-#include "cv/core/core/private.hpp"
-
 #include "cv/hal/hal.hpp"
 
 #include <assert.h>
@@ -60,6 +58,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+/* the alignment of all the allocated buffers */
+#define  CV_MALLOC_ALIGN    16
+
+namespace cv
+{
+CV_EXPORTS void scalarToRawData(const cv::Scalar& s, void* buf, int type, int unroll_to = 0);
+}
 
 #ifdef HAVE_TEGRA_OPTIMIZATION
 #include "opencv2/core/core_tegra.hpp"

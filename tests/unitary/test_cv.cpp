@@ -100,3 +100,9 @@ TEST(MatTest, shouldReleaseMatrix)
         source.release();
         ASSERT_TRUE(source.empty());
 }
+
+TEST(MatTest, shouldPrintMat)
+{
+        Mat source(2, 2, CV_8UC1, Scalar(2));
+        std::cout << source << std::endl;
+}

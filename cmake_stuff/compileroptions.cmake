@@ -53,6 +53,7 @@ IF (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
     set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -Wreturn-type")
     set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -Wno-long-long")
     set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -Wno-maybe-uninitialized")
+    set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -msse4 -mpopcnt")
 
     if(WARNINGS_ANSI_ISO)
         set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -Wstrict-aliasing=3")

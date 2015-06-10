@@ -577,45 +577,8 @@ CV_IMPL void cvError( int code, const char* func_name,
     cv::error(cv::Exception(code, err_msg, func_name, file_name, line));
 }
 
-/* function, which converts int to int */
-CV_IMPL int
-cvErrorFromIppStatus( int status )
-{
-    switch (status)
-    {
-    case CV_BADSIZE_ERR:               return CV_StsBadSize;
-    case CV_BADMEMBLOCK_ERR:           return CV_StsBadMemBlock;
-    case CV_NULLPTR_ERR:               return CV_StsNullPtr;
-    case CV_DIV_BY_ZERO_ERR:           return CV_StsDivByZero;
-    case CV_BADSTEP_ERR:               return CV_BadStep;
-    case CV_OUTOFMEM_ERR:              return CV_StsNoMem;
-    case CV_BADARG_ERR:                return CV_StsBadArg;
-    case CV_NOTDEFINED_ERR:            return CV_StsError;
-    case CV_INPLACE_NOT_SUPPORTED_ERR: return CV_StsInplaceNotSupported;
-    case CV_NOTFOUND_ERR:              return CV_StsObjectNotFound;
-    case CV_BADCONVERGENCE_ERR:        return CV_StsNoConv;
-    case CV_BADDEPTH_ERR:              return CV_BadDepth;
-    case CV_UNMATCHED_FORMATS_ERR:     return CV_StsUnmatchedFormats;
-    case CV_UNSUPPORTED_COI_ERR:       return CV_BadCOI;
-    case CV_UNSUPPORTED_CHANNELS_ERR:  return CV_BadNumChannels;
-    case CV_BADFLAG_ERR:               return CV_StsBadFlag;
-    case CV_BADRANGE_ERR:              return CV_StsBadArg;
-    case CV_BADCOEF_ERR:               return CV_StsBadArg;
-    case CV_BADFACTOR_ERR:             return CV_StsBadArg;
-    case CV_BADPOINT_ERR:              return CV_StsBadPoint;
-
-    default:
-      return CV_StsError;
-    }
-}
-
 namespace cv {
 bool __termination = false;
 }
-
-namespace cv
-{
-
-} // namespace cv
 
 /* End of file. */
