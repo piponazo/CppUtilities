@@ -1491,111 +1491,11 @@ CVAPI(void)  cvReduce( const CvArr* src, CvArr* dst, int dim CV_DEFAULT(-1),
 *                      Discrete Linear Transforms and Related Functions                  *
 \****************************************************************************************/
 
-/** @anchor core_c_DftFlags
-  @name Flags for cvDFT, cvDCT and cvMulSpectrums
-  @{
-  */
-#define CV_DXT_FORWARD  0
-#define CV_DXT_INVERSE  1
-#define CV_DXT_SCALE    2 /**< divide result by size of array */
-#define CV_DXT_INV_SCALE (CV_DXT_INVERSE + CV_DXT_SCALE)
-#define CV_DXT_INVERSE_SCALE CV_DXT_INV_SCALE
-#define CV_DXT_ROWS     4 /**< transform each row individually */
-#define CV_DXT_MUL_CONJ 8 /**< conjugate the second argument of cvMulSpectrums */
-/** @} */
-
-/** Discrete Fourier Transform:
-    complex->complex,
-    real->ccs (forward),
-    ccs->real (inverse)
-@see core_c_DftFlags "flags"
-*/
-CVAPI(void)  cvDFT( const CvArr* src, CvArr* dst, int flags,
-                    int nonzero_rows CV_DEFAULT(0) );
-#define cvFFT cvDFT
-
-/** Multiply results of DFTs: DFT(X)*DFT(Y) or DFT(X)*conj(DFT(Y))
-@see core_c_DftFlags "flags"
-*/
-CVAPI(void)  cvMulSpectrums( const CvArr* src1, const CvArr* src2,
-                             CvArr* dst, int flags );
-
-/** Finds optimal DFT vector size >= size0 */
-CVAPI(int)  cvGetOptimalDFTSize( int size0 );
-
-/** Discrete Cosine Transform
-@see core_c_DftFlags "flags"
-*/
-CVAPI(void)  cvDCT( const CvArr* src, CvArr* dst, int flags );
 
 /****************************************************************************************\
 *                              Dynamic data structures                                   *
 \****************************************************************************************/
 
-
-/** Creates new memory storage.
-   block_size == 0 means that default,
-   somewhat optimal size, is used (currently, it is 64K) */
-CVAPI(CvMemStorage*)  cvCreateMemStorage( int block_size CV_DEFAULT(0));
-
-
-/** Creates a memory storage that will borrow memory blocks from parent storage */
-CVAPI(CvMemStorage*)  cvCreateChildMemStorage( CvMemStorage* parent );
-
-
-/** Releases memory storage. All the children of a parent must be released before
-   the parent. A child storage returns all the blocks to parent when it is released */
-CVAPI(void)  cvReleaseMemStorage( CvMemStorage** storage );
-
-
-/** Clears memory storage. This is the only way(!!!) (besides cvRestoreMemStoragePos)
-   to reuse memory allocated for the storage - cvClearSeq,cvClearSet ...
-   do not free any memory.
-   A child storage returns all the blocks to the parent when it is cleared */
-CVAPI(void)  cvClearMemStorage( CvMemStorage* storage );
-
-/** Remember a storage "free memory" position */
-CVAPI(void)  cvSaveMemStoragePos( const CvMemStorage* storage, CvMemStoragePos* pos );
-
-/** Restore a storage "free memory" position */
-CVAPI(void)  cvRestoreMemStoragePos( CvMemStorage* storage, CvMemStoragePos* pos );
-
-/** Allocates continuous buffer of the specified size in the storage */
-CVAPI(void*) cvMemStorageAlloc( CvMemStorage* storage, size_t size );
-
-
-/** Retrieves graph vertex by given index */
-#define cvGetGraphVtx( graph, idx ) (CvGraphVtx*)cvGetSetElem((CvSet*)(graph), (idx))
-
-/** Retrieves index of a graph vertex given its pointer */
-#define cvGraphVtxIdx( graph, vtx ) ((vtx)->flags & CV_SET_ELEM_IDX_MASK)
-
-/** Retrieves index of a graph edge given its pointer */
-#define cvGraphEdgeIdx( graph, edge ) ((edge)->flags & CV_SET_ELEM_IDX_MASK)
-
-#define cvGraphGetVtxCount( graph ) ((graph)->active_count)
-#define cvGraphGetEdgeCount( graph ) ((graph)->edges->active_count)
-
-#define  CV_GRAPH_VERTEX        1
-#define  CV_GRAPH_TREE_EDGE     2
-#define  CV_GRAPH_BACK_EDGE     4
-#define  CV_GRAPH_FORWARD_EDGE  8
-#define  CV_GRAPH_CROSS_EDGE    16
-#define  CV_GRAPH_ANY_EDGE      30
-#define  CV_GRAPH_NEW_TREE      32
-#define  CV_GRAPH_BACKTRACKING  64
-#define  CV_GRAPH_OVER          -1
-
-#define  CV_GRAPH_ALL_ITEMS    -1
-
-/** flags for graph vertices and edges */
-#define  CV_GRAPH_ITEM_VISITED_FLAG  (1 << 30)
-#define  CV_IS_GRAPH_VERTEX_VISITED(vtx) \
-    (((CvGraphVtx*)(vtx))->flags & CV_GRAPH_ITEM_VISITED_FLAG)
-#define  CV_IS_GRAPH_EDGE_VISITED(edge) \
-    (((CvGraphEdge*)(edge))->flags & CV_GRAPH_ITEM_VISITED_FLAG)
-#define  CV_GRAPH_SEARCH_TREE_NODE_FLAG   (1 << 29)
-#define  CV_GRAPH_FORWARD_EDGE_FLAG       (1 << 28)
 
 
 /******************* Iteration through the sequence tree *****************/

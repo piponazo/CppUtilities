@@ -228,21 +228,6 @@ enum DftFlags {
     DCT_ROWS           = DFT_ROWS
 };
 
-//! Various border types, image boundaries are denoted with `|`
-//! @see borderInterpolate, copyMakeBorder
-enum BorderTypes {
-    BORDER_CONSTANT    = 0, //!< `iiiiii|abcdefgh|iiiiiii`  with some specified `i`
-    BORDER_REPLICATE   = 1, //!< `aaaaaa|abcdefgh|hhhhhhh`
-    BORDER_REFLECT     = 2, //!< `fedcba|abcdefgh|hgfedcb`
-    BORDER_WRAP        = 3, //!< `cdefgh|abcdefgh|abcdefg`
-    BORDER_REFLECT_101 = 4, //!< `gfedcb|abcdefgh|gfedcba`
-    BORDER_TRANSPARENT = 5, //!< `uvwxyz|absdefgh|ijklmno`
-
-    BORDER_REFLECT101  = BORDER_REFLECT_101, //!< same as BORDER_REFLECT_101
-    BORDER_DEFAULT     = BORDER_REFLECT_101, //!< same as BORDER_REFLECT_101
-    BORDER_ISOLATED    = 16 //!< do not look outside of ROI
-};
-
 //! @} core_array
 
 //! @addtogroup core_utils
@@ -502,85 +487,6 @@ static inline float normL2Sqr(const float* a, const float* b, int n)
     }
     return s;
 }
-
-template<typename _Tp, typename _AccTp> static inline
-_AccTp normL1(const _Tp* a, const _Tp* b, int n)
-{
-    _AccTp s = 0;
-    int i= 0;
-#if CV_ENABLE_UNROLLED
-    for(; i <= n - 4; i += 4 )
-    {
-        _AccTp v0 = _AccTp(a[i] - b[i]), v1 = _AccTp(a[i+1] - b[i+1]), v2 = _AccTp(a[i+2] - b[i+2]), v3 = _AccTp(a[i+3] - b[i+3]);
-        s += std::abs(v0) + std::abs(v1) + std::abs(v2) + std::abs(v3);
-    }
-#endif
-    for( ; i < n; i++ )
-    {
-        _AccTp v = _AccTp(a[i] - b[i]);
-        s += std::abs(v);
-    }
-    return s;
-}
-
-inline float normL1(const float* a, const float* b, int n)
-{
-    float s = 0.f;
-    for( int i = 0; i < n; i++ )
-    {
-        s += std::abs(a[i] - b[i]);
-    }
-    return s;
-}
-
-inline int normL1(const uchar* a, const uchar* b, int n)
-{
-    int s = 0;
-    for( int i = 0; i < n; i++ )
-    {
-        s += std::abs(a[i] - b[i]);
-    }
-    return s;
-}
-
-template<typename _Tp, typename _AccTp> static inline
-_AccTp normInf(const _Tp* a, const _Tp* b, int n)
-{
-    _AccTp s = 0;
-    for( int i = 0; i < n; i++ )
-    {
-        _AccTp v0 = a[i] - b[i];
-        s = std::max(s, std::abs(v0));
-    }
-    return s;
-}
-
-/** @brief Computes the cube root of an argument.
-
- The function cubeRoot computes \f$\sqrt[3]{\texttt{val}}\f$. Negative arguments are handled correctly.
- NaN and Inf are not handled. The accuracy approaches the maximum possible accuracy for
- single-precision data.
- @param val A function argument.
- */
-CV_EXPORTS_W float cubeRoot(float val);
-
-/** @brief Calculates the angle of a 2D vector in degrees.
-
- The function fastAtan2 calculates the full-range angle of an input 2D vector. The angle is measured
- in degrees and varies from 0 to 360 degrees. The accuracy is about 0.3 degrees.
- @param x x-coordinate of the vector.
- @param y y-coordinate of the vector.
- */
-CV_EXPORTS_W float fastAtan2(float y, float x);
-
-/** proxy for hal::LU */
-CV_EXPORTS int LU(float* A, size_t astep, int m, float* b, size_t bstep, int n);
-/** proxy for hal::LU */
-CV_EXPORTS int LU(double* A, size_t astep, int m, double* b, size_t bstep, int n);
-/** proxy for hal::Cholesky */
-CV_EXPORTS bool Cholesky(float* A, size_t astep, int m, float* b, size_t bstep, int n);
-/** proxy for hal::Cholesky */
-CV_EXPORTS bool Cholesky(double* A, size_t astep, int m, double* b, size_t bstep, int n);
 
 ////////////////// forward declarations for important OpenCV types //////////////////
 
