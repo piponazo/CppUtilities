@@ -65,16 +65,8 @@
 extern "C" {
 #endif
 
-/** @addtogroup core_c
-    @{
-*/
-
-/****************************************************************************************\
-*          Array allocation, deallocation, initialization and access to elements         *
-\****************************************************************************************/
-
 #define CV_AUTOSTEP  0x7fffffff
-
+#define  CV_MALLOC_ALIGN    16
 #define CV_MAX_ARR 10
 
 /********************************** Error Handling **************************************/

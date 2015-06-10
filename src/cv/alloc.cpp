@@ -40,7 +40,7 @@
 //
 //M*/
 
-#include "precomp.hpp"
+#include "cv/core_c.h"
 
 #define CV_USE_SYSTEM_MALLOC 1
 

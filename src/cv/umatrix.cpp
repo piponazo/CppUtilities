@@ -39,8 +39,7 @@
 //
 //M*/
 
-#include "precomp.hpp"
-//#include "opencl_kernels_core.hpp"
+#include "cv/core_c.h"
 
 ///////////////////////////////// UMat implementation ///////////////////////////////
 
@@ -72,8 +71,6 @@ UMatData::~UMatData()
     userdata = 0;
     allocatorFlags_ = 0;
 }
-
-
 
 MatAllocator* UMat::getStdAllocator()
 {
@@ -294,17 +291,8 @@ void UMat::deallocate()
 UMat::UMat(const UMat& m, const Range& _rowRange, const Range& _colRange)
     : flags(MAGIC_VAL), dims(0), rows(0), cols(0), allocator(0), usageFlags(USAGE_DEFAULT), u(0), offset(0), size(&rows)
 {
-    CV_Assert( m.dims >= 2 );
-    if( m.dims > 2 )
-    {
-        AutoBuffer<Range> rs(m.dims);
-        rs[0] = _rowRange;
-        rs[1] = _colRange;
-        for( int i = 2; i < m.dims; i++ )
-            rs[i] = Range::all();
-        *this = m(rs);
-        return;
-    }
+//    CV_Assert( m.dims >= 2 );
+    CV_Assert( m.dims == 2 ); // hack for pix4d code
 
     *this = m;
     if( _rowRange != Range::all() && _rowRange != Range(0,rows) )

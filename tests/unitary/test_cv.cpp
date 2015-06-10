@@ -64,29 +64,22 @@ TEST(MatTest, shouldCloneMats)
         ASSERT_EQ(source.size(), target2.size());
 }
 
+TEST(MatTest, shouldCopyTo)
+{
+        Mat source(100, 16, CV_8UC1);
+        Mat target;
+        source.copyTo(target);
+
+        ASSERT_EQ(source.size(), target.size());
+}
+
+
 TEST(MatTest, shouldAssignScalarToMat)
 {
         Mat source(100, 16, CV_8UC1);
         source = Scalar(5);
 
         ASSERT_EQ(source.at<uchar>(5,5), 5);
-}
-
-TEST(MatTest, shouldFindMinMaxElements)
-{
-        Mat source(100, 16, CV_8UC1, Scalar(2));
-
-        source.at<uchar>(0,0) = 0;
-        source.at<uchar>(99,2) = 3;
-
-        Point minPoint, maxPoint;
-        double minVal, maxVal;
-
-        minMaxLoc(source, &minVal, &maxVal, &minPoint, &maxPoint);
-        ASSERT_DOUBLE_EQ(minVal, 0.);
-        ASSERT_DOUBLE_EQ(maxVal, 3.);
-        ASSERT_EQ(minPoint, Point(0,0));
-        ASSERT_EQ(maxPoint, Point(2,99));
 }
 
 TEST(MatTest, shouldReleaseMatrix)
@@ -99,10 +92,4 @@ TEST(MatTest, shouldReleaseMatrix)
         ASSERT_FALSE(source.empty());
         source.release();
         ASSERT_TRUE(source.empty());
-}
-
-TEST(MatTest, shouldPrintMat)
-{
-        Mat source(2, 2, CV_8UC1, Scalar(2));
-        std::cout << source << std::endl;
 }

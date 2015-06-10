@@ -161,46 +161,6 @@ CV_EXPORTS String format( const char* fmt, ... );
 CV_EXPORTS void glob(String pattern, std::vector<String>& result, bool recursive = false);
 
 
-/** @brief Available CPU features.
-
-remember to keep this list identical to the one in cvdef.h
-*/
-enum CpuFeatures {
-    CPU_MMX             = 1,
-    CPU_SSE             = 2,
-    CPU_SSE2            = 3,
-    CPU_SSE3            = 4,
-    CPU_SSSE3           = 5,
-    CPU_SSE4_1          = 6,
-    CPU_SSE4_2          = 7,
-    CPU_POPCNT          = 8,
-
-    CPU_AVX             = 10,
-    CPU_AVX2            = 11,
-    CPU_FMA3            = 12,
-
-    CPU_AVX_512F        = 13,
-    CPU_AVX_512BW       = 14,
-    CPU_AVX_512CD       = 15,
-    CPU_AVX_512DQ       = 16,
-    CPU_AVX_512ER       = 17,
-    CPU_AVX_512IFMA512  = 18,
-    CPU_AVX_512PF       = 19,
-    CPU_AVX_512VBMI     = 20,
-    CPU_AVX_512VL       = 21,
-
-    CPU_NEON            = 100
-};
-
-/** @brief Returns true if the specified feature is supported by the host hardware.
-
-The function returns true if the host hardware supports the specified feature. When user calls
-setUseOptimized(false), the subsequent calls to checkHardwareSupport() will return false until
-setUseOptimized(true) is called. This way user can dynamically switch on and off the optimized code
-in OpenCV.
-@param feature The feature of interest, one of minicv::CpuFeatures
- */
-CV_EXPORTS_W bool checkHardwareSupport(int feature);
 
 /** @brief Aligns a pointer to the specified number of bytes.
 
@@ -226,27 +186,6 @@ static inline size_t alignSize(size_t sz, int n)
     CV_DbgAssert((n & (n - 1)) == 0); // n is a power of 2
     return (sz + n-1) & -n;
 }
-
-/** @brief Enables or disables the optimized code.
-
-The function can be used to dynamically turn on and off optimized code (code that uses SSE2, AVX,
-and other instructions on the platforms that support it). It sets a global flag that is further
-checked by OpenCV functions. Since the flag is not checked in the inner OpenCV loops, it is only
-safe to call the function on the very top level in your application where you can be sure that no
-other OpenCV function is currently executed.
-
-By default, the optimized code is enabled unless you disable it in CMake. The current status can be
-retrieved using useOptimized.
-@param onoff The boolean flag specifying whether the optimized code should be used (onoff=true)
-or not (onoff=false).
- */
-CV_EXPORTS_W void setUseOptimized(bool onoff);
-
-/** @brief Returns the status of optimized code usage.
-
-The function returns true if the optimized code is enabled. Otherwise, it returns false.
- */
-CV_EXPORTS_W bool useOptimized();
 
 static inline size_t getElemSize(int type) { return CV_ELEM_SIZE(type); }
 

@@ -53,7 +53,6 @@
 
 #include "cvdef.h"
 #include "cvstd.hpp"
-#include "hal.hpp"
 
 namespace minicv
 {
@@ -149,39 +148,6 @@ enum DecompTypes {
     DECOMP_NORMAL   = 16
 };
 
-/** norm types
-- For one array:
-\f[norm =  \forkthree{\|\texttt{src1}\|_{L_{\infty}} =  \max _I | \texttt{src1} (I)|}{if  \(\texttt{normType} = \texttt{NORM\_INF}\) }
-{ \| \texttt{src1} \| _{L_1} =  \sum _I | \texttt{src1} (I)|}{if  \(\texttt{normType} = \texttt{NORM\_L1}\) }
-{ \| \texttt{src1} \| _{L_2} =  \sqrt{\sum_I \texttt{src1}(I)^2} }{if  \(\texttt{normType} = \texttt{NORM\_L2}\) }\f]
-
-- Absolute norm for two arrays
-\f[norm =  \forkthree{\|\texttt{src1}-\texttt{src2}\|_{L_{\infty}} =  \max _I | \texttt{src1} (I) -  \texttt{src2} (I)|}{if  \(\texttt{normType} = \texttt{NORM\_INF}\) }
-{ \| \texttt{src1} - \texttt{src2} \| _{L_1} =  \sum _I | \texttt{src1} (I) -  \texttt{src2} (I)|}{if  \(\texttt{normType} = \texttt{NORM\_L1}\) }
-{ \| \texttt{src1} - \texttt{src2} \| _{L_2} =  \sqrt{\sum_I (\texttt{src1}(I) - \texttt{src2}(I))^2} }{if  \(\texttt{normType} = \texttt{NORM\_L2}\) }\f]
-
-- Relative norm for two arrays
-\f[norm =  \forkthree{\frac{\|\texttt{src1}-\texttt{src2}\|_{L_{\infty}}    }{\|\texttt{src2}\|_{L_{\infty}} }}{if  \(\texttt{normType} = \texttt{NORM\_RELATIVE\_INF}\) }
-{ \frac{\|\texttt{src1}-\texttt{src2}\|_{L_1} }{\|\texttt{src2}\|_{L_1}} }{if  \(\texttt{normType} = \texttt{NORM\_RELATIVE\_L1}\) }
-{ \frac{\|\texttt{src1}-\texttt{src2}\|_{L_2} }{\|\texttt{src2}\|_{L_2}} }{if  \(\texttt{normType} = \texttt{NORM\_RELATIVE\_L2}\) }\f]
-  */
-enum NormTypes { NORM_INF       = 1,
-                 NORM_L1        = 2,
-                 NORM_L2        = 4,
-                 NORM_L2SQR     = 5,
-                 NORM_HAMMING   = 6,
-                 NORM_HAMMING2  = 7,
-                 NORM_TYPE_MASK = 7,
-                 NORM_RELATIVE  = 8, //!< flag
-                 NORM_MINMAX    = 32 //!< flag
-               };
-
-//! @} core_array
-
-//! @addtogroup core_utils
-//! @{
-
-//! @cond IGNORED
 
 //////////////// static assert /////////////////
 #define CVAUX_CONCAT_EXP(a, b) a##b
@@ -334,88 +300,6 @@ configurations while CV_DbgAssert is only retained in the Debug configuration.
 #  define CV_DbgAssert(expr)
 #endif
 
-/*
- * Hamming distance functor - counts the bit differences between two strings - useful for the Brief descriptor
- * bit count of A exclusive XOR'ed with B
- */
-struct CV_EXPORTS Hamming
-{
-    enum { normType = NORM_HAMMING };
-    typedef unsigned char ValueType;
-    typedef int ResultType;
-
-    /** this will count the bits in a ^ b
-     */
-    ResultType operator()( const unsigned char* a, const unsigned char* b, int size ) const;
-};
-
-typedef Hamming HammingLUT;
-
-/////////////////////////////////// inline norms ////////////////////////////////////
-
-template<typename _Tp> inline _Tp cv_abs(_Tp x) { return std::abs(x); }
-inline int cv_abs(uchar x) { return x; }
-inline int cv_abs(schar x) { return std::abs(x); }
-inline int cv_abs(ushort x) { return x; }
-inline int cv_abs(short x) { return std::abs(x); }
-
-template<typename _Tp, typename _AccTp> static inline
-_AccTp normL1(const _Tp* a, int n)
-{
-    _AccTp s = 0;
-    int i = 0;
-#if CV_ENABLE_UNROLLED
-    for(; i <= n - 4; i += 4 )
-    {
-        s += (_AccTp)cv_abs(a[i]) + (_AccTp)cv_abs(a[i+1]) +
-            (_AccTp)cv_abs(a[i+2]) + (_AccTp)cv_abs(a[i+3]);
-    }
-#endif
-    for( ; i < n; i++ )
-        s += cv_abs(a[i]);
-    return s;
-}
-
-template<typename _Tp, typename _AccTp> static inline
-_AccTp normInf(const _Tp* a, int n)
-{
-    _AccTp s = 0;
-    for( int i = 0; i < n; i++ )
-        s = std::max(s, (_AccTp)cv_abs(a[i]));
-    return s;
-}
-
-template<typename _Tp, typename _AccTp> static inline
-_AccTp normL2Sqr(const _Tp* a, const _Tp* b, int n)
-{
-    _AccTp s = 0;
-    int i= 0;
-#if CV_ENABLE_UNROLLED
-    for(; i <= n - 4; i += 4 )
-    {
-        _AccTp v0 = _AccTp(a[i] - b[i]), v1 = _AccTp(a[i+1] - b[i+1]), v2 = _AccTp(a[i+2] - b[i+2]), v3 = _AccTp(a[i+3] - b[i+3]);
-        s += v0*v0 + v1*v1 + v2*v2 + v3*v3;
-    }
-#endif
-    for( ; i < n; i++ )
-    {
-        _AccTp v = _AccTp(a[i] - b[i]);
-        s += v*v;
-    }
-    return s;
-}
-
-static inline float normL2Sqr(const float* a, const float* b, int n)
-{
-    float s = 0.f;
-    for( int i = 0; i < n; i++ )
-    {
-        float v = a[i] - b[i];
-        s += v*v;
-    }
-    return s;
-}
-
 ////////////////// forward declarations for important OpenCV types //////////////////
 
 //! @cond IGNORED
@@ -425,7 +309,6 @@ template<typename _Tp, int m, int n> class Matx;
 
 template<typename _Tp> class Complex;
 template<typename _Tp> class Point_;
-template<typename _Tp> class Point3_;
 template<typename _Tp> class Size_;
 template<typename _Tp> class Rect_;
 template<typename _Tp> class Scalar_;
@@ -438,107 +321,10 @@ class CV_EXPORTS MatExpr;
 
 class CV_EXPORTS UMat;
 
-class CV_EXPORTS SparseMat;
 typedef Mat MatND;
 
 template<typename _Tp> class Mat_;
-template<typename _Tp> class SparseMat_;
-
-class CV_EXPORTS MatConstIterator;
-class CV_EXPORTS SparseMatIterator;
-class CV_EXPORTS SparseMatConstIterator;
-template<typename _Tp> class MatIterator_;
-template<typename _Tp> class MatConstIterator_;
-template<typename _Tp> class SparseMatIterator_;
-template<typename _Tp> class SparseMatConstIterator_;
-
-//! @endcond
-
-//! @} core_utils
-
-//! @addtogroup core_utils_neon
-//! @{
-
-#if CV_NEON
-
-inline int32x2_t cv_vrnd_s32_f32(float32x2_t v)
-{
-    static int32x2_t v_sign = vdup_n_s32(1 << 31),
-        v_05 = vreinterpret_s32_f32(vdup_n_f32(0.5f));
-
-    int32x2_t v_addition = vorr_s32(v_05, vand_s32(v_sign, vreinterpret_s32_f32(v)));
-    return vcvt_s32_f32(vadd_f32(v, vreinterpret_f32_s32(v_addition)));
-}
-
-inline int32x4_t cv_vrndq_s32_f32(float32x4_t v)
-{
-    static int32x4_t v_sign = vdupq_n_s32(1 << 31),
-        v_05 = vreinterpretq_s32_f32(vdupq_n_f32(0.5f));
-
-    int32x4_t v_addition = vorrq_s32(v_05, vandq_s32(v_sign, vreinterpretq_s32_f32(v)));
-    return vcvtq_s32_f32(vaddq_f32(v, vreinterpretq_f32_s32(v_addition)));
-}
-
-inline uint32x2_t cv_vrnd_u32_f32(float32x2_t v)
-{
-    static float32x2_t v_05 = vdup_n_f32(0.5f);
-    return vcvt_u32_f32(vadd_f32(v, v_05));
-}
-
-inline uint32x4_t cv_vrndq_u32_f32(float32x4_t v)
-{
-    static float32x4_t v_05 = vdupq_n_f32(0.5f);
-    return vcvtq_u32_f32(vaddq_f32(v, v_05));
-}
-
-inline float32x4_t cv_vrecpq_f32(float32x4_t val)
-{
-    float32x4_t reciprocal = vrecpeq_f32(val);
-    reciprocal = vmulq_f32(vrecpsq_f32(val, reciprocal), reciprocal);
-    reciprocal = vmulq_f32(vrecpsq_f32(val, reciprocal), reciprocal);
-    return reciprocal;
-}
-
-inline float32x2_t cv_vrecp_f32(float32x2_t val)
-{
-    float32x2_t reciprocal = vrecpe_f32(val);
-    reciprocal = vmul_f32(vrecps_f32(val, reciprocal), reciprocal);
-    reciprocal = vmul_f32(vrecps_f32(val, reciprocal), reciprocal);
-    return reciprocal;
-}
-
-inline float32x4_t cv_vrsqrtq_f32(float32x4_t val)
-{
-    float32x4_t e = vrsqrteq_f32(val);
-    e = vmulq_f32(vrsqrtsq_f32(vmulq_f32(e, e), val), e);
-    e = vmulq_f32(vrsqrtsq_f32(vmulq_f32(e, e), val), e);
-    return e;
-}
-
-inline float32x2_t cv_vrsqrt_f32(float32x2_t val)
-{
-    float32x2_t e = vrsqrte_f32(val);
-    e = vmul_f32(vrsqrts_f32(vmul_f32(e, e), val), e);
-    e = vmul_f32(vrsqrts_f32(vmul_f32(e, e), val), e);
-    return e;
-}
-
-inline float32x4_t cv_vsqrtq_f32(float32x4_t val)
-{
-    return cv_vrecpq_f32(cv_vrsqrtq_f32(val));
-}
-
-inline float32x2_t cv_vsqrt_f32(float32x2_t val)
-{
-    return cv_vrecp_f32(cv_vrsqrt_f32(val));
-}
-
-#endif
-
-//! @} core_utils_neon
 
 } // minicv
-
-#include "sse_utils.hpp"
 
 #endif //__OPENCV_CORE_BASE_HPP__
