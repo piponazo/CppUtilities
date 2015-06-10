@@ -56,7 +56,7 @@
 #undef abs
 #undef Complex
 
-#include "cv/hal//hal/defs.h"
+#include "cv/defs.h"
 
 #  define DISABLE_OPENCV_24_COMPATIBILITY
 

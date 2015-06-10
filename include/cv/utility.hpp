@@ -49,7 +49,7 @@
 #  error utility.hpp header must be compiled as C++
 #endif
 
-#include "cv/core/core.hpp"
+#include "core.hpp"
 
 namespace cv
 {

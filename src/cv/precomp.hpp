@@ -43,12 +43,12 @@
 #ifndef __OPENCV_PRECOMP_H__
 #define __OPENCV_PRECOMP_H__
 
-#include "cv/core/core/cvconfig.h"
+#include "cv/cvconfig.h"
 
-#include "cv/core/core/utility.hpp"
-#include "cv/core/core/core_c.h"
+#include "cv/utility.hpp"
+#include "cv/core_c.h"
 
-#include "cv/hal/hal.hpp"
+#include "cv/hal.hpp"
 
 #include <assert.h>
 #include <ctype.h>
@@ -261,6 +261,6 @@ extern bool __termination; // skip some cleanups, because process is terminating
 
 }
 
-#include "cv/hal/hal/intrin.hpp"
+#include "cv/intrin.hpp"
 
 #endif /*_CXCORE_INTERNAL_H_*/

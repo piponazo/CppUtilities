@@ -40,8 +40,8 @@
 //
 //M*/
 
-#include "cv/hal/hal.hpp"
-#include "cv/hal/hal/intrin.hpp"
+#include "cv/hal.hpp"
+#include "cv/intrin.hpp"
 
 namespace cv { namespace hal {
 

@@ -7,7 +7,7 @@
 #ifndef __OPENCV_CORE_BUFFER_POOL_IMPL_HPP__
 #define __OPENCV_CORE_BUFFER_POOL_IMPL_HPP__
 
-#include "cv/core/core/bufferpool.hpp"
+#include "cv/bufferpool.hpp"
 
 namespace cv {
 

@@ -46,7 +46,7 @@
 #  error sse_utils.hpp header must be compiled as C++
 #endif
 
-#include <cv/hal/hal/defs.h>
+#include "defs.h"
 
 #if CV_SSE2
 

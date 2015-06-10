@@ -51,9 +51,9 @@
 
 #include <climits>
 
-#include "cv/core/core/cvdef.h"
-#include "cv/core/core/cvstd.hpp"
-#include "cv/hal/hal.hpp"
+#include "cvdef.h"
+#include "cvstd.hpp"
+#include "hal.hpp"
 
 namespace cv
 {

@@ -86,7 +86,7 @@
 #endif
 
 #ifdef __cplusplus
-#  include "../core.hpp"
+#  include "core.hpp"
 #endif
 
 

@@ -49,14 +49,14 @@
 #  error core.hpp header must be compiled as C++
 #endif
 
-#include "core/cvdef.h"
-#include "core/version.hpp"
-#include "core/base.hpp"
-#include "core/cvstd.hpp"
-#include "core/traits.hpp"
-#include "core/matx.hpp"
-#include "core/types.hpp"
-#include "core/mat.hpp"
+#include "cvdef.h"
+#include "version.hpp"
+#include "base.hpp"
+#include "cvstd.hpp"
+#include "traits.hpp"
+#include "matx.hpp"
+#include "types.hpp"
+#include "mat.hpp"
 
 namespace cv {
 
@@ -271,7 +271,7 @@ public:
 
 } //namespace cv
 
-#include "core/cvstd.inl.hpp"
-#include "core/utility.hpp"
+#include "cvstd.inl.hpp"
+#include "utility.hpp"
 
 #endif /*__OPENCV_CORE_HPP__*/

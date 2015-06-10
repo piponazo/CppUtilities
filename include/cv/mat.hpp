@@ -48,10 +48,10 @@
 #  error mat.hpp header must be compiled as C++
 #endif
 
-#include "cv/core/core/matx.hpp"
-#include "cv/core/core/types.hpp"
+#include "matx.hpp"
+#include "types.hpp"
 
-#include "cv/core/core/bufferpool.hpp"
+#include "bufferpool.hpp"
 
 namespace cv
 {
