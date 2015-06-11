@@ -4,6 +4,8 @@
 
 using namespace minicv;
 
+static Mat staticMat;
+
 TEST(MatTest, shouldCreateAndDestroyInstancesCorrectly_onlyUsingConstructors)
 {
         Mat img;
@@ -92,4 +94,34 @@ TEST(MatTest, shouldReleaseMatrix)
         ASSERT_FALSE(source.empty());
         source.release();
         ASSERT_TRUE(source.empty());
+}
+
+TEST(MatTest, shouldCountBytesInMatrix)
+{
+        Mat matBin(10, 10, CV_8UC1);
+        Mat matNonBin(10, 10, CV_32FC1);
+
+        ASSERT_EQ(matBin.elemSize(), 1);
+        ASSERT_EQ(matNonBin.elemSize(), 4);
+
+        ASSERT_EQ(matBin.total(), 100);
+        ASSERT_EQ(matNonBin.total(),100);
+}
+
+TEST(MatTest, shouldCreateVectorOfEmptyMatrices)
+{
+        std::vector<Mat> matrices;
+        matrices.resize(2);
+}
+
+TEST(MatTest, shouldCopyReferencesOfMatrices)
+{
+        Mat mat1(10, 10, CV_8UC1, Scalar(2));
+        Mat mat2;
+        mat2 = mat1;
+}
+
+TEST(MatTest, shouldCreateAndDestroyStaticMat)
+{
+        staticMat.create(10, 10, CV_8UC1);
 }
