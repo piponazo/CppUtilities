@@ -20,7 +20,7 @@ elseif(BUILD_TESTS)
     target_link_libraries(test_all
         ${GTEST_BOTH_LIBRARIES}
         ${PROJECT_NAME}
-        ${PROJECT_NAME}_cvCore pthread
+		#${PROJECT_NAME}_cvCore pthread
                 ExtTest
     )
 

@@ -1,7 +1,5 @@
 file(GLOB srcs "*.cpp")
-#   if (ENABLE_PCH)
-#      add_pch_rule("core/core.h" srcs_core)
-#   endif()
+file(GLOB del "test_cv.cpp")
+list(REMOVE_ITEM srcs ${del})
 
 set(srcs_unit_all  ${srcs}  PARENT_SCOPE)
-
