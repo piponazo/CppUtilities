@@ -2,7 +2,7 @@ if(NOT CPACK_GENERATOR)
     if (UNIX)
         set(CPACK_GENERATOR "DEB" )
     elseif (WIN32)
-        message(FATAL_ERROR "CPack not supported yet in windows")
+       message(WARNING "CPack not supported yet in windows")
     endif()
 endif()
 
