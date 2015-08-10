@@ -6,6 +6,7 @@
 
 void registerImplementations()
 {
-	ut::ExtensibleFactory<Interface>::registerType("Type1", Impl1::create);
-	ut::ExtensibleFactory<Interface>::registerType("Type2", Impl2::create);
+    auto factory = ut::ExtensibleFactory<Interface>::instance();
+	factory.registerType("Type1", Impl1::create);
+	factory.registerType("Type2", Impl2::create);
 }
