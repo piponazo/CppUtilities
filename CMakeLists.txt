@@ -12,6 +12,7 @@ GENERATE_DOCUMENTATION(${PROJECT_SOURCE_DIR}/cmake_stuff/dox.in)
 
 add_subdirectory(src)
 add_subdirectory(tests)
+add_subdirectory(apps)
 
 include(cmake_stuff/packageGenerator.cmake      REQUIRED)
 include(cmake_stuff/printInfo.cmake             REQUIRED)
