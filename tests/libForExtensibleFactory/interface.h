@@ -2,7 +2,7 @@
 
 #include "ExtTest_export.h"
 
-class EXPORT Interface
+class UTILITIES_EXPORT Interface
 {
 	public:
 		virtual ~Interface() {}
@@ -10,4 +10,4 @@ class EXPORT Interface
 		virtual int foo() = 0;
 };
 
-void EXPORT registerImplementations();
+void UTILITIES_EXPORT registerImplementations();

@@ -13,7 +13,7 @@
 namespace ut
 {
     template<typename I>
-    class EXPORT ExtensibleFactory
+    class UTILITIES_EXPORT ExtensibleFactory
     {
     public:
         typedef std::unique_ptr<I> (*CreateCallback)();
