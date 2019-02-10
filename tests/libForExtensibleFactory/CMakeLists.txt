@@ -6,13 +6,8 @@ file(GLOB_RECURSE srcs "*.cpp")
 
 add_library(ExtTest ${srcs} ${hdrs})
 
-set_target_properties(ExtTest PROPERTIES
-    VERSION ${VERSION}
-    SOVERSION ${SOVERSION}
-    CLEAN_DIRECT_OUTPUT 1
+generate_export_header(ExtTest
+    EXPORT_FILE_NAME "${PROJECT_BINARY_DIR}/ExtTest_export.h"
 )
 
-generate_export_header(ExtTest
-    EXPORT_MACRO_NAME EXPORT
-	EXPORT_FILE_NAME "${PROJECT_BINARY_DIR}/ExtTest_export.h"
-)
+target_link_libraries(ExtTest PRIVATE utilities)

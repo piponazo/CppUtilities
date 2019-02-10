@@ -1,14 +1,13 @@
-#include "config.h"
+#define CATCH_CONFIG_RUNNER
+#include <catch2/catch.hpp>
 
-#include <gtest/gtest.h>
-#include <iostream>
-
-using namespace std;
-
-// It's necessary if you want to debug the program
 int main(int argc, char **argv)
 {
-   ::testing::InitGoogleTest(&argc, argv);
+   // global setup...
 
-   return RUN_ALL_TESTS();
+   int result = Catch::Session().run(argc, argv);
+
+   // global clean-up...
+
+   return result;
 }

@@ -13,7 +13,6 @@ endif()
 # ----------------------------------------------------------------------------
 #   PROJECT CONFIGURATION
 # ----------------------------------------------------------------------------
-option(USE_CLANG            "Use Clang compiler"					OFF)
 option(WARNINGS_ARE_ERRORS  "Treat warnings as errors"					ON)
 option(WARNINGS_ANSI_ISO    "Issue all the mandatory diagnostics Listed in C standard"	ON)
 option(ENABLE_COVERAGE      "Perform code coverage in HTML"				OFF)

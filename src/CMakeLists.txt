@@ -3,6 +3,7 @@ add_library(utilities
     include/utilities/histogram1D.h
     include/utilities/macros.h
     include/utilities/matrix.h
+    include/utilities/sizeLiterals.h
 
     histogram1D.cpp
     matrix.cpp

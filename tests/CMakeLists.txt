@@ -1,34 +1,27 @@
-if(NOT GTEST_FOUND)
+add_subdirectory(libForExtensibleFactory)
+add_subdirectory(unitary)
 
-   message(WARNING "GTest is not installed in your system so tests can't be compiled")
+# Generate a single application including all the tests
+add_executable(test_all
+    test_all.cpp
+    ${srcs_unit_all}
+)
 
-elseif(BUILD_TESTS)
+target_link_libraries(test_all
+    utilities
+    ExtTest
+    Catch2::Catch2
+)
 
-    include_directories(${PROJECT_BINARY_DIR}/)
-    include_directories(${PROJECT_SOURCE_DIR}/include)
-    include_directories(SYSTEM ${GTEST_INCLUDE_DIRS})
+target_include_directories(test_all
+    PRIVATE
+        ${PROJECT_BINARY_DIR}
+)
 
-    add_subdirectory(libForExtensibleFactory)
-    add_subdirectory(unitary)
-
-    # Generate a single application including all the tests
-    add_executable(test_all
-        test_all.cpp
-        ${srcs_unit_all}
-    )
-
-    target_link_libraries(test_all
-        ${GTEST_BOTH_LIBRARIES}
-        ${PROJECT_NAME}
-		ExtTest
-    )
-
-    if(ENABLE_COVERAGE_LCOV)
-        SETUP_TARGET_FOR_COVERAGE(coverageHtml test_all coverage)
-    endif()
-
-    if(ENABLE_COVERAGE_GCOVR)
-        SETUP_TARGET_FOR_COVERAGE_XML(coverageXml test_all coverage)
-    endif()
-
-endif()
+#if(ENABLE_COVERAGE_LCOV)
+#    SETUP_TARGET_FOR_COVERAGE(coverageHtml test_all coverage)
+#endif()
+#
+#if(ENABLE_COVERAGE_GCOVR)
+#    SETUP_TARGET_FOR_COVERAGE_XML(coverageXml test_all coverage)
+#endif()

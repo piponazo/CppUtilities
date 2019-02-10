@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CppUtilities_export.h"
+#include "utilities_export.h"
 
 #include <string>
 #include <map>

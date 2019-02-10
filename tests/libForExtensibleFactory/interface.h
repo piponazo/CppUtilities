@@ -2,12 +2,12 @@
 
 #include "ExtTest_export.h"
 
-class UTILITIES_EXPORT Interface
+class EXTTEST_EXPORT Interface
 {
-	public:
-		virtual ~Interface() {}
+    public:
+        virtual ~Interface() {}
 
-		virtual int foo() = 0;
+        virtual int foo() = 0;
 };
 
-void UTILITIES_EXPORT registerImplementations();
+EXTTEST_EXPORT void registerImplementations();

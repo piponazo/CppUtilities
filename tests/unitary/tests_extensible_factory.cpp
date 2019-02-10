@@ -1,17 +1,17 @@
+#include <catch2/catch.hpp>
+
 #include "../libForExtensibleFactory/interface.h"
-#include "ExtensibleFactory.h"
+#include <utilities/ExtensibleFactory.h>
 
-#include <gtest/gtest.h>
-
-TEST(ExtensibleFactoryTests, shouldRegisterImplementations)
+TEST_CASE("ExtensibleFactory shouldRegisterImplementations")
 {
-	registerImplementations();
-	ASSERT_EQ(ut::ExtensibleFactory<Interface>::instance().registeredTypes(), 2);
+    registerImplementations();
+    REQUIRE(ut::ExtensibleFactory<Interface>::instance().registeredTypes() == 2);
 }
 
-TEST(ExtensibleFactoryTests, shouldCreateImplementation)
+TEST_CASE("ExtensibleFactory shouldCreateImplementation")
 {
-	ASSERT_EQ(ut::ExtensibleFactory<Interface>::instance().registeredTypes(), 2);
-	auto impl = ut::ExtensibleFactory<Interface>::instance().create("Type1");
-	ASSERT_NE (impl.get(), nullptr);
+    REQUIRE(ut::ExtensibleFactory<Interface>::instance().registeredTypes() == 2);
+    auto impl = ut::ExtensibleFactory<Interface>::instance().create("Type1");
+    REQUIRE(impl);
 }
