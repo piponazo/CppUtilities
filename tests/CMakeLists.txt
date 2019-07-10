@@ -17,11 +17,3 @@ target_include_directories(test_all
     PRIVATE
         ${PROJECT_BINARY_DIR}
 )
-
-#if(ENABLE_COVERAGE_LCOV)
-#    SETUP_TARGET_FOR_COVERAGE(coverageHtml test_all coverage)
-#endif()
-#
-#if(ENABLE_COVERAGE_GCOVR)
-#    SETUP_TARGET_FOR_COVERAGE_XML(coverageXml test_all coverage)
-#endif()

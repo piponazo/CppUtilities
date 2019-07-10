@@ -7,7 +7,7 @@ class CppUtilities(ConanFile):
     generators = 'cmake'
 
     def requirements(self):
-        self.requires('Catch2/2.6.0@catchorg/stable')
+        self.requires('Catch2/2.9.1@catchorg/stable')
 
     def imports(self):
         self.copy('*.dll', dst='conanDlls', src='bin')

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ExtTest_export.h"
+#include "exttest_export.h"
 
 class EXTTEST_EXPORT Interface
 {

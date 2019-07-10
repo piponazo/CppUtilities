@@ -11,6 +11,7 @@ add_library(utilities
 
 generate_export_header(utilities)
 
+# Make available the current directory where the export.h header is
 target_include_directories(utilities PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)
 
 target_include_directories(utilities PUBLIC
@@ -18,14 +19,11 @@ target_include_directories(utilities PUBLIC
     $<INSTALL_INTERFACE:include>
 )
 
-
 install(TARGETS utilities
     RUNTIME DESTINATION bin COMPONENT libraries
     LIBRARY DESTINATION lib COMPONENT libraries
     ARCHIVE DESTINATION lib COMPONENT libraries
 )
-
-#set(hdrs_inc ${hdrs_inc} ${PROJECT_NAME}_export.h)
 
 install(FILES ${hdrs_inc}
     DESTINATION include/${PROJECT_NAME}/

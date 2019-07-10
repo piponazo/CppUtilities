@@ -6,7 +6,6 @@ project(CppUtilities
     LANGUAGES CXX
 )
 
-include(cmake_stuff/versions.cmake              REQUIRED)
 include(cmake_stuff/options.cmake               REQUIRED)
 include(cmake_stuff/findDependencies.cmake      REQUIRED)
 include(cmake_stuff/compileroptions.cmake       REQUIRED)
