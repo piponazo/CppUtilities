@@ -1,3 +1,5 @@
 if(BUILD_APPS)
 	add_executable(tokenizer tokenizer.cpp)
+  add_executable(ftpServer ftpServer.cpp)
+  add_executable(ftpClient ftpClient.cpp)
 endif()

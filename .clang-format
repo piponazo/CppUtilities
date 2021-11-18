@@ -1,16 +1,19 @@
 ---
 BasedOnStyle: Google
 Language: Cpp
-Standard: Cpp03
-TabWidth: 4
+Standard: Cpp11
+TabWidth: 2
 UseTab: Never
 ColumnLimit: 120
 NamespaceIndentation: All
+IncludeBlocks: Preserve
 
-AccessModifierOffset: -4
-ContinuationIndentWidth: 4
-IndentWidth: 4
+AccessModifierOffset: -2
+ContinuationIndentWidth: 2
+IndentWidth: 2
 
+ConstructorInitializerAllOnOneLineOrOnePerLine: false
+BreakConstructorInitializers: BeforeComma
 BreakBeforeBraces: Custom
 BraceWrapping:
     AfterStruct: true
