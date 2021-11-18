@@ -4,10 +4,10 @@ from conans.model.version import Version
 
 class CppUtilities(ConanFile):
     settings = 'os', 'compiler', 'build_type', 'arch'
-    generators = 'cmake'
+    generators = 'cmake_find_package'
 
     def requirements(self):
-        self.requires('Catch2/2.9.1@catchorg/stable')
+        self.requires('catch2/2.13.7')
 
     def imports(self):
         self.copy('*.dll', dst='conanDlls', src='bin')

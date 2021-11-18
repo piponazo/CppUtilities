@@ -4,6 +4,7 @@ add_library(utilities
     include/utilities/macros.h
     include/utilities/matrix.h
     include/utilities/sizeLiterals.h
+    include/utilities/FactorySFINAE.h
 
     histogram1D.cpp
     matrix.cpp
