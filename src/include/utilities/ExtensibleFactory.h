@@ -2,6 +2,7 @@
 
 #include "utilities_export.h"
 
+#include <stdexcept>
 #include <string>
 #include <map>
 #include <memory>
